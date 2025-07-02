@@ -1,4 +1,82 @@
-import React, { useState, useEffect } from 'react';
+ {showHistorialDeuda && deudaSeleccionada && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">Historial de Pagos - {deudaSeleccionada.acreedor}</h3>
+                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
+                      <X size={24} />
+                    </button>
+                  </div>
+                  
+                  <div className="mb-6 bg-gradient-to-r from-red-50 to-orange-50 p-4 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Capital Original</p>
+                        <p className="font-bold text-lg text-blue-600">S/ {deudaSeleccionada.capital.toLocaleString()}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Saldo Pendiente</p>
+                        <p className="font-bold text-lg text-red-600">S/ {deudaSeleccionada.saldoPendiente.toLocaleString()}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Pagos Realizados</p>
+                        <p className="font-bold text-lg text-orange-600">{deudaSeleccionada.historialPagos?.length || 0}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4">
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-gray-600">Progreso de Pago</span>
+                        <span className="font-semibold text-orange-600">
+                          {Math.round(((deudaSeleccionada.capital - deudaSeleccionada.saldoPendiente) / deudaSeleccionada.capital) * 100)}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div className="bg-gradient-to-r from-orange-500 to-red-500 h-3 rounded-full transition-all duration-500"
+                          style={{width: `${((deudaSeleccionada.capital - deudaSeleccionada.saldoPendiente) / deudaSeleccionada.capital) * 100}%`}}></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-gray-800 mb-3">📊 Registro de Pagos</h4>
+                    {deudaSeleccionada.historialPagos && deudaSeleccionada.historialPagos.length > 0 ? (
+                      deudaSeleccionada.historialPagos
+                        .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                        .map(pago => (
+                        <div key={pago.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all">
+                          <div className="flex justify-between items-center">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3 mb-2">
+                                <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                                <p className="font-bold text-lg text-gray-800">S/ {pago.monto.toLocaleString()}</p>
+                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                  pago.metodo === 'Transferencia' ? 'bg-blue-100 text-blue-800' :
+                                  pago.metodo === 'Efectivo' ? 'bg-green-100 text-green-800' :
+                                  pago.metodo === 'Yape' ? 'bg-purple-100 text-purple-800' :
+                                  pago.metodo === 'Plin' ? 'bg-pink-100 text-pink-800' :
+                                  pago.metodo === 'Deposito' ? 'bg-indigo-100 text-indigo-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {pago.metodo}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600">📅 {new Date(pago.fecha).toLocaleDateString('es-PE', { 
+                                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+                              })}</p>
+                              {pago.descripcion && (
+                                <p className="text-sm text-gray-500 mt-1">💬 {pago.descripcion}</p>
+                              )}
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                <CheckCircle className="text-orange-600" size={20} />
+                              </div>
+                              <button 
+                                onClick={() => eliminarPagoDeuda(pago.id, deudaSeleccionada.id)}
+                                disabled={sincronizando}
+                                className="w-10 h-import React, { useState, useEffect } from 'react'
+                              })}</p>
 import { 
   Home, TrendingUp, TrendingDown, Building, Plus, Menu, X, DollarSign, 
   Calculator, Share2, FileSpreadsheet, Edit, Bell, Shield, Trash2, 
