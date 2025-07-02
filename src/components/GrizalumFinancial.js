@@ -697,6 +697,69 @@ export default function GrizalumFinancial() {
     alert('✅ Datos guardados en la nube exitosamente');
     setTimeout(() => setDatosGuardados(false), 3000);
   };
+const descargarExcel = async () => {
+    setSincronizando(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Crear datos para Excel
+      const datosExcel = {
+        clientes: misClientes.map(c => ({
+          Nombre: c.nombre,
+          Email: c.email,
+          Telefono: c.telefono,
+          Capital: c.capital,
+          'Cuota Mensual': c.cuotaMensual,
+          'Total a Cobrar': c.totalCobrar,
+          'Saldo Pendiente': c.saldoPendiente,
+          'Pagos Recibidos': c.pagosRecibidos,
+          Estado: c.estado,
+          'Tasa Interes': c.tasaInteres,
+          'Plazo Meses': c.plazoMeses,
+          'Fecha Inicio': c.fechaInicio
+        })),
+        deudas: misDeudas.map(d => ({
+          Acreedor: d.acreedor,
+          Descripcion: d.descripcion,
+          Capital: d.capital,
+          'Cuota Mensual': d.cuotaMensual,
+          'Saldo Pendiente': d.saldoPendiente,
+          'Tasa Interes': d.tasaInteres,
+          Estado: d.estado,
+          Tipo: d.tipo,
+          'Proximo Pago': d.proximoPago
+        })),
+        inversiones: misInversiones.map(i => ({
+          Nombre: i.nombre,
+          Descripcion: i.descripcion,
+          Tipo: i.tipo,
+          Inversion: i.inversion,
+          'Ganancia Esperada': i.gananciaEsperada,
+          'Ganancia Actual': i.gananciaActual,
+          'ROI %': i.roi,
+          'Progreso %': i.progreso,
+          Estado: i.estado
+        }))
+      };
+      
+      // Simular descarga
+      const blob = new Blob([JSON.stringify(datosExcel, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `GRIZALUM_Reporte_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      setSincronizando(false);
+      alert('📊 Archivo descargado exitosamente');
+    } catch (error) {
+      setSincronizando(false);
+      alert('❌ Error al descargar archivo');
+    }
+  };
 
   const copiarReporte = () => {
     const mensaje = `🏢 GRIZALUM COMPAÑIA METALURGICA
