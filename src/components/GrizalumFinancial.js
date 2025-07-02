@@ -760,7 +760,6 @@ const descargarExcel = async () => {
       alert('❌ Error al descargar archivo');
     }
   };
-
   const copiarReporte = () => {
     const mensaje = `🏢 GRIZALUM COMPAÑIA METALURGICA
 📊 Reporte Financiero - ${new Date().toLocaleDateString()}
@@ -786,6 +785,107 @@ const descargarExcel = async () => {
     }).catch(() => {
       alert('📋 Reporte preparado para copiar');
     });
+  };
+const copiarLink = () => {
+    const currentUrl = window.location.href;
+    const linkCompartir = `${currentUrl}?ref=grizalum&t=${Date.now()}`;
+    
+    navigator.clipboard.writeText(linkCompartir).then(() => {
+      alert('🔗 Link copiado al portapapeles exitosamente!\n\nPuedes compartir este enlace para acceder al sistema GRIZALUM.');
+    }).catch(() => {
+      // Fallback para navegadores que no soportan clipboard
+      const textArea = document.createElement('textarea');
+      textArea.value = linkCompartir;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        alert('🔗 Link copiado al portapapeles exitosamente!');
+      } catch (err) {
+        alert(`🔗 Link del sistema:\n\n${linkCompartir}\n\nCopia manualmente este enlace.`);
+      }
+      document.body.removeChild(textArea);
+    });
+  };
+
+  const actualizarROI = async (inversionId) => {
+    const nuevaGanancia = prompt('💰 Ingrese la ganancia actual obtenida (S/):');
+    if (nuevaGanancia && !isNaN(nuevaGanancia)) {
+      setSincronizando(true);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setMisInversiones(prev => 
+        prev.map(inv => {
+          if (inv.id === inversionId) {
+            const gananciaActual = parseFloat(nuevaGanancia);
+            const nuevoROI = (gananciaActual / inv.inversion) * 100;
+            const nuevoProgreso = Math.min((gananciaActual / inv.gananciaEsperada) * 100, 100);
+            
+            return {
+              ...inv,
+              gananciaActual: gananciaActual,
+              roi: Math.round(nuevoROI * 10) / 10,
+              progreso: Math.round(nuevoProgreso),
+              estado: nuevoProgreso >= 100 ? 'Completado' : 'En Proceso'
+            };
+          }
+          return inv;
+        })
+      );
+      
+      setSincronizando(false);
+      alert('✅ ROI actualizado exitosamente');
+    }
+  };
+
+  const editarDeuda = async (deuda) => {
+    const nuevoAcreedor = prompt('✏️ Editar acreedor:', deuda.acreedor);
+    if (nuevoAcreedor && nuevoAcreedor.trim()) {
+      setSincronizando(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setMisDeudas(prev => 
+        prev.map(d => d.id === deuda.id ? { ...d, acreedor: nuevoAcreedor.trim() } : d)
+      );
+      
+      setSincronizando(false);
+      alert('✅ Deuda actualizada exitosamente');
+    }
+  };
+
+  const editarInversion = async (inversion) => {
+    const nuevoNombre = prompt('✏️ Editar nombre de inversión:', inversion.nombre);
+    if (nuevoNombre && nuevoNombre.trim()) {
+      setSincronizando(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setMisInversiones(prev => 
+        prev.map(i => i.id === inversion.id ? { ...i, nombre: nuevoNombre.trim() } : i)
+      );
+      
+      setSincronizando(false);
+      alert('✅ Inversión actualizada exitosamente');
+    }
+  };
+
+  const editarAlerta = async (alerta) => {
+    const nuevoMensaje = prompt('✏️ Editar mensaje de alerta:', alerta.mensaje);
+    if (nuevoMensaje && nuevoMensaje.trim()) {
+      setSincronizando(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setAlertas(prev => 
+        prev.map(a => a.id === alerta.id ? { ...a, mensaje: nuevoMensaje.trim() } : a)
+      );
+      
+      setSincronizando(false);
+      alert('✅ Alerta actualizada exitosamente');
+    }
+  };
+
+  const verHistorialDeuda = (deuda) => {
+    setDeudaSeleccionada(deuda);
+    setShowHistorialDeuda(true);
   };
 
   const abrirModalPago = (cliente) => {
@@ -1600,94 +1700,120 @@ const descargarExcel = async () => {
               </div>
             )}
 
-            {showModalDeuda && (
+             {showHistorialDeuda && deudaSeleccionada && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-                <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-gray-800">Nueva Deuda</h3>
+                    <h3 className="text-xl font-bold text-gray-800">Historial de Pagos - {deudaSeleccionada.acreedor}</h3>
                     <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
                       <X size={24} />
                     </button>
                   </div>
                   
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Acreedor *</label>
-                      <input type="text" value={formDeuda.acreedor} onChange={(e) => setFormDeuda({...formDeuda, acreedor: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: Banco Santander" />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                      <input type="text" value={formDeuda.descripcion} onChange={(e) => setFormDeuda({...formDeuda, descripcion: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: Préstamo para equipos" />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Capital (S/) *</label>
-                        <input type="number" value={formDeuda.capital} onChange={(e) => setFormDeuda({...formDeuda, capital: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          placeholder="50000" />
+                  <div className="mb-6 bg-gradient-to-r from-red-50 to-orange-50 p-4 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Capital Original</p>
+                        <p className="font-bold text-lg text-blue-600">S/ {deudaSeleccionada.capital.toLocaleString()}</p>
                       </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Cuota (S/) *</label>
-                        <input type="number" value={formDeuda.cuotaMensual} onChange={(e) => setFormDeuda({...formDeuda, cuotaMensual: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          placeholder="2500" />
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Saldo Pendiente</p>
+                        <p className="font-bold text-lg text-red-600">S/ {deudaSeleccionada.saldoPendiente.toLocaleString()}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Pagos Realizados</p>
+                        <p className="font-bold text-lg text-orange-600">{deudaSeleccionada.historialPagos?.length || 0}</p>
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Tasa (%)</label>
-                        <input type="number" step="0.1" value={formDeuda.tasaInteres} onChange={(e) => setFormDeuda({...formDeuda, tasaInteres: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          placeholder="18" />
+                    <div className="mt-4">
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-gray-600">Progreso de Pago</span>
+                        <span className="font-semibold text-orange-600">
+                          {Math.round(((deudaSeleccionada.capital - deudaSeleccionada.saldoPendiente) / deudaSeleccionada.capital) * 100)}%
+                        </span>
                       </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                        <select value={formDeuda.tipo} onChange={(e) => setFormDeuda({...formDeuda, tipo: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                          <option value="Prestamo Bancario">Préstamo Bancario</option>
-                          <option value="Credito Comercial">Crédito Comercial</option>
-                          <option value="Linea de Credito">Línea de Crédito</option>
-                          <option value="Otro">Otro</option>
-                        </select>
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div className="bg-gradient-to-r from-orange-500 to-red-500 h-3 rounded-full transition-all duration-500"
+                          style={{width: `${((deudaSeleccionada.capital - deudaSeleccionada.saldoPendiente) / deudaSeleccionada.capital) * 100}%`}}></div>
                       </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Próximo pago</label>
-                      <input type="date" value={formDeuda.proximoPago} onChange={(e) => setFormDeuda({...formDeuda, proximoPago: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" />
                     </div>
                   </div>
                   
-                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-gray-800 mb-3">📊 Registro de Pagos</h4>
+                    {deudaSeleccionada.historialPagos && deudaSeleccionada.historialPagos.length > 0 ? (
+                      deudaSeleccionada.historialPagos
+                        .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                        .map(pago => (
+                        <div key={pago.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all">
+                          <div className="flex justify-between items-center">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3 mb-2">
+                                <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                                <p className="font-bold text-lg text-gray-800">S/ {pago.monto.toLocaleString()}</p>
+                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                  pago.metodo === 'Transferencia' ? 'bg-blue-100 text-blue-800' :
+                                  pago.metodo === 'Efectivo' ? 'bg-green-100 text-green-800' :
+                                  pago.metodo === 'Yape' ? 'bg-purple-100 text-purple-800' :
+                                  pago.metodo === 'Plin' ? 'bg-pink-100 text-pink-800' :
+                                  pago.metodo === 'Deposito' ? 'bg-indigo-100 text-indigo-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {pago.metodo}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600">📅 {new Date(pago.fecha).toLocaleDateString('es-PE', { 
+                                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+                              })}</p>
+                              {pago.descripcion && (
+                                <p className="text-sm text-gray-500 mt-1">💬 {pago.descripcion}</p>
+                              )}
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                <CheckCircle className="text-orange-600" size={20} />
+                              </div>
+                              <button 
+                                onClick={() => eliminarPagoDeuda(pago.id, deudaSeleccionada.id)}
+                                disabled={sincronizando}
+                                className="w-10 h-10 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all flex items-center justify-center disabled:opacity-50 shadow-lg"
+                                title="Eliminar Pago">
+                                {sincronizando ? (
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                ) : (
+                                  <Trash2 size={14} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <CreditCard className="text-gray-400" size={32} />
+                        </div>
+                        <p className="text-gray-500 text-lg">No hay pagos registrados</p>
+                        <p className="text-gray-400 text-sm">Los pagos aparecerán aquí cuando se registren</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mt-6 border-t pt-4">
                     <button onClick={cerrarModales}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
-                      Cancelar
-                    </button>
-                    <button onClick={agregarDeuda} disabled={sincronizando}
-                      className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all disabled:opacity-50 flex items-center justify-center font-semibold">
-                      {sincronizando ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Guardando...
-                        </>
-                      ) : (
-                        'Guardar Deuda'
-                      )}
+                      className="w-full px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all font-semibold">
+                      Cerrar Historial
                     </button>
                   </div>
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
             {showModalInversion && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
