@@ -1,4 +1,4 @@
- {showHistorialDeuda && deudaSeleccionada && (
+            {showHistorialDeuda && deudaSeleccionada && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
                 <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                   <div className="flex justify-between items-center mb-4">
@@ -75,7 +75,43 @@
                               <button 
                                 onClick={() => eliminarPagoDeuda(pago.id, deudaSeleccionada.id)}
                                 disabled={sincronizando}
-                                className="w-10 h-import React, { useState, useEffect } from 'react';
+                                className="w-10 h-10 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all flex items-center justify-center disabled:opacity-50 shadow-lg"
+                                title="Eliminar Pago">
+                                {sincronizando ? (
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                ) : (
+                                  <Trash2 size={14} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <CreditCard className="text-gray-400" size={32} />
+                        </div>
+                        <p className="text-gray-500 text-lg">No hay pagos registrados</p>
+                        <p className="text-gray-400 text-sm">Los pagos aparecerán aquí cuando se registren</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mt-6 border-t pt-4">
+                    <button onClick={cerrarModales}
+                      className="w-full px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all font-semibold">
+                      Cerrar Historial
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
                                  
 import React, { useState, useEffect } from 'react';                              
 import { 
