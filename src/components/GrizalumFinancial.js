@@ -1,9 +1,1283 @@
-import React, { useState, useEffect } from 'react';
+{currentView === 'clientes' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl shadow-xl p-6">
+                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-800">Cartera de Clientes</h2>
+                      <p className="text-gray-600">Gestión de préstamos y cobranzas</p>
+                    </div>
+                    <button onClick={() => setShowModalCliente(true)}
+                      className="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
+                      <Plus className="mr-2" size={18} />
+                      Nuevo Cliente
+                    </button>
+                  </div>
+                  
+                  <div className="mb-6">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                      <input type="text" placeholder="Buscar clientes..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
+                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" />
+                    </div>
+                  </div>
+                  
+                  <div className="grid gap-6">
+                    {filtrarPorBusqueda(misClientes, ['nombre', 'email', 'telefono']).map(cliente => (
+                      <div key={cliente.id} className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-6 hover:shadow-lg transition-all">
+                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-4">
+                              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+                                <User className="text-white" size={20} />
+                              </div>
+                              <div>
+                                <h3 className="font-bold text-xl text-gray-800">{cliente.nombre}</h3>
+                                <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 space-y-1 lg:space-y-0 text-sm text-gray-600">
+                                  <span className="flex items-center">
+                                    <Mail className="mr-1" size={14} />
+                                    {cliente.email || 'Sin email'}
+                                  </span>
+                                  <span className="flex items-center">
+                                    <Phone className="mr-1" size={14} />
+                                    {cliente.telefono || 'Sin teléfono'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <p className="text-sm text-gray-600 mb-1">Capital</p>
+                                <p className="font-bold text-lg text-blue-600">S/{cliente.capital.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">Tasa: {cliente.tasaInteres}%</p>
+                              </div>
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <p className="text-sm text-gray-600 mb-1">Pendiente</p>
+                                <p className="font-bold text-lg text-red-600">S/{cliente.saldoPendiente.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">de S/{cliente.totalCobrar.toLocaleString()}</p>
+                              </div>
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <p className="text-sm text-gray-600 mb-1">Cuota</p>
+                                <p className="font-bold text-lg text-green-600">S/{cliente.cuotaMensual.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">Plazo: {cliente.plazoMeses} meses</p>
+                              </div>
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <p className="text-sm text-gray-600 mb-1">Progreso</p>
+                                <p className="font-bold text-lg text-purple-600">
+                                  {cliente.historialPagos.length} / {cliente.plazoMeses}
+                                </p>
+                                <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
+                                  <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500"
+                                    style={{width: `${(cliente.historialPagos.length / cliente.plazoMeses) * 100}%`}}></div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-wrap items-center gap-4">
+                              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                                cliente.estado === 'En Proceso' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                              }`}>
+                                {cliente.estado}
+                              </span>
+                              <span className="text-sm text-gray-600">
+                                Inicio: {new Date(cliente.fechaInicio).toLocaleDateString()}
+                              </span>
+                              <span className="text-sm text-gray-600">
+                                Vence: {new Date(cliente.fechaVencimiento).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                            <button onClick={() => abrirModalPago(cliente)}
+                              className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none"
+                              title="Registrar Pago">
+                              <DollarSign size={18} />
+                            </button>
+                            <button onClick={() => abrirHistorialPagos(cliente)}
+                              className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
+                              title="Ver Historial">
+                              <Eye size={18} />
+                            </button>
+                            <button onClick={() => abrirModalEditarCliente(cliente)}
+                              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
+                              title="Editar Cliente">
+                              <Edit size={18} />
+                            </button>
+                            <button onClick={() => eliminarCliente(cliente.id)} disabled={sincronizando}
+                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none disabled:opacity-50"
+                              title="Eliminar Cliente">
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {filtrarPorBusqueda(misClientes, ['nombre', 'email', 'telefono']).length === 0 && (
+                    <div className="text-center py-12">
+                      <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Search className="text-gray-400" size={32} />
+                      </div>
+                      <p className="text-gray-500 text-lg">No se encontraron clientes</p>
+                      <p className="text-gray-400 text-sm">Intenta con otros términos</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {currentView === 'deudas' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl shadow-xl p-6">
+                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-800">Gestión de Deudas</h2>
+                      <p className="text-gray-600">Control de obligaciones financieras</p>
+                    </div>
+                    <button onClick={() => setShowModalDeuda(true)}
+                      className="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
+                      <Plus className="mr-2" size={18} />
+                      Nueva Deuda
+                    </button>
+                  </div>
+                  
+                  <div className="grid gap-6">
+                    {misDeudas.map(deuda => (
+                      <div key={deuda.id} className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-6 hover:shadow-lg transition-all">
+                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-4">
+                              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center">
+                                <CreditCard className="text-white" size={20} />
+                              </div>
+                              <div>
+                                <h3 className="font-bold text-xl text-gray-800">{deuda.acreedor}</h3>
+                                <p className="text-sm text-gray-600">{deuda.descripcion}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <p className="text-sm text-gray-600 mb-1">Capital</p>
+                                <p className="font-bold text-lg text-blue-600">S/{deuda.capital.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">Tasa: {deuda.tasaInteres}%</p>
+                              </div>
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <p className="text-sm text-gray-600 mb-1">Pendiente</p>
+                                <p className="font-bold text-lg text-red-600">S/{deuda.saldoPendiente.toLocaleString()}</p>
+                              </div>
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <p className="text-sm text-gray-600 mb-1">Cuota</p>
+                                <p className="font-bold text-lg text-orange-600">S/{deuda.cuotaMensual.toLocaleString()}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-wrap items-center gap-4">
+                              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                                deuda.estado === 'Activo' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                              }`}>
+                                {deuda.estado}
+                              </span>
+                              <span className="text-sm text-gray-600">Tipo: {deuda.tipo}</span>
+                              <span className="text-sm text-gray-600">Próximo: {deuda.proximoPago}</span>
+                              <span className="text-sm text-gray-600">Pagos: {deuda.historialPagos?.length || 0}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                            <button onClick={() => abrirModalPagoDeuda(deuda)}
+                              className="bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600 transition-all shadow-lg flex-1 lg:flex-none"
+                              title="Pagar Cuota">
+                              <DollarSign size={18} />
+                            </button>
+                            <button onClick={() => verHistorialDeuda(deuda)}
+                              className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
+                              title="Ver Historial">
+                              <History size={18} />
+                            </button>
+                            <button onClick={() => editarDeuda(deuda)} disabled={sincronizando}
+                              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none disabled:opacity-50"
+                              title="Editar Deuda">
+                              <Edit size={18} />
+                            </button>
+                            <button onClick={() => eliminarDeuda(deuda.id)}
+                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
+                              title="Eliminar Deuda">
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentView === 'inversiones' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl shadow-xl p-6">
+                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-800">Portfolio de Inversiones</h2>
+                      <p className="text-gray-600">Gestión de activos y ROI</p>
+                    </div>
+                    <button onClick={() => setShowModalInversion(true)}
+                      className="bg-purple-500 text-white px-6 py-3 rounded-xl hover:bg-purple-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
+                      <Plus className="mr-2" size={18} />
+                      Nueva Inversión
+                    </button>
+                  </div>
+                  
+                  <div className="grid gap-6">
+                    {misInversiones.map(inversion => (
+                      <div key={inversion.id} className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-6 hover:shadow-lg transition-all">
+                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-4">
+                              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                                <Building className="text-white" size={20} />
+                              </div>
+                              <div>
+                                <h3 className="font-bold text-xl text-gray-800">{inversion.nombre}</h3>
+                                <p className="text-sm text-gray-600">{inversion.descripcion}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <p className="text-sm text-gray-600 mb-1">Inversión</p>
+                                <p className="font-bold text-lg text-blue-600">S/{inversion.inversion.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">Tipo: {inversion.tipo}</p>
+                              </div>
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <p className="text-sm text-gray-600 mb-1">Esperada</p>
+                                <p className="font-bold text-lg text-green-600">S/{inversion.gananciaEsperada.toLocaleString()}</p>
+                              </div>
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <p className="text-sm text-gray-600 mb-1">Actual</p>
+                                <p className="font-bold text-lg text-emerald-600">S/{inversion.gananciaActual.toLocaleString()}</p>
+                              </div>
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <p className="text-sm text-gray-600 mb-1">ROI</p>
+                                <p className="font-bold text-lg text-purple-600">{inversion.roi.toFixed(1)}%</p>
+                                <p className="text-xs text-gray-500">Progreso: {inversion.progreso}%</p>
+                              </div>
+                            </div>
+                            
+                            <div className="mb-4">
+                              <div className="flex justify-between text-sm mb-2">
+                                <span className="text-gray-600">Progreso de Inversión</span>
+                                <span className="font-semibold text-purple-600">{inversion.progreso}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-3">
+                                <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500"
+                                  style={{width: `${inversion.progreso}%`}}></div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-wrap items-center gap-4">
+                              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                                inversion.estado === 'En Proceso' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
+                              }`}>
+                                {inversion.estado}
+                              </span>
+                              <span className="text-sm text-gray-600">Fecha: {new Date(inversion.fechaInversion).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                            <button onClick={() => actualizarROI(inversion.id)} disabled={sincronizando}
+                              className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none disabled:opacity-50"
+                              title="Actualizar Ganancias">
+                              <TrendingUp size={18} />
+                            </button>
+                            <button onClick={() => editarInversion(inversion)} disabled={sincronizando}
+                              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none disabled:opacity-50"
+                              title="Editar Inversión">
+                              <Edit size={18} />
+                            </button>
+                            <button onClick={() => eliminarInversion(inversion.id)}
+                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
+                              title="Eliminar Inversión">
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentView === 'alertas' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl shadow-xl p-6">
+                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-800">Centro de Alertas</h2>
+                      <p className="text-gray-600">Notificaciones importantes</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid gap-4">
+                    {alertas.map(alerta => (
+                      <div key={alerta.id} className={`border rounded-xl p-6 hover:shadow-lg transition-all ${
+                        alerta.urgencia === 'alta' ? 'bg-red-50 border-red-200' : 
+                        alerta.urgencia === 'media' ? 'bg-yellow-50 border-yellow-200' : 'bg-blue-50 border-blue-200'
+                      }`}>
+                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-3">
+                              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                                alerta.urgencia === 'alta' ? 'bg-red-500' :
+                                alerta.urgencia === 'media' ? 'bg-yellow-500' : 'bg-blue-500'
+                              }`}>
+                                <Bell className="text-white" size={20} />
+                              </div>
+                              <div>
+                                <div className="flex items-center space-x-3 mb-1">
+                                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                    alerta.urgencia === 'alta' ? 'bg-red-100 text-red-800' : 
+                                    alerta.urgencia === 'media' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
+                                  }`}>
+                                    {alerta.urgencia.toUpperCase()}
+                                  </span>
+                                  <span className="text-sm text-gray-600 font-medium">{alerta.tipo}</span>
+                                </div>
+                                <h3 className="font-semibold text-lg text-gray-800">{alerta.mensaje}</h3>
+                              </div>
+                            </div>
+                            
+                            <p className="text-sm text-gray-500 mt-3">
+                              Vencimiento: {new Date(alerta.fechaVencimiento).toLocaleDateString()} - Creada: {new Date(alerta.fechaCreacion).toLocaleDateString()}
+                            </p>
+                          </div>
+                          
+                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                            <button onClick={() => editarAlerta(alerta)} disabled={sincronizando}
+                              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none disabled:opacity-50"
+                              title="Editar Alerta">
+                              <Edit size={18} />
+                            </button>
+                            <button onClick={() => eliminarAlerta(alerta.id)}
+                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
+                              title="Eliminar Alerta">
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {alertas.length === 0 && (
+                    <div className="text-center py-12">
+                      <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Bell className="text-gray-400" size={32} />
+                      </div>
+                      <p className="text-gray-500 text-lg">No hay alertas activas</p>
+                      <p className="text-gray-400 text-sm">El sistema funciona correctamente</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* TODOS LOS MODALES */}
+            {showModalCliente && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">Nuevo Cliente</h3>
+                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
+                      <X size={24} />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo *</label>
+                      <input type="text" value={formCliente.nombre} onChange={(e) => setFormCliente({...formCliente, nombre: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="Ej: Juan Pérez" />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                      <input type="email" value={formCliente.email} onChange={(e) => setFormCliente({...formCliente, email: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="juan@example.com" />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                      <input type="tel" value={formCliente.telefono} onChange={(e) => setFormCliente({...formCliente, telefono: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="+51 999 123 456" />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Capital (S/) *</label>
+                        <input type="number" value={formCliente.capital} onChange={(e) => setFormCliente({...formCliente, capital: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          placeholder="10000" />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Tasa (%) *</label>
+                        <input type="number" step="0.1" value={formCliente.tasaInteres} onChange={(e) => setFormCliente({...formCliente, tasaInteres: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          placeholder="14" />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Plazo (meses) *</label>
+                        <input type="number" value={formCliente.plazoMeses} onChange={(e) => setFormCliente({...formCliente, plazoMeses: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          placeholder="18" />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Fecha inicio *</label>
+                        <input type="date" value={formCliente.fechaInicio} onChange={(e) => setFormCliente({...formCliente, fechaInicio: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" />
+                      </div>
+                    </div>
+                    
+                    {formCliente.capital && formCliente.tasaInteres && formCliente.plazoMeses && (
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <h4 className="font-semibold text-blue-800 mb-2">Vista Previa del Préstamo</h4>
+                        <div className="text-sm space-y-1">
+                          <p>Cuota mensual: <span className="font-bold">S/ {calcularCuotaMensual(parseFloat(formCliente.capital || 0), parseFloat(formCliente.tasaInteres || 0), parseInt(formCliente.plazoMeses || 1)).toFixed(2)}</span></p>
+                          <p>Total a cobrar: <span className="font-bold">S/ {(calcularCuotaMensual(parseFloat(formCliente.capital || 0), parseFloat(formCliente.tasaInteres || 0), parseInt(formCliente.plazoMeses || 1)) * parseInt(formCliente.plazoMeses || 1)).toFixed(2)}</span></p>
+                          <p>Ganancia total: <span className="font-bold text-green-600">S/ {((calcularCuotaMensual(parseFloat(formCliente.capital || 0), parseFloat(formCliente.tasaInteres || 0), parseInt(formCliente.plazoMeses || 1)) * parseInt(formCliente.plazoMeses || 1)) - parseFloat(formCliente.capital || 0)).toFixed(2)}</span></p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
+                    <button onClick={cerrarModales}
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
+                      Cancelar
+                    </button>
+                    <button onClick={agregarCliente} disabled={sincronizando}
+                      className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all disabled:opacity-50 flex items-center justify-center font-semibold">
+                      {sincronizando ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Guardando...
+                        </>
+                      ) : (
+                        'Guardar Cliente'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            )}
+
+            {showModalPago && clienteSeleccionado && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">Registrar Pago</h3>
+                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
+                      <X size={24} />
+                    </button>
+                  </div>
+                  
+                  <div className="mb-4 bg-gray-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-700 mb-2">Cliente: {clienteSeleccionado.nombre}</h4>
+                    <div className="text-sm space-y-1">
+                      <p>Saldo pendiente: <span className="font-bold text-red-600">S/ {clienteSeleccionado.saldoPendiente.toLocaleString()}</span></p>
+                      <p>Cuota sugerida: <span className="font-bold text-green-600">S/ {clienteSeleccionado.cuotaMensual.toLocaleString()}</span></p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Monto a pagar (S/) *</label>
+                      <input type="number" step="0.01" value={formPago.monto} 
+                        onChange={(e) => setFormPago({...formPago, monto: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        placeholder="0.00" />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Método de pago *</label>
+                      <select value={formPago.metodo} onChange={(e) => setFormPago({...formPago, metodo: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="Transferencia">Transferencia</option>
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Deposito">Depósito</option>
+                        <option value="Yape">Yape</option>
+                        <option value="Plin">Plin</option>
+                      </select>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de pago *</label>
+                      <input type="date" value={formPago.fecha} 
+                        onChange={(e) => setFormPago({...formPago, fecha: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" />
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
+                    <button onClick={cerrarModales}
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
+                      Cancelar
+                    </button>
+                    <button onClick={registrarPago} disabled={sincronizando}
+                      className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all disabled:opacity-50 flex items-center justify-center font-semibold">
+                      {sincronizando ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Registrando...
+                        </>
+                      ) : (
+                        'Registrar Pago'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showModalEditarCliente && clienteSeleccionado && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">Editar Cliente</h3>
+                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
+                      <X size={24} />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo *</label>
+                      <input type="text" value={formEditarCliente.nombre} onChange={(e) => setFormEditarCliente({...formEditarCliente, nombre: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                      <input type="email" value={formEditarCliente.email} onChange={(e) => setFormEditarCliente({...formEditarCliente, email: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                      <input type="tel" value={formEditarCliente.telefono} onChange={(e) => setFormEditarCliente({...formEditarCliente, telefono: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Capital (S/) *</label>
+                        <input type="number" value={formEditarCliente.capital} onChange={(e) => setFormEditarCliente({...formEditarCliente, capital: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Tasa (%) *</label>
+                        <input type="number" step="0.1" value={formEditarCliente.tasaInteres} onChange={(e) => setFormEditarCliente({...formEditarCliente, tasaInteres: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Plazo (meses) *</label>
+                        <input type="number" value={formEditarCliente.plazoMeses} onChange={(e) => setFormEditarCliente({...formEditarCliente, plazoMeses: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Fecha inicio *</label>
+                        <input type="date" value={formEditarCliente.fechaInicio} onChange={(e) => setFormEditarCliente({...formEditarCliente, fechaInicio: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
+                    <button onClick={cerrarModales}
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
+                      Cancelar
+                    </button>
+                    <button onClick={editarCliente} disabled={sincronizando}
+                      className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all disabled:opacity-50 flex items-center justify-center font-semibold">
+                      {sincronizando ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Actualizando...
+                        </>
+                      ) : (
+                        'Actualizar Cliente'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showHistorialPagos && clienteSeleccionado && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">Historial de Pagos - {clienteSeleccionado.nombre}</h3>
+                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
+                      <X size={24} />
+                    </button>
+                  </div>
+                  
+                  <div className="mb-6 bg-gradient-to-r from-blue-50 to-green-50 p-4 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Total Cobrado</p>
+                        <p className="font-bold text-lg text-green-600">S/ {clienteSeleccionado.pagosRecibidos.toLocaleString()}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Saldo Pendiente</p>
+                        <p className="font-bold text-lg text-red-600">S/ {clienteSeleccionado.saldoPendiente.toLocaleString()}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Pagos Realizados</p>
+                        <p className="font-bold text-lg text-blue-600">{clienteSeleccionado.historialPagos.length} / {clienteSeleccionado.plazoMeses}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-gray-800 mb-3">📊 Registro de Movimientos</h4>
+                    {clienteSeleccionado.historialPagos.length > 0 ? (
+                      clienteSeleccionado.historialPagos
+                        .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                        .map(pago => (
+                        <div key={pago.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all">
+                          <div className="flex justify-between items-center">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3 mb-2">
+                                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <p className="font-bold text-lg text-gray-800">S/ {pago.monto.toLocaleString()}</p>
+                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                  pago.metodo === 'Transferencia' ? 'bg-blue-100 text-blue-800' :
+                                  pago.metodo === 'Efectivo' ? 'bg-green-100 text-green-800' :
+                                  pago.metodo === 'Yape' ? 'bg-purple-100 text-purple-800' :
+                                  pago.metodo === 'Plin' ? 'bg-pink-100 text-pink-800' :
+                                  pago.metodo === 'Deposito' ? 'bg-indigo-100 text-indigo-800' :
+                                  'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {pago.metodo}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600">📅 {new Date(pago.fecha).toLocaleDateString('es-PE', { 
+                                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+                              })}</p>
+                              {pago.descripcion && (
+                                <p className="text-sm text-gray-500 mt-1">💬 {pago.descripcion}</p>
+                              )}
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <CheckCircle className="text-green-600" size={20} />
+                              </div>
+                              <button 
+                                onClick={() => eliminarPago(pago.id)}
+                                disabled={sincronizando}
+                                className="w-10 h-10 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all flex items-center justify-center disabled:opacity-50 shadow-lg"
+                                title="Eliminar Pago">
+                                {sincronizando ? (
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                ) : (
+                                  <Trash2 size={14} />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <DollarSign className="text-gray-400" size={32} />
+                        </div>
+                        <p className="text-gray-500 text-lg">No hay pagos registrados</p>
+                        <p className="text-gray-400 text-sm">Los pagos aparecerán aquí cuando se registren</p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mt-6 border-t pt-4">
+                    <button onClick={cerrarModales}
+                      className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all font-semibold">
+                      Cerrar Historial
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showModalDeuda && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">Nueva Deuda</h3>
+                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
+                      <X size={24} />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Acreedor *</label>
+                      <input type="text" value={formDeuda.acreedor} onChange={(e) => setFormDeuda({...formDeuda, acreedor: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Ej: Banco Santander" />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                      <input type="text" value={formDeuda.descripcion} onChange={(e) => setFormDeuda({...formDeuda, descripcion: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        placeholder="Ej: Préstamo para equipos" />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Capital (S/) *</label>
+                        <input type="number" value={formDeuda.capital} onChange={(e) => setFormDeuda({...formDeuda, capital: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                          placeholder="50000" />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Cuota (S/) *</label>
+                        <input type="number" value={formDeuda.cuotaMensual} onChange={(e) => setFormDeuda({...formDeuda, cuotaMensual: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                          placeholder="2500" />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Tasa (%)</label>
+                        <input type="number" step="0.1" value={formDeuda.tasaInteres} onChange={(e) => setFormDeuda({...formDeuda, tasaInteres: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                          placeholder="18" />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                        <select value={formDeuda.tipo} onChange={(e) => setFormDeuda({...formDeuda, tipo: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                          <option value="Prestamo Bancario">Préstamo Bancario</option>
+                          <option value="Credito Comercial">Crédito Comercial</option>
+                          <option value="Linea de Credito">Línea de Crédito</option>
+                          <option value="Otro">Otro</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Próximo pago</label>
+                      <input type="date" value={formDeuda.proximoPago} onChange={(e) => setFormDeuda({...formDeuda, proximoPago: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
+                    <button onClick={cerrarModales}
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
+                      Cancelar
+                    </button>
+                    <button onClick={agregarDeuda} disabled={sincronizando}
+                      className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all disabled:opacity-50 flex items-center justify-center font-semibold">
+                      {sincronizando ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Guardando...
+                        </>
+                      ) : (
+                        'Guardar Deuda'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showModalInversion && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">Nueva Inversión</h3>
+                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
+                      <X size={24} />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                      <input type="text" value={formInversion.nombre} onChange={(e) => setFormInversion({...formInversion, nombre: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Ej: Máquina Industrial" />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                      <input type="text" value={formInversion.descripcion} onChange={(e) => setFormInversion({...formInversion, descripcion: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Ej: Equipo para aumentar producción" />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                      <select value={formInversion.tipo} onChange={(e) => setFormInversion({...formInversion, tipo: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="Maquinaria">Maquinaria</option>
+                        <option value="Inmueble">Inmueble</option>
+                        <option value="Tecnologia">Tecnología</option>
+                        <option value="Vehiculo">Vehículo</option>
+                        <option value="Otro">Otro</option>
+                      </select>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Inversión (S/) *</label>
+                        <input type="number" value={formInversion.inversion} onChange={(e) => setFormInversion({...formInversion, inversion: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          placeholder="25000" />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Ganancia Esperada (S/) *</label>
+                        <input type="number" value={formInversion.gananciaEsperada} onChange={(e) => setFormInversion({...formInversion, gananciaEsperada: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          placeholder="5000" />
+                      </div>
+                    </div>
+                    
+                    {formInversion.inversion && formInversion.gananciaEsperada && (
+                      <div className="bg-purple-50 p-4 rounded-lg">
+                        <h4 className="font-semibold text-purple-800 mb-2">Vista Previa de la Inversión</h4>
+                        <div className="text-sm space-y-1">
+                          <p>ROI Esperado: <span className="font-bold text-purple-600">{((parseFloat(formInversion.gananciaEsperada || 0) / parseFloat(formInversion.inversion || 1)) * 100).toFixed(1)}%</span></p>
+                          <p>Retorno Total: <span className="font-bold">S/ {(parseFloat(formInversion.inversion || 0) + parseFloat(formInversion.gananciaEsperada || 0)).toLocaleString()}</span></p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
+                    <button onClick={cerrarModales}
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
+                      Cancelar
+                    </button>
+                    <button onClick={agregarInversion} disabled={sincronizando}
+                      className="flex-1 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-all disabled:opacity-50 flex items-center justify-center font-semibold">
+                      {sincronizando ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Guardando...
+                        </>
+                      ) : (
+                        'Guardar Inversión'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}            {currentView === 'clientes' && (
+              <div className="bg-white rounded-2xl shadow-xl p-6">
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">Cartera de Clientes</h2>
+                    <p className="text-gray-600">Gestión de préstamos y cobranzas</p>
+                  </div>
+                  <button onClick={() => setShowModalCliente(true)}
+                    className="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition-all flex items-center font-semibold shadow-lg">
+                    <Plus className="mr-2" size={18} />
+                    Nuevo Cliente
+                  </button>
+                </div>
+                
+                <div className="mb-6">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                    <input type="text" placeholder="Buscar clientes..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" />
+                  </div>
+                </div>
+                
+                <div className="grid gap-6">
+                  {filtrarPorBusqueda(misClientes, ['nombre', 'email', 'telefono']).map(cliente => (
+                    <div key={cliente.id} className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-6 hover:shadow-lg transition-all">
+                      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-4">
+                            <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+                              <User className="text-white" size={20} />
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-xl text-gray-800">{cliente.nombre}</h3>
+                              <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 space-y-1 lg:space-y-0 text-sm text-gray-600">
+                                <span className="flex items-center">
+                                  <Mail className="mr-1" size={14} />
+                                  {cliente.email || 'Sin email'}
+                                </span>
+                                <span className="flex items-center">
+                                  <Phone className="mr-1" size={14} />
+                                  {cliente.telefono || 'Sin teléfono'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                              <p className="text-sm text-gray-600 mb-1">Capital</p>
+                              <p className="font-bold text-lg text-blue-600">S/{cliente.capital.toLocaleString()}</p>
+                              <p className="text-xs text-gray-500">Tasa: {cliente.tasaInteres}%</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                              <p className="text-sm text-gray-600 mb-1">Pendiente</p>
+                              <p className="font-bold text-lg text-red-600">S/{cliente.saldoPendiente.toLocaleString()}</p>
+                              <p className="text-xs text-gray-500">de S/{cliente.totalCobrar.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                              <p className="text-sm text-gray-600 mb-1">Cuota</p>
+                              <p className="font-bold text-lg text-green-600">S/{cliente.cuotaMensual.toLocaleString()}</p>
+                              <p className="text-xs text-gray-500">Plazo: {cliente.plazoMeses} meses</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                              <p className="text-sm text-gray-600 mb-1">Progreso</p>
+                              <p className="font-bold text-lg text-purple-600">
+                                {cliente.historialPagos.length} / {cliente.plazoMeses}
+                              </p>
+                              <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
+                                <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500"
+                                  style={{width: `${(cliente.historialPagos.length / cliente.plazoMeses) * 100}%`}}></div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-wrap items-center gap-4">
+                            <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                              cliente.estado === 'En Proceso' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                            }`}>
+                              {cliente.estado}
+                            </span>
+                            <span className="text-sm text-gray-600">
+                              Inicio: {new Date(cliente.fechaInicio).toLocaleDateString()}
+                            </span>
+                            <span className="text-sm text-gray-600">
+                              Vence: {new Date(cliente.fechaVencimiento).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                          <button onClick={() => abrirModalPago(cliente)}
+                            className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none"
+                            title="Registrar Pago">
+                            <DollarSign size={18} />
+                          </button>
+                          <button onClick={() => abrirHistorialPagos(cliente)}
+                            className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
+                            title="Ver Historial">
+                            <Eye size={18} />
+                          </button>
+                          <button onClick={() => abrirModalEditarCliente(cliente)}
+                            className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
+                            title="Editar Cliente">
+                            <Edit size={18} />
+                          </button>
+                          <button onClick={() => eliminarCliente(cliente.id)} disabled={sincronizando}
+                            className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none disabled:opacity-50"
+                            title="Eliminar Cliente">
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {currentView === 'deudas' && (
+              <div className="bg-white rounded-2xl shadow-xl p-6">
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">Gestión de Deudas</h2>
+                    <p className="text-gray-600">Control de obligaciones financieras</p>
+                  </div>
+                  <button onClick={() => setShowModalDeuda(true)}
+                    className="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-all flex items-center font-semibold shadow-lg">
+                    <Plus className="mr-2" size={18} />
+                    Nueva Deuda
+                  </button>
+                </div>
+                
+                <div className="grid gap-6">
+                  {misDeudas.map(deuda => (
+                    <div key={deuda.id} className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-6 hover:shadow-lg transition-all">
+                      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-4">
+                            <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center">
+                              <CreditCard className="text-white" size={20} />
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-xl text-gray-800">{deuda.acreedor}</h3>
+                              <p className="text-sm text-gray-600">{deuda.descripcion}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                              <p className="text-sm text-gray-600 mb-1">Capital</p>
+                              <p className="font-bold text-lg text-blue-600">S/{deuda.capital.toLocaleString()}</p>
+                              <p className="text-xs text-gray-500">Tasa: {deuda.tasaInteres}%</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                              <p className="text-sm text-gray-600 mb-1">Pendiente</p>
+                              <p className="font-bold text-lg text-red-600">S/{deuda.saldoPendiente.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                              <p className="text-sm text-gray-600 mb-1">Cuota</p>
+                              <p className="font-bold text-lg text-orange-600">S/{deuda.cuotaMensual.toLocaleString()}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-wrap items-center gap-4">
+                            <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                              deuda.estado === 'Activo' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {deuda.estado}
+                            </span>
+                            <span className="text-sm text-gray-600">Tipo: {deuda.tipo}</span>
+                            <span className="text-sm text-gray-600">Próximo: {deuda.proximoPago}</span>
+                            <span className="text-sm text-gray-600">Pagos: {deuda.historialPagos?.length || 0}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                          <button onClick={() => abrirModalPagoDeuda(deuda)}
+                            className="bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600 transition-all shadow-lg flex-1 lg:flex-none"
+                            title="Pagar Cuota">
+                            <DollarSign size={18} />
+                          </button>
+                          <button onClick={() => verHistorialDeuda(deuda)}
+                            className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
+                            title="Ver Historial">
+                            <History size={18} />
+                          </button>
+                          <button onClick={() => editarDeuda(deuda)} disabled={sincronizando}
+                            className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none disabled:opacity-50"
+                            title="Editar Deuda">
+                            <Edit size={18} />
+                          </button>
+                          <button onClick={() => eliminarDeuda(deuda.id)}
+                            className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
+                            title="Eliminar Deuda">
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {currentView === 'inversiones' && (
+              <div className="bg-white rounded-2xl shadow-xl p-6">
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">Portfolio de Inversiones</h2>
+                    <p className="text-gray-600">Gestión de activos y ROI</p>
+                  </div>
+                  <button onClick={() => setShowModalInversion(true)}
+                    className="bg-purple-500 text-white px-6 py-3 rounded-xl hover:bg-purple-600 transition-all flex items-center font-semibold shadow-lg">
+                    <Plus className="mr-2" size={18} />
+                    Nueva Inversión
+                  </button>
+                </div>
+                
+                <div className="grid gap-6">
+                  {misInversiones.map(inversion => (
+                    <div key={inversion.id} className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-6 hover:shadow-lg transition-all">
+                      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-4">
+                            <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                              <Building className="text-white" size={20} />
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-xl text-gray-800">{inversion.nombre}</h3>
+                              <p className="text-sm text-gray-600">{inversion.descripcion}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                              <p className="text-sm text-gray-600 mb-1">Inversión</p>
+                              <p className="font-bold text-lg text-blue-600">S/{inversion.inversion.toLocaleString()}</p>
+                              <p className="text-xs text-gray-500">Tipo: {inversion.tipo}</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                              <p className="text-sm text-gray-600 mb-1">Esperada</p>
+                              <p className="font-bold text-lg text-green-600">S/{inversion.gananciaEsperada.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                              <p className="text-sm text-gray-600 mb-1">Actual</p>
+                              <p className="font-bold text-lg text-emerald-600">S/{inversion.gananciaActual.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-white p-4 rounded-lg shadow-sm">
+                              <p className="text-sm text-gray-600 mb-1">ROI</p>
+                              <p className="font-bold text-lg text-purple-600">{inversion.roi.toFixed(1)}%</p>
+                              <p className="text-xs text-gray-500">Progreso: {inversion.progreso}%</p>
+                            </div>
+                          </div>
+                          
+                          <div className="mb-4">
+                            <div className="flex justify-between text-sm mb-2">
+                              <span className="text-gray-600">Progreso de Inversión</span>
+                              <span className="font-semibold text-purple-600">{inversion.progreso}%</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-3">
+                              <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500"
+                                style={{width: `${inversion.progreso}%`}}></div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-wrap items-center gap-4">
+                            <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                              inversion.estado === 'En Proceso' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
+                            }`}>
+                              {inversion.estado}
+                            </span>
+                            <span className="text-sm text-gray-600">Fecha: {new Date(inversion.fechaInversion).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                          <button onClick={() => actualizarROI(inversion.id)} disabled={sincronizando}
+                            className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none disabled:opacity-50"
+                            title="Actualizar Ganancias">
+                            <TrendingUp size={18} />
+                          </button>
+                          <button onClick={() => editarInversion(inversion)} disabled={sincronizando}
+                            className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none disabled:opacity-50"
+                            title="Editar Inversión">
+                            <Edit size={18} />
+                          </button>
+                          <button onClick={() => eliminarInversion(inversion.id)}
+                            className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
+                            title="Eliminar Inversión">
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {currentView === 'alertas' && (
+              <div className="bg-white rounded-2xl shadow-xl p-6">
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">Centro de Alertas</h2>
+                    <p className="text-gray-600">Notificaciones importantes</p>
+                  </div>
+                </div>
+                
+                <div className="grid gap-4">
+                  {alertas.map(alerta => (
+                    <div key={alerta.id} className={`border rounded-xl p-6 hover:shadow-lg transition-all ${
+                      alerta.urgencia === 'alta' ? 'bg-red-50 border-red-200' : 
+                      alerta.urgencia === 'media' ? 'bg-yellow-50 border-yellow-200' : 'bg-blue-50 border-blue-200'
+                    }`}>
+                      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-3">
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                              alerta.urgencia === 'alta' ? 'bg-red-500' :
+                              alerta.urgencia === 'media' ? 'bg-yellow-500' : 'bg-blue-500'
+                            }`}>
+                              <Bell className="text-white" size={20} />
+                            </div>
+                            <div>
+                              <div className="flex items-center space-x-3 mb-1">
+                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                  alerta.urgencia === 'alta' ? 'bg-red-100 text-red-800' : 
+                                  alerta.urgencia === 'media' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
+                                }`}>
+                                  {alerta.urgencia.toUpperCase()}
+                                </span>
+                                <span className="text-sm text-gray-600 font-medium">{alerta.tipo}</span>
+                              </div>
+                              <h3 className="font-semibold text-lg text-gray-800">{alerta.mensaje}</h3>
+                            </div>
+                          </div>
+                          
+                          <p className="text-sm text-gray-500 mt-3">
+                            Vencimiento: {new Date(alerta.fechaVencimiento).toLocaleDateString()} - Creada: {new Date(alerta.fechaCreacion).toLocaleDateString()}
+                          </p>
+                        </div>
+                        
+                        <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                          <button onClick={() => editarAlerta(alerta)} disabled={sincronizando}
+                            className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none disabled:opacity-50"
+                            title="Editar Alerta">
+                            <Edit size={18} />
+                          </button>
+                          <button onClick={() => eliminarAlerta(alerta.id)}
+                            className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
+                            title="Eliminar Alerta">
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}import React, { useState, useEffect } from 'react';
 import { 
   Home, TrendingUp, TrendingDown, Building, Plus, Menu, X, DollarSign, 
   Calculator, Share2, FileSpreadsheet, Edit, Bell, Shield, Trash2, 
   CheckCircle, Cloud, WifiOff, User, Phone, Mail, CreditCard, 
-  AlertTriangle, Search, Eye
+  AlertTriangle, Search, Eye, Link, Download, History
 } from 'lucide-react';
 
 export default function GrizalumFinancial() {
@@ -19,6 +1293,7 @@ export default function GrizalumFinancial() {
   const [showModalDeuda, setShowModalDeuda] = useState(false);
   const [showModalInversion, setShowModalInversion] = useState(false);
   const [showModalPagoDeuda, setShowModalPagoDeuda] = useState(false);
+  const [showHistorialDeuda, setShowHistorialDeuda] = useState(false);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [deudaSeleccionada, setDeudaSeleccionada] = useState(null);
   const [busqueda, setBusqueda] = useState('');
@@ -276,7 +1551,160 @@ export default function GrizalumFinancial() {
     const tasaMensual = tasa / 100 / 12;
     return (capital * tasaMensual * Math.pow(1 + tasaMensual, meses)) / (Math.pow(1 + tasaMensual, meses) - 1);
   };
-  
+
+  // NUEVA FUNCIÓN - Copiar Link
+  const copiarLink = () => {
+    const currentUrl = window.location.href;
+    const linkCompartir = `${currentUrl}?ref=grizalum&t=${Date.now()}`;
+    
+    navigator.clipboard.writeText(linkCompartir).then(() => {
+      alert('🔗 Link del sistema copiado exitosamente!\n\nPuedes compartir este enlace para acceder a GRIZALUM.');
+    }).catch(() => {
+      const textArea = document.createElement('textarea');
+      textArea.value = linkCompartir;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        alert('🔗 Link copiado exitosamente!');
+      } catch (err) {
+        prompt('🔗 Copia este enlace manualmente:', linkCompartir);
+      }
+      document.body.removeChild(textArea);
+    });
+  };
+
+  // FUNCIÓN MEJORADA - Descargar CSV
+  const descargarExcel = async () => {
+    setSincronizando(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const csvContent = [
+        'GRIZALUM COMPAÑIA METALURGICA - REPORTE FINANCIERO',
+        `Fecha: ${new Date().toLocaleDateString()}`,
+        '',
+        'RESUMEN EJECUTIVO',
+        `Total por Cobrar,S/ ${totalPorCobrar.toLocaleString()}`,
+        `Total por Pagar,S/ ${totalPorPagar.toLocaleString()}`,
+        `Balance Neto,S/ ${balanceNeto.toLocaleString()}`,
+        `Cobertura,${Math.round(cobertura)}%`,
+        '',
+        'CLIENTES',
+        'Nombre,Email,Capital,Saldo Pendiente,Estado',
+        ...misClientes.map(c => `${c.nombre},${c.email || 'Sin email'},S/ ${c.capital},S/ ${c.saldoPendiente},${c.estado}`),
+        '',
+        'DEUDAS',
+        'Acreedor,Capital,Saldo Pendiente,Estado',
+        ...misDeudas.map(d => `${d.acreedor},S/ ${d.capital},S/ ${d.saldoPendiente},${d.estado}`),
+        '',
+        'INVERSIONES',
+        'Nombre,Inversion,Ganancia Actual,ROI %',
+        ...misInversiones.map(i => `${i.nombre},S/ ${i.inversion},S/ ${i.gananciaActual},${i.roi}%`)
+      ].join('\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `GRIZALUM_Reporte_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      setSincronizando(false);
+      alert('📊 Reporte CSV descargado exitosamente');
+    } catch (error) {
+      setSincronizando(false);
+      alert('❌ Error al descargar archivo');
+    }
+  };
+
+  // NUEVAS FUNCIONES para botones que no funcionaban:
+  const actualizarROI = async (inversionId) => {
+    const inversion = misInversiones.find(i => i.id === inversionId);
+    const nuevaGanancia = prompt(`💰 Ganancia actual para "${inversion.nombre}":\n\nIngrese nueva ganancia (S/):`);
+    
+    if (nuevaGanancia && !isNaN(nuevaGanancia)) {
+      setSincronizando(true);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setMisInversiones(prev => 
+        prev.map(inv => {
+          if (inv.id === inversionId) {
+            const gananciaActual = parseFloat(nuevaGanancia);
+            const nuevoROI = (gananciaActual / inv.inversion) * 100;
+            const nuevoProgreso = Math.min((gananciaActual / inv.gananciaEsperada) * 100, 100);
+            
+            return {
+              ...inv,
+              gananciaActual,
+              roi: Math.round(nuevoROI * 10) / 10,
+              progreso: Math.round(nuevoProgreso),
+              estado: nuevoProgreso >= 100 ? 'Completado' : 'En Proceso'
+            };
+          }
+          return inv;
+        })
+      );
+      
+      setSincronizando(false);
+      alert('✅ ROI actualizado exitosamente');
+    }
+  };
+
+  const editarDeuda = async (deuda) => {
+    const nuevoAcreedor = prompt('✏️ Nuevo acreedor:', deuda.acreedor);
+    if (nuevoAcreedor && nuevoAcreedor.trim()) {
+      setSincronizando(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setMisDeudas(prev => 
+        prev.map(d => d.id === deuda.id ? { ...d, acreedor: nuevoAcreedor.trim() } : d)
+      );
+      
+      setSincronizando(false);
+      alert('✅ Deuda actualizada exitosamente');
+    }
+  };
+
+  const editarInversion = async (inversion) => {
+    const nuevoNombre = prompt('✏️ Nuevo nombre:', inversion.nombre);
+    if (nuevoNombre && nuevoNombre.trim()) {
+      setSincronizando(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setMisInversiones(prev => 
+        prev.map(i => i.id === inversion.id ? { ...i, nombre: nuevoNombre.trim() } : i)
+      );
+      
+      setSincronizando(false);
+      alert('✅ Inversión actualizada exitosamente');
+    }
+  };
+
+  const editarAlerta = async (alerta) => {
+    const nuevoMensaje = prompt('✏️ Editar alerta:', alerta.mensaje);
+    if (nuevoMensaje && nuevoMensaje.trim()) {
+      setSincronizando(true);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setAlertas(prev => 
+        prev.map(a => a.id === alerta.id ? { ...a, mensaje: nuevoMensaje.trim() } : a)
+      );
+      
+      setSincronizando(false);
+      alert('✅ Alerta actualizada exitosamente');
+    }
+  };
+
+  const verHistorialDeuda = (deuda) => {
+    setDeudaSeleccionada(deuda);
+    setShowHistorialDeuda(true);
+  };
+
+  // Resto de funciones originales
   const registrarPago = async () => {
     if (!formPago.monto || !formPago.fecha || !clienteSeleccionado) {
       alert('Por favor completa todos los campos');
@@ -600,11 +2028,9 @@ export default function GrizalumFinancial() {
       setSincronizando(true);
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Encontrar el pago a eliminar
       const pagoAEliminar = clienteSeleccionado.historialPagos.find(p => p.id === pagoId);
       
       if (pagoAEliminar) {
-        // Actualizar el cliente
         setMisClientes(prevClientes => 
           prevClientes.map(cliente => {
             if (cliente.id === clienteSeleccionado.id) {
@@ -624,7 +2050,6 @@ export default function GrizalumFinancial() {
           })
         );
         
-        // Actualizar el cliente seleccionado para la vista actual
         setClienteSeleccionado(prev => {
           if (prev) {
             const nuevoHistorial = prev.historialPagos.filter(p => p.id !== pagoId);
@@ -771,6 +2196,7 @@ export default function GrizalumFinancial() {
     setShowModalDeuda(false);
     setShowModalInversion(false);
     setShowModalPagoDeuda(false);
+    setShowHistorialDeuda(false);
     setClienteSeleccionado(null);
     setDeudaSeleccionada(null);
   };
@@ -919,13 +2345,27 @@ export default function GrizalumFinancial() {
 
             <div className="mb-6 bg-white rounded-2xl shadow-xl p-4">
               <div className="flex flex-wrap gap-3 justify-center lg:justify-end">
-                <button onClick={() => alert('📊 Descarga próximamente - Funcionalidad en desarrollo')} className="bg-emerald-500 text-white px-4 py-2 rounded-xl hover:bg-emerald-600 transition-all flex items-center text-sm font-semibold">
-                  <FileSpreadsheet className="mr-2" size={16} />
-                  Descargar Excel
+                <button onClick={descargarExcel} disabled={sincronizando} 
+                  className="bg-emerald-500 text-white px-4 py-2 rounded-xl hover:bg-emerald-600 transition-all flex items-center text-sm font-semibold disabled:opacity-50">
+                  {sincronizando ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Generando...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="mr-2" size={16} />
+                      Descargar CSV
+                    </>
+                  )}
                 </button>
                 <button onClick={copiarReporte} className="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600 transition-all flex items-center text-sm font-semibold">
                   <Share2 className="mr-2" size={16} />
                   Copiar Reporte
+                </button>
+                <button onClick={copiarLink} className="bg-indigo-500 text-white px-4 py-2 rounded-xl hover:bg-indigo-600 transition-all flex items-center text-sm font-semibold">
+                  <Link className="mr-2" size={16} />
+                  Copiar Link
                 </button>
                 <button onClick={guardarDatos} disabled={sincronizando}
                   className={`${sincronizando ? 'bg-orange-500' : datosGuardados ? 'bg-green-600' : 'bg-purple-500'} text-white px-4 py-2 rounded-xl transition-all flex items-center text-sm font-semibold disabled:opacity-50`}>
@@ -1040,1011 +2480,3 @@ export default function GrizalumFinancial() {
                 )}
               </div>
             )}
-
-            {currentView === 'clientes' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-xl p-6">
-                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800">Cartera de Clientes</h2>
-                      <p className="text-gray-600">Gestión de préstamos y cobranzas</p>
-                    </div>
-                    <button onClick={() => setShowModalCliente(true)}
-                      className="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
-                      <Plus className="mr-2" size={18} />
-                      Nuevo Cliente
-                    </button>
-                  </div>
-                  
-                  <div className="mb-6">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                      <input type="text" placeholder="Buscar clientes..." value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" />
-                    </div>
-                  </div>
-                  
-                  <div className="grid gap-6">
-                    {filtrarPorBusqueda(misClientes, ['nombre', 'email', 'telefono']).map(cliente => (
-                      <div key={cliente.id} className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-6 hover:shadow-lg transition-all">
-                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-4">
-                              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                                <User className="text-white" size={20} />
-                              </div>
-                              <div>
-                                <h3 className="font-bold text-xl text-gray-800">{cliente.nombre}</h3>
-                                <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 space-y-1 lg:space-y-0 text-sm text-gray-600">
-                                  <span className="flex items-center">
-                                    <Mail className="mr-1" size={14} />
-                                    {cliente.email || 'Sin email'}
-                                  </span>
-                                  <span className="flex items-center">
-                                    <Phone className="mr-1" size={14} />
-                                    {cliente.telefono || 'Sin teléfono'}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Capital</p>
-                                <p className="font-bold text-lg text-blue-600">S/{cliente.capital.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Tasa: {cliente.tasaInteres}%</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Pendiente</p>
-                                <p className="font-bold text-lg text-red-600">S/{cliente.saldoPendiente.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">de S/{cliente.totalCobrar.toLocaleString()}</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Cuota</p>
-                                <p className="font-bold text-lg text-green-600">S/{cliente.cuotaMensual.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Plazo: {cliente.plazoMeses} meses</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Progreso</p>
-                                <p className="font-bold text-lg text-purple-600">
-                                  {cliente.historialPagos.length} / {cliente.plazoMeses}
-                                </p>
-                                <div className="w-full bg-gray-200 rounded-full h-3 mt-2">
-                                  <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500"
-                                    style={{width: `${(cliente.historialPagos.length / cliente.plazoMeses) * 100}%`}}></div>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div className="flex flex-wrap items-center gap-4">
-                              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                                cliente.estado === 'En Proceso' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
-                              }`}>
-                                {cliente.estado}
-                              </span>
-                              <span className="text-sm text-gray-600">
-                                Inicio: {new Date(cliente.fechaInicio).toLocaleDateString()}
-                              </span>
-                              <span className="text-sm text-gray-600">
-                                Vence: {new Date(cliente.fechaVencimiento).toLocaleDateString()}
-                              </span>
-                              {firebaseConectado && (
-                                <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                                  Sync
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                            <button onClick={() => abrirModalPago(cliente)}
-                              className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Registrar Pago">
-                              <DollarSign size={18} />
-                            </button>
-                            <button onClick={() => abrirHistorialPagos(cliente)}
-                              className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Ver Historial">
-                              <Eye size={18} />
-                            </button>
-                            <button onClick={() => abrirModalEditarCliente(cliente)}
-                              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Editar Cliente">
-                              <Edit size={18} />
-                            </button>
-                            <button onClick={() => eliminarCliente(cliente.id)} disabled={sincronizando}
-                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none disabled:opacity-50"
-                              title="Eliminar Cliente">
-                              {sincronizando ? (
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                              ) : (
-                                <Trash2 size={18} />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {filtrarPorBusqueda(misClientes, ['nombre', 'email', 'telefono']).length === 0 && (
-                    <div className="text-center py-12">
-                      <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Search className="text-gray-400" size={32} />
-                      </div>
-                      <p className="text-gray-500 text-lg">No se encontraron clientes</p>
-                      <p className="text-gray-400 text-sm">Intenta con otros términos</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {currentView === 'deudas' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-xl p-6">
-                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800">Gestión de Deudas</h2>
-                      <p className="text-gray-600">Control de obligaciones financieras</p>
-                    </div>
-                    <button onClick={() => setShowModalDeuda(true)}
-                      className="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
-                      <Plus className="mr-2" size={18} />
-                      Nueva Deuda
-                    </button>
-                  </div>
-                  
-                  <div className="grid gap-6">
-                    {misDeudas.map(deuda => (
-                      <div key={deuda.id} className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-6 hover:shadow-lg transition-all">
-                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-4">
-                              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center">
-                                <CreditCard className="text-white" size={20} />
-                              </div>
-                              <div>
-                                <h3 className="font-bold text-xl text-gray-800">{deuda.acreedor}</h3>
-                                <p className="text-sm text-gray-600">{deuda.descripcion}</p>
-                              </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Capital</p>
-                                <p className="font-bold text-lg text-blue-600">S/{deuda.capital.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Tasa: {deuda.tasaInteres}%</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Pendiente</p>
-                                <p className="font-bold text-lg text-red-600">S/{deuda.saldoPendiente.toLocaleString()}</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Cuota</p>
-                                <p className="font-bold text-lg text-orange-600">S/{deuda.cuotaMensual.toLocaleString()}</p>
-                              </div>
-                            </div>
-                            
-                            <div className="flex flex-wrap items-center gap-4">
-                              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                                deuda.estado === 'Activo' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
-                              }`}>
-                                {deuda.estado}
-                              </span>
-                              <span className="text-sm text-gray-600">Tipo: {deuda.tipo}</span>
-                              <span className="text-sm text-gray-600">Próximo: {deuda.proximoPago}</span>
-                              <span className="text-sm text-gray-600">Pagos: {deuda.historialPagos?.length || 0}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                            <button onClick={() => abrirModalPagoDeuda(deuda)}
-                              className="bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Pagar Cuota">
-                              <DollarSign size={18} />
-                            </button>
-                            <button onClick={() => alert('📊 Ver historial de pagos próximamente')}
-                              className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Ver Historial">
-                              <Eye size={18} />
-                            </button>
-                            <button onClick={() => alert('✏️ Editar deuda próximamente')}
-                              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Editar Deuda">
-                              <Edit size={18} />
-                            </button>
-                            <button onClick={() => eliminarDeuda(deuda.id)}
-                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Eliminar Deuda">
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {currentView === 'inversiones' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-xl p-6">
-                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800">Portfolio de Inversiones</h2>
-                      <p className="text-gray-600">Gestión de activos y ROI</p>
-                    </div>
-                    <button onClick={() => setShowModalInversion(true)}
-                      className="bg-purple-500 text-white px-6 py-3 rounded-xl hover:bg-purple-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
-                      <Plus className="mr-2" size={18} />
-                      Nueva Inversión
-                    </button>
-                  </div>
-                  
-                  <div className="grid gap-6">
-                    {misInversiones.map(inversion => (
-                      <div key={inversion.id} className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-6 hover:shadow-lg transition-all">
-                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-4">
-                              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
-                                <Building className="text-white" size={20} />
-                              </div>
-                              <div>
-                                <h3 className="font-bold text-xl text-gray-800">{inversion.nombre}</h3>
-                                <p className="text-sm text-gray-600">{inversion.descripcion}</p>
-                              </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Inversión</p>
-                                <p className="font-bold text-lg text-blue-600">S/{inversion.inversion.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Tipo: {inversion.tipo}</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Esperada</p>
-                                <p className="font-bold text-lg text-green-600">S/{inversion.gananciaEsperada.toLocaleString()}</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Actual</p>
-                                <p className="font-bold text-lg text-emerald-600">S/{inversion.gananciaActual.toLocaleString()}</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">ROI</p>
-                                <p className="font-bold text-lg text-purple-600">{inversion.roi.toFixed(1)}%</p>
-                                <p className="text-xs text-gray-500">Progreso: {inversion.progreso}%</p>
-                              </div>
-                            </div>
-                            
-                            <div className="mb-4">
-                              <div className="flex justify-between text-sm mb-2">
-                                <span className="text-gray-600">Progreso de Inversión</span>
-                                <span className="font-semibold text-purple-600">{inversion.progreso}%</span>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-3">
-                                <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-500"
-                                  style={{width: `${inversion.progreso}%`}}></div>
-                              </div>
-                            </div>
-                            
-                            <div className="flex flex-wrap items-center gap-4">
-                              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                                inversion.estado === 'En Proceso' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
-                              }`}>
-                                {inversion.estado}
-                              </span>
-                              <span className="text-sm text-gray-600">Fecha: {new Date(inversion.fechaInversion).toLocaleDateString()}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                            <button onClick={() => alert('📈 Actualizar ROI próximamente')}
-                              className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Actualizar Ganancias">
-                              <TrendingUp size={18} />
-                            </button>
-                            <button onClick={() => alert('✏️ Editar inversión próximamente')}
-                              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Editar Inversión">
-                              <Edit size={18} />
-                            </button>
-                            <button onClick={() => eliminarInversion(inversion.id)}
-                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Eliminar Inversión">
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {currentView === 'alertas' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-xl p-6">
-                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800">Centro de Alertas</h2>
-                      <p className="text-gray-600">Notificaciones importantes</p>
-                    </div>
-                  </div>
-                  
-                  <div className="grid gap-4">
-                    {alertas.map(alerta => (
-                      <div key={alerta.id} className={`border rounded-xl p-6 hover:shadow-lg transition-all ${
-                        alerta.urgencia === 'alta' ? 'bg-red-50 border-red-200' : 
-                        alerta.urgencia === 'media' ? 'bg-yellow-50 border-yellow-200' : 'bg-blue-50 border-blue-200'
-                      }`}>
-                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-3">
-                              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                                alerta.urgencia === 'alta' ? 'bg-red-500' :
-                                alerta.urgencia === 'media' ? 'bg-yellow-500' : 'bg-blue-500'
-                              }`}>
-                                <Bell className="text-white" size={20} />
-                              </div>
-                              <div>
-                                <div className="flex items-center space-x-3 mb-1">
-                                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                    alerta.urgencia === 'alta' ? 'bg-red-100 text-red-800' : 
-                                    alerta.urgencia === 'media' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
-                                  }`}>
-                                    {alerta.urgencia.toUpperCase()}
-                                  </span>
-                                  <span className="text-sm text-gray-600 font-medium">{alerta.tipo}</span>
-                                </div>
-                                <h3 className="font-semibold text-lg text-gray-800">{alerta.mensaje}</h3>
-                              </div>
-                            </div>
-                            
-                            <p className="text-sm text-gray-500 mt-3">
-                              Vencimiento: {new Date(alerta.fechaVencimiento).toLocaleDateString()} - Creada: {new Date(alerta.fechaCreacion).toLocaleDateString()}
-                            </p>
-                          </div>
-                          
-                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                            <button onClick={() => alert('✏️ Editar alerta próximamente')}
-                              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Editar Alerta">
-                              <Edit size={18} />
-                            </button>
-                            <button onClick={() => eliminarAlerta(alerta.id)}
-                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Eliminar Alerta">
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {alertas.length === 0 && (
-                    <div className="text-center py-12">
-                      <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Bell className="text-gray-400" size={32} />
-                      </div>
-                      <p className="text-gray-500 text-lg">No hay alertas activas</p>
-                      <p className="text-gray-400 text-sm">El sistema funciona correctamente</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* MODALES */}
-            {showModalCliente && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-                <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-gray-800">Nuevo Cliente</h3>
-                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
-                      <X size={24} />
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo *</label>
-                      <input type="text" value={formCliente.nombre} onChange={(e) => setFormCliente({...formCliente, nombre: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="Ej: Juan Pérez" />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                      <input type="email" value={formCliente.email} onChange={(e) => setFormCliente({...formCliente, email: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="juan@example.com" />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                      <input type="tel" value={formCliente.telefono} onChange={(e) => setFormCliente({...formCliente, telefono: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="+51 999 123 456" />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Capital (S/) *</label>
-                        <input type="number" value={formCliente.capital} onChange={(e) => setFormCliente({...formCliente, capital: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          placeholder="10000" />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Tasa (%) *</label>
-                        <input type="number" step="0.1" value={formCliente.tasaInteres} onChange={(e) => setFormCliente({...formCliente, tasaInteres: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          placeholder="14" />
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Plazo (meses) *</label>
-                        <input type="number" value={formCliente.plazoMeses} onChange={(e) => setFormCliente({...formCliente, plazoMeses: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          placeholder="18" />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Fecha inicio *</label>
-                        <input type="date" value={formCliente.fechaInicio} onChange={(e) => setFormCliente({...formCliente, fechaInicio: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" />
-                      </div>
-                    </div>
-                    
-                    {formCliente.capital && formCliente.tasaInteres && formCliente.plazoMeses && (
-                      <div className="bg-blue-50 p-4 rounded-lg">
-                        <h4 className="font-semibold text-blue-800 mb-2">Vista Previa del Préstamo</h4>
-                        <div className="text-sm space-y-1">
-                          <p>Cuota mensual: <span className="font-bold">S/ {calcularCuotaMensual(parseFloat(formCliente.capital || 0), parseFloat(formCliente.tasaInteres || 0), parseInt(formCliente.plazoMeses || 1)).toFixed(2)}</span></p>
-                          <p>Total a cobrar: <span className="font-bold">S/ {(calcularCuotaMensual(parseFloat(formCliente.capital || 0), parseFloat(formCliente.tasaInteres || 0), parseInt(formCliente.plazoMeses || 1)) * parseInt(formCliente.plazoMeses || 1)).toFixed(2)}</span></p>
-                          <p>Ganancia total: <span className="font-bold text-green-600">S/ {((calcularCuotaMensual(parseFloat(formCliente.capital || 0), parseFloat(formCliente.tasaInteres || 0), parseInt(formCliente.plazoMeses || 1)) * parseInt(formCliente.plazoMeses || 1)) - parseFloat(formCliente.capital || 0)).toFixed(2)}</span></p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
-                    <button onClick={cerrarModales}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
-                      Cancelar
-                    </button>
-                    <button onClick={agregarCliente} disabled={sincronizando}
-                      className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all disabled:opacity-50 flex items-center justify-center font-semibold">
-                      {sincronizando ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Guardando...
-                        </>
-                      ) : (
-                        'Guardar Cliente'
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {showModalDeuda && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-                <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-gray-800">Nueva Deuda</h3>
-                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
-                      <X size={24} />
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Acreedor *</label>
-                      <input type="text" value={formDeuda.acreedor} onChange={(e) => setFormDeuda({...formDeuda, acreedor: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: Banco Santander" />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                      <input type="text" value={formDeuda.descripcion} onChange={(e) => setFormDeuda({...formDeuda, descripcion: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                        placeholder="Ej: Préstamo para equipos" />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Capital (S/) *</label>
-                        <input type="number" value={formDeuda.capital} onChange={(e) => setFormDeuda({...formDeuda, capital: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          placeholder="50000" />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Cuota (S/) *</label>
-                        <input type="number" value={formDeuda.cuotaMensual} onChange={(e) => setFormDeuda({...formDeuda, cuotaMensual: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          placeholder="2500" />
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Tasa (%)</label>
-                        <input type="number" step="0.1" value={formDeuda.tasaInteres} onChange={(e) => setFormDeuda({...formDeuda, tasaInteres: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          placeholder="18" />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                        <select value={formDeuda.tipo} onChange={(e) => setFormDeuda({...formDeuda, tipo: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                          <option value="Prestamo Bancario">Préstamo Bancario</option>
-                          <option value="Credito Comercial">Crédito Comercial</option>
-                          <option value="Linea de Credito">Línea de Crédito</option>
-                          <option value="Otro">Otro</option>
-                        </select>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Próximo pago</label>
-                      <input type="date" value={formDeuda.proximoPago} onChange={(e) => setFormDeuda({...formDeuda, proximoPago: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" />
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
-                    <button onClick={cerrarModales}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
-                      Cancelar
-                    </button>
-                    <button onClick={agregarDeuda} disabled={sincronizando}
-                      className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all disabled:opacity-50 flex items-center justify-center font-semibold">
-                      {sincronizando ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Guardando...
-                        </>
-                      ) : (
-                        'Guardar Deuda'
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {showModalInversion && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-                <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-gray-800">Nueva Inversión</h3>
-                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
-                      <X size={24} />
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
-                      <input type="text" value={formInversion.nombre} onChange={(e) => setFormInversion({...formInversion, nombre: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="Ej: Máquina Industrial" />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                      <input type="text" value={formInversion.descripcion} onChange={(e) => setFormInversion({...formInversion, descripcion: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="Ej: Equipo para aumentar producción" />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                      <select value={formInversion.tipo} onChange={(e) => setFormInversion({...formInversion, tipo: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                        <option value="Maquinaria">Maquinaria</option>
-                        <option value="Inmueble">Inmueble</option>
-                        <option value="Tecnologia">Tecnología</option>
-                        <option value="Vehiculo">Vehículo</option>
-                        <option value="Otro">Otro</option>
-                      </select>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Inversión (S/) *</label>
-                        <input type="number" value={formInversion.inversion} onChange={(e) => setFormInversion({...formInversion, inversion: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          placeholder="25000" />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Ganancia Esperada (S/) *</label>
-                        <input type="number" value={formInversion.gananciaEsperada} onChange={(e) => setFormInversion({...formInversion, gananciaEsperada: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          placeholder="5000" />
-                      </div>
-                    </div>
-                    
-                    {formInversion.inversion && formInversion.gananciaEsperada && (
-                      <div className="bg-purple-50 p-4 rounded-lg">
-                        <h4 className="font-semibold text-purple-800 mb-2">Vista Previa de la Inversión</h4>
-                        <div className="text-sm space-y-1">
-                          <p>ROI Esperado: <span className="font-bold text-purple-600">{((parseFloat(formInversion.gananciaEsperada || 0) / parseFloat(formInversion.inversion || 1)) * 100).toFixed(1)}%</span></p>
-                          <p>Retorno Total: <span className="font-bold">S/ {(parseFloat(formInversion.inversion || 0) + parseFloat(formInversion.gananciaEsperada || 0)).toLocaleString()}</span></p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
-                    <button onClick={cerrarModales}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
-                      Cancelar
-                    </button>
-                    <button onClick={agregarInversion} disabled={sincronizando}
-                      className="flex-1 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-all disabled:opacity-50 flex items-center justify-center font-semibold">
-                      {sincronizando ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Guardando...
-                        </>
-                      ) : (
-                        'Guardar Inversión'
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {showModalEditarCliente && clienteSeleccionado && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-                <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-gray-800">Editar Cliente</h3>
-                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
-                      <X size={24} />
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo *</label>
-                      <input type="text" value={formEditarCliente.nombre} onChange={(e) => setFormEditarCliente({...formEditarCliente, nombre: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                      <input type="email" value={formEditarCliente.email} onChange={(e) => setFormEditarCliente({...formEditarCliente, email: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-                      <input type="tel" value={formEditarCliente.telefono} onChange={(e) => setFormEditarCliente({...formEditarCliente, telefono: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Capital (S/) *</label>
-                        <input type="number" value={formEditarCliente.capital} onChange={(e) => setFormEditarCliente({...formEditarCliente, capital: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Tasa (%) *</label>
-                        <input type="number" step="0.1" value={formEditarCliente.tasaInteres} onChange={(e) => setFormEditarCliente({...formEditarCliente, tasaInteres: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Plazo (meses) *</label>
-                        <input type="number" value={formEditarCliente.plazoMeses} onChange={(e) => setFormEditarCliente({...formEditarCliente, plazoMeses: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Fecha inicio *</label>
-                        <input type="date" value={formEditarCliente.fechaInicio} onChange={(e) => setFormEditarCliente({...formEditarCliente, fechaInicio: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
-                    <button onClick={cerrarModales}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
-                      Cancelar
-                    </button>
-                    <button onClick={editarCliente} disabled={sincronizando}
-                      className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all disabled:opacity-50 flex items-center justify-center font-semibold">
-                      {sincronizando ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Actualizando...
-                        </>
-                      ) : (
-                        'Actualizar Cliente'
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {showModalPago && clienteSeleccionado && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-                <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-gray-800">Registrar Pago</h3>
-                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
-                      <X size={24} />
-                    </button>
-                  </div>
-                  
-                  <div className="mb-4 bg-gray-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-gray-700 mb-2">Cliente: {clienteSeleccionado.nombre}</h4>
-                    <div className="text-sm space-y-1">
-                      <p>Saldo pendiente: <span className="font-bold text-red-600">S/ {clienteSeleccionado.saldoPendiente.toLocaleString()}</span></p>
-                      <p>Cuota sugerida: <span className="font-bold text-green-600">S/ {clienteSeleccionado.cuotaMensual.toLocaleString()}</span></p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Monto a pagar (S/) *</label>
-                      <input type="number" step="0.01" value={formPago.monto} 
-                        onChange={(e) => setFormPago({...formPago, monto: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        placeholder="0.00" />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Método de pago *</label>
-                      <select value={formPago.metodo} onChange={(e) => setFormPago({...formPago, metodo: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                        <option value="Transferencia">Transferencia</option>
-                        <option value="Efectivo">Efectivo</option>
-                        <option value="Deposito">Depósito</option>
-                        <option value="Yape">Yape</option>
-                        <option value="Plin">Plin</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de pago *</label>
-                      <input type="date" value={formPago.fecha} 
-                        onChange={(e) => setFormPago({...formPago, fecha: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" />
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
-                    <button onClick={cerrarModales}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
-                      Cancelar
-                    </button>
-                    <button onClick={registrarPago} disabled={sincronizando}
-                      className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all disabled:opacity-50 flex items-center justify-center font-semibold">
-                      {sincronizando ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Registrando...
-                        </>
-                      ) : (
-                        'Registrar Pago'
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {showModalPagoDeuda && deudaSeleccionada && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-                <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-gray-800">Pagar Deuda</h3>
-                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
-                      <X size={24} />
-                    </button>
-                  </div>
-                  
-                  <div className="mb-4 bg-gray-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-gray-700 mb-2">Deuda: {deudaSeleccionada.acreedor}</h4>
-                    <div className="text-sm space-y-1">
-                      <p>Saldo pendiente: <span className="font-bold text-red-600">S/ {deudaSeleccionada.saldoPendiente.toLocaleString()}</span></p>
-                      <p>Cuota sugerida: <span className="font-bold text-orange-600">S/ {deudaSeleccionada.cuotaMensual.toLocaleString()}</span></p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Monto a pagar (S/) *</label>
-                      <input type="number" step="0.01" value={formPagoDeuda.monto} 
-                        onChange={(e) => setFormPagoDeuda({...formPagoDeuda, monto: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                        placeholder="0.00" />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Método de pago *</label>
-                      <select value={formPagoDeuda.metodo} onChange={(e) => setFormPagoDeuda({...formPagoDeuda, metodo: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                        <option value="Transferencia">Transferencia</option>
-                        <option value="Efectivo">Efectivo</option>
-                        <option value="Deposito">Depósito</option>
-                        <option value="Yape">Yape</option>
-                        <option value="Plin">Plin</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de pago *</label>
-                      <input type="date" value={formPagoDeuda.fecha} 
-                        onChange={(e) => setFormPagoDeuda({...formPagoDeuda, fecha: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent" />
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 mt-6">
-                    <button onClick={cerrarModales}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all">
-                      Cancelar
-                    </button>
-                    <button onClick={registrarPagoDeuda} disabled={sincronizando}
-                      className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all disabled:opacity-50 flex items-center justify-center font-semibold">
-                      {sincronizando ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Registrando...
-                        </>
-                      ) : (
-                        'Registrar Pago'
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {showHistorialPagos && clienteSeleccionado && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-                <div className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-gray-800">Historial de Pagos - {clienteSeleccionado.nombre}</h3>
-                    <button onClick={cerrarModales} className="text-gray-500 hover:text-gray-700">
-                      <X size={24} />
-                    </button>
-                  </div>
-                  
-                  <div className="mb-6 bg-gradient-to-r from-blue-50 to-green-50 p-4 rounded-lg">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600">Total Cobrado</p>
-                        <p className="font-bold text-lg text-green-600">S/ {clienteSeleccionado.pagosRecibidos.toLocaleString()}</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600">Saldo Pendiente</p>
-                        <p className="font-bold text-lg text-red-600">S/ {clienteSeleccionado.saldoPendiente.toLocaleString()}</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600">Pagos Realizados</p>
-                        <p className="font-bold text-lg text-blue-600">{clienteSeleccionado.historialPagos.length} / {clienteSeleccionado.plazoMeses}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-4">
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="text-gray-600">Progreso del Préstamo</span>
-                        <span className="font-semibold text-blue-600">{Math.round((clienteSeleccionado.pagosRecibidos / clienteSeleccionado.totalCobrar) * 100)}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500"
-                          style={{width: `${(clienteSeleccionado.pagosRecibidos / clienteSeleccionado.totalCobrar) * 100}%`}}></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-4 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
-                    <div className="flex items-center">
-                      <AlertTriangle className="text-yellow-600 mr-2" size={20} />
-                      <div>
-                        <h4 className="font-semibold text-yellow-800">⚠️ Control de Pagos</h4>
-                        <p className="text-sm text-yellow-700">Puedes eliminar pagos individuales si detectas errores o duplicados. Los saldos se recalcularán automáticamente.</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-gray-800 mb-3">📊 Registro de Movimientos</h4>
-                    {clienteSeleccionado.historialPagos.length > 0 ? (
-                      clienteSeleccionado.historialPagos
-                        .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
-                        .map(pago => (
-                        <div key={pago.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all">
-                          <div className="flex justify-between items-center">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-3 mb-2">
-                                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                                <p className="font-bold text-lg text-gray-800">S/ {pago.monto.toLocaleString()}</p>
-                                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                  pago.metodo === 'Transferencia' ? 'bg-blue-100 text-blue-800' :
-                                  pago.metodo === 'Efectivo' ? 'bg-green-100 text-green-800' :
-                                  pago.metodo === 'Yape' ? 'bg-purple-100 text-purple-800' :
-                                  pago.metodo === 'Plin' ? 'bg-pink-100 text-pink-800' :
-                                  pago.metodo === 'Deposito' ? 'bg-indigo-100 text-indigo-800' :
-                                  'bg-gray-100 text-gray-800'
-                                }`}>
-                                  {pago.metodo}
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-600">📅 {new Date(pago.fecha).toLocaleDateString('es-PE', { 
-                                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
-                              })}</p>
-                              {pago.descripcion && (
-                                <p className="text-sm text-gray-500 mt-1">💬 {pago.descripcion}</p>
-                              )}
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                                <CheckCircle className="text-green-600" size={20} />
-                              </div>
-                              <button 
-                                onClick={() => eliminarPago(pago.id)}
-                                disabled={sincronizando}
-                                className="w-10 h-10 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all flex items-center justify-center disabled:opacity-50 shadow-lg"
-                                title="Eliminar Pago">
-                                {sincronizando ? (
-                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                ) : (
-                                  <Trash2 size={14} />
-                                )}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-8">
-                        <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <DollarSign className="text-gray-400" size={32} />
-                        </div>
-                        <p className="text-gray-500 text-lg">No hay pagos registrados</p>
-                        <p className="text-gray-400 text-sm">Los pagos aparecerán aquí cuando se registren</p>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="mt-6 border-t pt-4">
-                    <button onClick={cerrarModales}
-                      className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all font-semibold">
-                      Cerrar Historial
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
