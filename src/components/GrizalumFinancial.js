@@ -75,8 +75,8 @@
                               <button 
                                 onClick={() => eliminarPagoDeuda(pago.id, deudaSeleccionada.id)}
                                 disabled={sincronizando}
-                                className="w-10 h-import React, { useState, useEffect } from 'react'
-                              })}</p>
+                                className="w-10 h-import React, { useState, useEffect } from 'react';
+                              
 import { 
   Home, TrendingUp, TrendingDown, Building, Plus, Menu, X, DollarSign, 
   Calculator, Share2, FileSpreadsheet, Edit, Bell, Shield, Trash2, 
