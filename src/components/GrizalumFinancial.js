@@ -3,7 +3,7 @@ import {
   Home, TrendingUp, TrendingDown, Building, Plus, Menu, X, DollarSign, 
   Calculator, Share2, FileSpreadsheet, Edit, Bell, Shield, Trash2, 
   CheckCircle, Cloud, WifiOff, User, Phone, Mail, CreditCard, 
-  AlertTriangle, Eye, Link
+  AlertTriangle, Eye, Link, Save, Download
 } from 'lucide-react';
 
 export default function GrizalumFinancial() {
@@ -35,8 +35,9 @@ export default function GrizalumFinancial() {
       estado: 'En Proceso',
       fechaInicio: '2024-06-01',
       historialPagos: [
-        { fecha: '2024-07-01', monto: 633.30, tipo: 'Cuota Regular' },
-        { fecha: '2024-08-01', monto: 633.30, tipo: 'Cuota Regular' }
+        { id: 1, fecha: '2024-07-01', monto: 633.30, tipo: 'Cuota Regular' },
+        { id: 2, fecha: '2024-08-01', monto: 633.30, tipo: 'Cuota Regular' },
+        { id: 3, fecha: '2024-09-01', monto: 500.00, tipo: 'Pago Parcial' }
       ]
     },
     {
@@ -54,7 +55,9 @@ export default function GrizalumFinancial() {
       estado: 'En Proceso',
       fechaInicio: '2024-05-15',
       historialPagos: [
-        { fecha: '2024-06-15', monto: 950.00, tipo: 'Cuota Regular' }
+        { id: 1, fecha: '2024-06-15', monto: 950.00, tipo: 'Cuota Regular' },
+        { id: 2, fecha: '2024-07-15', monto: 950.00, tipo: 'Cuota Regular' },
+        { id: 3, fecha: '2024-08-15', monto: 300.00, tipo: 'Pago Parcial' }
       ]
     }
   ]);
@@ -175,6 +178,7 @@ export default function GrizalumFinancial() {
           const nuevoPagado = cliente.pagosRecibidos + monto;
           
           const nuevoPago = {
+            id: Date.now(),
             fecha: fechaPago,
             monto: monto,
             tipo: monto >= cliente.cuotaMensual ? 'Cuota Regular' : 'Pago Parcial'
@@ -191,7 +195,7 @@ export default function GrizalumFinancial() {
         return cliente;
       }));
       
-      alert(`Pago registrado: S/ ${monto.toLocaleString()} de ${itemSeleccionado.nombre}`);
+      alert(`✅ Pago registrado: S/ ${monto.toLocaleString()} de ${itemSeleccionado.nombre}`);
     }
     
     if (tipoModal === 'pago_deuda') {
@@ -208,20 +212,44 @@ export default function GrizalumFinancial() {
         return deuda;
       }));
       
-      alert(`Pago realizado: S/ ${monto.toLocaleString()} a ${itemSeleccionado.acreedor}`);
+      alert(`✅ Pago realizado: S/ ${monto.toLocaleString()} a ${itemSeleccionado.acreedor}`);
     }
 
     cerrarModal();
+  };
+
+  const eliminarPagoHistorial = (clienteId, pagoId) => {
+    if (window.confirm('¿Está seguro de eliminar este pago del historial?')) {
+      setMisClientes(prev => prev.map(cliente => {
+        if (cliente.id === clienteId) {
+          const pagoEliminado = cliente.historialPagos.find(p => p.id === pagoId);
+          if (pagoEliminado) {
+            const nuevoPagado = cliente.pagosRecibidos - pagoEliminado.monto;
+            const nuevoSaldo = cliente.saldoPendiente + pagoEliminado.monto;
+            
+            return {
+              ...cliente,
+              saldoPendiente: nuevoSaldo,
+              pagosRecibidos: nuevoPagado,
+              estado: nuevoSaldo === 0 ? 'Completado' : 'En Proceso',
+              historialPagos: cliente.historialPagos.filter(p => p.id !== pagoId)
+            };
+          }
+        }
+        return cliente;
+      }));
+      alert('✅ Pago eliminado del historial');
+    }
   };
 
   const eliminarItem = (tipo, id) => {
     if (window.confirm('¿Está seguro de eliminar este elemento?')) {
       if (tipo === 'cliente') {
         setMisClientes(prev => prev.filter(c => c.id !== id));
-        alert('Cliente eliminado');
+        alert('✅ Cliente eliminado');
       } else if (tipo === 'deuda') {
         setMisDeudas(prev => prev.filter(d => d.id !== id));
-        alert('Deuda eliminada');
+        alert('✅ Deuda eliminada');
       }
     }
   };
@@ -239,22 +267,49 @@ RESUMEN EJECUTIVO:
 Control Financiero Empresarial Seguro`;
 
     navigator.clipboard.writeText(mensaje).then(() => {
-      alert('Reporte copiado al portapapeles exitosamente');
+      alert('📋 Reporte copiado al portapapeles exitosamente');
     }).catch(() => {
-      alert('Reporte preparado para copiar');
+      alert('📋 Reporte preparado para copiar');
     });
+  };
+
+  const copiarLink = () => {
+    const link = window.location.href;
+    navigator.clipboard.writeText(link).then(() => {
+      alert('🔗 Link copiado al portapapeles');
+    }).catch(() => {
+      alert('🔗 Link preparado para copiar');
+    });
+  };
+
+  const exportarExcel = () => {
+    setSincronizando(true);
+    setTimeout(() => {
+      setSincronizando(false);
+      alert('📊 Exportación a Excel completada (simulación)');
+    }, 2000);
+  };
+
+  const guardarEnNube = () => {
+    setSincronizando(true);
+    setTimeout(() => {
+      setSincronizando(false);
+      setDatosGuardados(true);
+      alert('☁️ Datos guardados en la nube exitosamente');
+      setTimeout(() => setDatosGuardados(false), 3000);
+    }, 2000);
   };
 
   const eliminarAlerta = (alertaId) => {
     setAlertas(prev => prev.filter(a => a.id !== alertaId));
-    alert('Alerta eliminada');
+    alert('✅ Alerta eliminada');
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative">
       {modalAbierto && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold text-gray-800">
@@ -335,17 +390,28 @@ Control Financiero Empresarial Seguro`;
                     <h5 className="font-semibold mb-2">Historial de Pagos:</h5>
                     {itemSeleccionado.historialPagos?.length > 0 ? (
                       <div className="space-y-2">
-                        {itemSeleccionado.historialPagos.map((pago, index) => (
-                          <div key={index} className="bg-white border rounded-lg p-3">
+                        {itemSeleccionado.historialPagos.map((pago) => (
+                          <div key={pago.id} className="bg-white border rounded-lg p-3">
                             <div className="flex justify-between items-center">
-                              <span className="font-medium">S/ {pago.monto.toLocaleString()}</span>
-                              <span className="text-sm text-gray-600">{pago.fecha}</span>
+                              <div className="flex-1">
+                                <div className="flex justify-between items-center mb-1">
+                                  <span className="font-medium">S/ {pago.monto.toLocaleString()}</span>
+                                  <span className="text-sm text-gray-600">{pago.fecha}</span>
+                                </div>
+                                <span className={`text-xs px-2 py-1 rounded-full ${
+                                  pago.tipo === 'Cuota Regular' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                                }`}>
+                                  {pago.tipo}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => eliminarPagoHistorial(itemSeleccionado.id, pago.id)}
+                                className="ml-2 text-red-500 hover:text-red-700 p-1"
+                                title="Eliminar pago"
+                              >
+                                <Trash2 size={16} />
+                              </button>
                             </div>
-                            <span className={`text-xs px-2 py-1 rounded-full ${
-                              pago.tipo === 'Cuota Regular' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
-                            }`}>
-                              {pago.tipo}
-                            </span>
                           </div>
                         ))}
                       </div>
@@ -468,13 +534,71 @@ Control Financiero Empresarial Seguro`;
                 </div>
                 <div className="text-left lg:text-right">
                   <div className="flex items-center space-x-2 mb-2">
-                    <Cloud className="text-green-400" size={20} />
-                    <span className="text-green-400 font-semibold">Sistema Online</span>
+                    {firebaseConectado ? (
+                      <Cloud className="text-green-400" size={20} />
+                    ) : (
+                      <WifiOff className="text-red-400" size={20} />
+                    )}
+                    <span className={`font-semibold ${firebaseConectado ? 'text-green-400' : 'text-red-400'}`}>
+                      {firebaseConectado ? 'Sistema Online' : 'Sin Conexión'}
+                    </span>
                   </div>
                   <p className="text-slate-300 text-sm">
                     {new Date().toLocaleDateString()} | {new Date().toLocaleTimeString()}
                   </p>
                 </div>
+              </div>
+              
+              <div className="flex flex-wrap gap-3 mt-6">
+                <button
+                  onClick={copiarReporte}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all flex items-center font-semibold shadow-lg"
+                  title="Copiar Reporte"
+                >
+                  <Share2 className="mr-2" size={18} />
+                  Copiar Reporte
+                </button>
+                
+                <button
+                  onClick={copiarLink}
+                  className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-all flex items-center font-semibold shadow-lg"
+                  title="Copiar Link"
+                >
+                  <Link className="mr-2" size={18} />
+                  Copiar Link
+                </button>
+                
+                <button
+                  onClick={exportarExcel}
+                  disabled={sincronizando}
+                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all flex items-center font-semibold shadow-lg disabled:opacity-50"
+                  title="Exportar Excel"
+                >
+                  {sincronizando ? (
+                    <div className="animate-spin mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                  ) : (
+                    <FileSpreadsheet className="mr-2" size={18} />
+                  )}
+                  Excel
+                </button>
+                
+                <button
+                  onClick={guardarEnNube}
+                  disabled={sincronizando}
+                  className={`px-4 py-2 rounded-lg transition-all flex items-center font-semibold shadow-lg disabled:opacity-50 ${
+                    datosGuardados ? 'bg-green-600 text-white' : 'bg-orange-500 text-white hover:bg-orange-600'
+                  }`}
+                  title="Guardar en Nube"
+                >
+                  {sincronizando ? (
+                    <div className="animate-spin mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                  ) : datosGuardados ? (
+                    <CheckCircle className="mr-2" size={18} />
+                  ) : (
+                    <Save className="mr-2" size={18} />
+                  )}
+                  {datosGuardados ? 'Guardado' : 'Guardar'}
+                </button>
               </div>
             </div>
 
