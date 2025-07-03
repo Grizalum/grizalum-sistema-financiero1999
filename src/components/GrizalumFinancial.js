@@ -3,7 +3,7 @@ import {
   Home, TrendingUp, TrendingDown, Building, Plus, Menu, X, DollarSign, 
   Calculator, Share2, FileSpreadsheet, Edit, Bell, Shield, Trash2, 
   CheckCircle, Cloud, WifiOff, User, Phone, Mail, CreditCard, 
-  AlertTriangle, Search, Eye, Link
+  AlertTriangle, Eye, Link
 } from 'lucide-react';
 
 export default function GrizalumFinancial() {
@@ -12,19 +12,32 @@ export default function GrizalumFinancial() {
   const [datosGuardados, setDatosGuardados] = useState(false);
   const [firebaseConectado, setFirebaseConectado] = useState(true);
   const [sincronizando, setSincronizando] = useState(false);
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [tipoModal, setTipoModal] = useState('');
+  const [itemSeleccionado, setItemSeleccionado] = useState(null);
+  const [montoPago, setMontoPago] = useState('');
+  const [fechaPago, setFechaPago] = useState(new Date().toISOString().split('T')[0]);
+  const [notas, setNotas] = useState('');
 
-  const [misClientes] = useState([
+  const [misClientes, setMisClientes] = useState([
     {
       id: 1,
       nombre: 'Antonio Rodriguez',
       email: 'antonio@example.com',
       telefono: '+51 999 123 456',
       capital: 10000,
+      tasaInteres: 14,
+      plazoMeses: 18,
       cuotaMensual: 633.30,
       totalCobrar: 11399.40,
       saldoPendiente: 8000.00,
       pagosRecibidos: 3399.40,
-      estado: 'En Proceso'
+      estado: 'En Proceso',
+      fechaInicio: '2024-06-01',
+      historialPagos: [
+        { fecha: '2024-07-01', monto: 633.30, tipo: 'Cuota Regular' },
+        { fecha: '2024-08-01', monto: 633.30, tipo: 'Cuota Regular' }
+      ]
     },
     {
       id: 2,
@@ -32,53 +45,46 @@ export default function GrizalumFinancial() {
       email: 'maria@example.com',
       telefono: '+51 987 654 321',
       capital: 15000,
+      tasaInteres: 12,
+      plazoMeses: 18,
       cuotaMensual: 950.00,
       totalCobrar: 17100.00,
       saldoPendiente: 12000.00,
       pagosRecibidos: 5100.00,
-      estado: 'En Proceso'
-    },
-    {
-      id: 3,
-      nombre: 'Carlos Mendoza',
-      email: 'carlos@example.com',
-      telefono: '+51 955 789 123',
-      capital: 8000,
-      cuotaMensual: 740.50,
-      totalCobrar: 8886.00,
-      saldoPendiente: 7405.00,
-      pagosRecibidos: 1481.00,
-      estado: 'En Proceso'
+      estado: 'En Proceso',
+      fechaInicio: '2024-05-15',
+      historialPagos: [
+        { fecha: '2024-06-15', monto: 950.00, tipo: 'Cuota Regular' }
+      ]
     }
   ]);
 
-  const [misDeudas] = useState([
+  const [misDeudas, setMisDeudas] = useState([
     {
       id: 1,
       acreedor: 'Banco Santander',
       descripcion: 'Prestamo comercial para capital de trabajo',
       capital: 50000,
+      tasaInteres: 18,
+      plazoMeses: 24,
       cuotaMensual: 2500.00,
       saldoPendiente: 45000.00,
-      estado: 'Activo'
+      estado: 'Activo',
+      fechaInicio: '2024-01-01',
+      proximoVencimiento: '2025-01-01'
     },
     {
       id: 2,
       acreedor: 'Proveedor Textil SAC',
       descripcion: 'Compra de mercaderia a credito',
       capital: 8000,
+      tasaInteres: 0,
+      plazoMeses: 10,
       cuotaMensual: 800.00,
       saldoPendiente: 6400.00,
-      estado: 'Activo'
-    },
-    {
-      id: 3,
-      acreedor: 'Banco BCP',
-      descripcion: 'Linea de credito empresarial',
-      capital: 25000,
-      cuotaMensual: 1250.00,
-      saldoPendiente: 18750.00,
-      estado: 'Activo'
+      estado: 'Activo',
+      fechaInicio: '2024-08-01',
+      proximoVencimiento: '2024-12-15'
     }
   ]);
 
@@ -92,7 +98,7 @@ export default function GrizalumFinancial() {
       gananciaEsperada: 2500,
       gananciaActual: 1625,
       estado: 'En Proceso',
-      roi: 20.8,
+      roi: 13.5,
       progreso: 65
     },
     {
@@ -104,20 +110,8 @@ export default function GrizalumFinancial() {
       gananciaEsperada: 5000,
       gananciaActual: 3750,
       estado: 'En Proceso',
-      roi: 25.0,
+      roi: 15.0,
       progreso: 75
-    },
-    {
-      id: 3,
-      nombre: 'Equipos de Corte CNC',
-      descripcion: 'Maquinaria de precision para metalurgia',
-      tipo: 'Maquinaria',
-      inversion: 35000,
-      gananciaEsperada: 7500,
-      gananciaActual: 5250,
-      estado: 'En Proceso',
-      roi: 21.4,
-      progreso: 70
     }
   ]);
 
@@ -135,13 +129,6 @@ export default function GrizalumFinancial() {
       urgencia: 'alta',
       tipo: 'deuda_vencimiento',
       activa: true
-    },
-    {
-      id: 3,
-      mensaje: 'Revision trimestral de inversiones pendiente',
-      urgencia: 'baja',
-      tipo: 'revision_programada',
-      activa: true
     }
   ]);
 
@@ -156,100 +143,230 @@ export default function GrizalumFinancial() {
     return () => clearInterval(interval);
   }, []);
 
-  const copiarLink = () => {
-    const link = window.location.href;
-    navigator.clipboard.writeText(link).then(() => {
-      alert('🔗 Link copiado al portapapeles exitosamente');
-    }).catch(() => {
-      alert('🔗 Link preparado para copiar: ' + link);
-    });
+  const abrirModal = (tipo, item = null) => {
+    setTipoModal(tipo);
+    setItemSeleccionado(item);
+    setModalAbierto(true);
+    setMontoPago('');
+    setNotas('');
+    setFechaPago(new Date().toISOString().split('T')[0]);
   };
 
-  const descargarExcel = () => {
-    setSincronizando(true);
+  const cerrarModal = () => {
+    setModalAbierto(false);
+    setTipoModal('');
+    setItemSeleccionado(null);
+    setMontoPago('');
+    setNotas('');
+  };
+
+  const procesarPago = () => {
+    if (!montoPago || parseFloat(montoPago) <= 0) {
+      alert('Ingrese un monto válido');
+      return;
+    }
+
+    const monto = parseFloat(montoPago);
     
-    setTimeout(() => {
-      const csvContent = `GRIZALUM COMPAÑIA METALURGICA - REPORTE FINANCIERO
-Fecha: ${new Date().toLocaleDateString()}
+    if (tipoModal === 'pago_cliente') {
+      setMisClientes(prev => prev.map(cliente => {
+        if (cliente.id === itemSeleccionado.id) {
+          const nuevoSaldo = Math.max(0, cliente.saldoPendiente - monto);
+          const nuevoPagado = cliente.pagosRecibidos + monto;
+          
+          const nuevoPago = {
+            fecha: fechaPago,
+            monto: monto,
+            tipo: monto >= cliente.cuotaMensual ? 'Cuota Regular' : 'Pago Parcial'
+          };
 
-RESUMEN EJECUTIVO:
-Por Cobrar,${totalPorCobrar}
-Por Pagar,${totalPorPagar}
-Balance Neto,${balanceNeto}
-Cobertura,%${Math.round(cobertura)}
-
-CLIENTES:
-Nombre,Capital,Cuota,Pendiente,Estado
-${misClientes.map(c => `${c.nombre},${c.capital},${c.cuotaMensual},${c.saldoPendiente},${c.estado}`).join('\n')}
-
-DEUDAS:
-Acreedor,Capital,Cuota,Pendiente,Estado
-${misDeudas.map(d => `${d.acreedor},${d.capital},${d.cuotaMensual},${d.saldoPendiente},${d.estado}`).join('\n')}
-
-INVERSIONES:
-Nombre,Inversion,Ganancia Esperada,Ganancia Actual,ROI %
-${misInversiones.map(i => `${i.nombre},${i.inversion},${i.gananciaEsperada},${i.gananciaActual},${i.roi}`).join('\n')}`;
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `GRIZALUM_Reporte_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+          return {
+            ...cliente,
+            saldoPendiente: nuevoSaldo,
+            pagosRecibidos: nuevoPagado,
+            estado: nuevoSaldo === 0 ? 'Completado' : 'En Proceso',
+            historialPagos: [...cliente.historialPagos, nuevoPago]
+          };
+        }
+        return cliente;
+      }));
       
-      setSincronizando(false);
-      alert('📊 Reporte descargado exitosamente como CSV');
-    }, 2000);
+      alert(`Pago registrado: S/ ${monto.toLocaleString()} de ${itemSeleccionado.nombre}`);
+    }
+    
+    if (tipoModal === 'pago_deuda') {
+      setMisDeudas(prev => prev.map(deuda => {
+        if (deuda.id === itemSeleccionado.id) {
+          const nuevoSaldo = Math.max(0, deuda.saldoPendiente - monto);
+          
+          return {
+            ...deuda,
+            saldoPendiente: nuevoSaldo,
+            estado: nuevoSaldo === 0 ? 'Pagado' : 'Activo'
+          };
+        }
+        return deuda;
+      }));
+      
+      alert(`Pago realizado: S/ ${monto.toLocaleString()} a ${itemSeleccionado.acreedor}`);
+    }
+
+    cerrarModal();
   };
 
-  const guardarDatos = async () => {
-    setSincronizando(true);
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setDatosGuardados(true);
-    setSincronizando(false);
-    alert('✅ Datos guardados en la nube exitosamente');
-    setTimeout(() => setDatosGuardados(false), 3000);
+  const eliminarItem = (tipo, id) => {
+    if (window.confirm('¿Está seguro de eliminar este elemento?')) {
+      if (tipo === 'cliente') {
+        setMisClientes(prev => prev.filter(c => c.id !== id));
+        alert('Cliente eliminado');
+      } else if (tipo === 'deuda') {
+        setMisDeudas(prev => prev.filter(d => d.id !== id));
+        alert('Deuda eliminada');
+      }
+    }
   };
 
   const copiarReporte = () => {
-    const mensaje = `🏢 GRIZALUM COMPAÑIA METALURGICA
-📊 Reporte Financiero - ${new Date().toLocaleDateString()}
+    const mensaje = `GRIZALUM COMPAÑIA METALURGICA
+Reporte Financiero - ${new Date().toLocaleDateString()}
 
-💰 RESUMEN EJECUTIVO:
+RESUMEN EJECUTIVO:
 • Por Cobrar: S/ ${totalPorCobrar.toLocaleString()}
 • Por Pagar: S/ ${totalPorPagar.toLocaleString()}
 • Balance Neto: S/ ${balanceNeto.toLocaleString()}
 • Cobertura Financiera: ${Math.round(cobertura)}%
 
-📋 CARTERA ACTIVA:
-• Clientes Activos: ${misClientes.filter(c => c.estado === 'En Proceso').length}
-• Deudas Pendientes: ${misDeudas.filter(d => d.estado === 'Activo').length}
-• Inversiones en Curso: ${misInversiones.filter(i => i.estado === 'En Proceso').length}
-
-🚨 ALERTAS PENDIENTES: ${alertas.filter(a => a.activa).length}
-
-⚡ Gestión Profesional con Sistema Cloud
-🔐 Control Financiero Empresarial Seguro`;
+Control Financiero Empresarial Seguro`;
 
     navigator.clipboard.writeText(mensaje).then(() => {
-      alert('📋 Reporte copiado al portapapeles exitosamente');
+      alert('Reporte copiado al portapapeles exitosamente');
     }).catch(() => {
-      alert('📋 Reporte preparado para copiar');
+      alert('Reporte preparado para copiar');
     });
   };
 
   const eliminarAlerta = (alertaId) => {
     setAlertas(prev => prev.filter(a => a.id !== alertaId));
-    alert('✅ Alerta eliminada');
+    alert('Alerta eliminada');
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative">
+      {modalAbierto && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-gray-800">
+                  {tipoModal === 'pago_cliente' && 'Registrar Pago de Cliente'}
+                  {tipoModal === 'pago_deuda' && 'Pagar Deuda'}
+                  {tipoModal === 'historial' && 'Historial de Pagos'}
+                </h3>
+                <button onClick={cerrarModal} className="text-gray-400 hover:text-gray-600">
+                  <X size={24} />
+                </button>
+              </div>
+
+              {(tipoModal === 'pago_cliente' || tipoModal === 'pago_deuda') && (
+                <div className="space-y-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-800">
+                      {tipoModal === 'pago_cliente' ? itemSeleccionado?.nombre : itemSeleccionado?.acreedor}
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      Saldo Pendiente: S/ {itemSeleccionado?.saldoPendiente?.toLocaleString()}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Cuota: S/ {itemSeleccionado?.cuotaMensual?.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Monto a Pagar</label>
+                    <input
+                      type="number"
+                      value={montoPago}
+                      onChange={(e) => setMontoPago(e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="0.00"
+                      step="0.01"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
+                    <input
+                      type="date"
+                      value={fechaPago}
+                      onChange={(e) => setFechaPago(e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div className="flex space-x-3 mt-6">
+                    <button
+                      onClick={cerrarModal}
+                      className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={procesarPago}
+                      className="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all font-semibold"
+                    >
+                      Confirmar Pago
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {tipoModal === 'historial' && itemSeleccionado && (
+                <div className="space-y-4">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-800">{itemSeleccionado.nombre}</h4>
+                    <p className="text-sm text-gray-600">
+                      Capital: S/ {itemSeleccionado.capital?.toLocaleString()} | 
+                      Tasa: {itemSeleccionado.tasaInteres}% | 
+                      Plazo: {itemSeleccionado.plazoMeses} meses
+                    </p>
+                  </div>
+
+                  <div className="max-h-64 overflow-y-auto">
+                    <h5 className="font-semibold mb-2">Historial de Pagos:</h5>
+                    {itemSeleccionado.historialPagos?.length > 0 ? (
+                      <div className="space-y-2">
+                        {itemSeleccionado.historialPagos.map((pago, index) => (
+                          <div key={index} className="bg-white border rounded-lg p-3">
+                            <div className="flex justify-between items-center">
+                              <span className="font-medium">S/ {pago.monto.toLocaleString()}</span>
+                              <span className="text-sm text-gray-600">{pago.fecha}</span>
+                            </div>
+                            <span className={`text-xs px-2 py-1 rounded-full ${
+                              pago.tipo === 'Cuota Regular' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {pago.tipo}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-center py-4">No hay pagos registrados</p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={cerrarModal}
+                    className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all font-semibold"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      
       <div className="relative z-10">
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
@@ -312,25 +429,6 @@ ${misInversiones.map(i => `${i.nombre},${i.inversion},${i.gananciaEsperada},${i.
                     <div className={`h-2 rounded-full transition-all ${cobertura >= 100 ? 'bg-green-400' : 'bg-yellow-400'}`}
                       style={{ width: `${Math.min(cobertura, 100)}%` }} />
                   </div>
-                  <div className="mt-3 flex items-center justify-between">
-                    {firebaseConectado ? (
-                      <div className="flex items-center">
-                        <Cloud className="text-green-400 mr-1" size={12} />
-                        <span className="text-green-400 font-medium">Online</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center">
-                        <WifiOff className="text-red-400 mr-1" size={12} />
-                        <span className="text-red-400 font-medium">Offline</span>
-                      </div>
-                    )}
-                    {datosGuardados && (
-                      <div className="flex items-center text-green-400">
-                        <CheckCircle size={12} className="mr-1" />
-                        <span className="font-medium">Sync</span>
-                      </div>
-                    )}
-                  </div>
                 </div>
               </div>
             </div>
@@ -348,7 +446,6 @@ ${misInversiones.map(i => `${i.nombre},${i.inversion},${i.gananciaEsperada},${i.
                 <p className="text-xs text-gray-600">Compañía Metálurgica</p>
               </div>
               <div className="flex items-center space-x-2">
-                {firebaseConectado ? <Cloud className="text-green-600" size={20} /> : <WifiOff className="text-red-600" size={20} />}
                 <button onClick={copiarReporte} className="text-blue-600 hover:text-blue-800">
                   <Share2 size={24} />
                 </button>
@@ -371,67 +468,12 @@ ${misInversiones.map(i => `${i.nombre},${i.inversion},${i.gananciaEsperada},${i.
                 </div>
                 <div className="text-left lg:text-right">
                   <div className="flex items-center space-x-2 mb-2">
-                    {firebaseConectado ? (
-                      <>
-                        <Cloud className="text-green-400" size={20} />
-                        <span className="text-green-400 font-semibold">Sistema Online</span>
-                      </>
-                    ) : (
-                      <>
-                        <WifiOff className="text-red-400" size={20} />
-                        <span className="text-red-400 font-semibold">Sin Conexión</span>
-                      </>
-                    )}
+                    <Cloud className="text-green-400" size={20} />
+                    <span className="text-green-400 font-semibold">Sistema Online</span>
                   </div>
                   <p className="text-slate-300 text-sm">
                     {new Date().toLocaleDateString()} | {new Date().toLocaleTimeString()}
                   </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mb-6 bg-white rounded-2xl shadow-xl p-4">
-              <div className="flex flex-wrap gap-3 justify-center lg:justify-end">
-                <button onClick={copiarLink} className="bg-indigo-500 text-white px-4 py-2 rounded-xl hover:bg-indigo-600 transition-all flex items-center text-sm font-semibold">
-                  <Link className="mr-2" size={16} />
-                  Copiar Link
-                </button>
-                <button onClick={descargarExcel} disabled={sincronizando} className="bg-emerald-500 text-white px-4 py-2 rounded-xl hover:bg-emerald-600 transition-all flex items-center text-sm font-semibold disabled:opacity-50">
-                  <FileSpreadsheet className="mr-2" size={16} />
-                  {sincronizando ? 'Descargando...' : 'Descargar Excel'}
-                </button>
-                <button onClick={copiarReporte} className="bg-blue-500 text-white px-4 py-2 rounded-xl hover:bg-blue-600 transition-all flex items-center text-sm font-semibold">
-                  <Share2 className="mr-2" size={16} />
-                  Copiar Reporte
-                </button>
-                <button onClick={guardarDatos} disabled={sincronizando}
-                  className={`${sincronizando ? 'bg-orange-500' : datosGuardados ? 'bg-green-600' : 'bg-purple-500'} text-white px-4 py-2 rounded-xl transition-all flex items-center text-sm font-semibold disabled:opacity-50`}>
-                  {sincronizando ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Sincronizando...
-                    </>
-                  ) : datosGuardados ? (
-                    <>
-                      <CheckCircle className="mr-2" size={16} />
-                      Guardado
-                    </>
-                  ) : (
-                    <>
-                      <Cloud className="mr-2" size={16} />
-                      Guardar
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="mb-6 bg-green-50 border-l-4 border-green-400 rounded-r-2xl p-4">
-              <div className="flex items-center space-x-3">
-                <Shield className="text-green-600" size={24} />
-                <div>
-                  <h4 className="font-semibold text-green-800">Sistema Seguro</h4>
-                  <p className="text-sm text-green-700">Información protegida con encriptación avanzada.</p>
                 </div>
               </div>
             </div>
@@ -526,7 +568,7 @@ ${misInversiones.map(i => `${i.nombre},${i.inversion},${i.gananciaEsperada},${i.
                       <h2 className="text-2xl font-bold text-gray-800">Cartera de Clientes</h2>
                       <p className="text-gray-600">Gestión de préstamos y cobranzas</p>
                     </div>
-                    <button onClick={() => alert('Funcionalidad próximamente')}
+                    <button onClick={() => alert('Funcionalidad disponible próximamente')}
                       className="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
                       <Plus className="mr-2" size={18} />
                       Nuevo Cliente
@@ -557,47 +599,63 @@ ${misInversiones.map(i => `${i.nombre},${i.inversion},${i.gananciaEsperada},${i.
                               </div>
                             </div>
                             
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                               <div className="bg-white p-4 rounded-lg shadow-sm">
                                 <p className="text-sm text-gray-600 mb-1">Capital</p>
                                 <p className="font-bold text-lg text-blue-600">S/{cliente.capital.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">Tasa: {cliente.tasaInteres}%</p>
                               </div>
                               <div className="bg-white p-4 rounded-lg shadow-sm">
                                 <p className="text-sm text-gray-600 mb-1">Pendiente</p>
                                 <p className="font-bold text-lg text-red-600">S/{cliente.saldoPendiente.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">Plazo: {cliente.plazoMeses} meses</p>
                               </div>
                               <div className="bg-white p-4 rounded-lg shadow-sm">
                                 <p className="text-sm text-gray-600 mb-1">Cuota</p>
                                 <p className="font-bold text-lg text-green-600">S/{cliente.cuotaMensual.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">Mensual</p>
+                              </div>
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <p className="text-sm text-gray-600 mb-1">Pagado</p>
+                                <p className="font-bold text-lg text-emerald-600">S/{cliente.pagosRecibidos.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">{cliente.historialPagos?.length || 0} pagos</p>
                               </div>
                             </div>
                             
                             <div className="flex flex-wrap items-center gap-4">
                               <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                                cliente.estado === 'En Proceso' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                                cliente.estado === 'En Proceso' ? 'bg-yellow-100 text-yellow-800' : 
+                                cliente.estado === 'Completado' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                               }`}>
                                 {cliente.estado}
+                              </span>
+                              <span className="text-sm text-gray-600">
+                                Inicio: {new Date(cliente.fechaInicio).toLocaleDateString()}
                               </span>
                             </div>
                           </div>
                           
                           <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                            <button onClick={() => alert('Funcionalidad próximamente')}
+                            <button 
+                              onClick={() => abrirModal('pago_cliente', cliente)}
                               className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Registrar Pago">
                               <DollarSign size={18} />
                             </button>
-                            <button onClick={() => alert('Funcionalidad próximamente')}
+                            <button 
+                              onClick={() => abrirModal('historial', cliente)}
                               className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Ver Historial">
                               <Eye size={18} />
                             </button>
-                            <button onClick={() => alert('Funcionalidad próximamente')}
+                            <button 
+                              onClick={() => alert('Funcionalidad disponible próximamente')}
                               className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Editar Cliente">
                               <Edit size={18} />
                             </button>
-                            <button onClick={() => alert('Funcionalidad próximamente')}
+                            <button 
+                              onClick={() => eliminarItem('cliente', cliente.id)}
                               className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Eliminar Cliente">
                               <Trash2 size={18} />
@@ -619,7 +677,7 @@ ${misInversiones.map(i => `${i.nombre},${i.inversion},${i.gananciaEsperada},${i.
                       <h2 className="text-2xl font-bold text-gray-800">Gestión de Deudas</h2>
                       <p className="text-gray-600">Control de obligaciones financieras</p>
                     </div>
-                    <button onClick={() => alert('Funcionalidad próximamente')}
+                    <button onClick={() => alert('Funcionalidad disponible próximamente')}
                       className="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
                       <Plus className="mr-2" size={18} />
                       Nueva Deuda
@@ -641,24 +699,33 @@ ${misInversiones.map(i => `${i.nombre},${i.inversion},${i.gananciaEsperada},${i.
                               </div>
                             </div>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                               <div className="bg-white p-4 rounded-lg shadow-sm">
                                 <p className="text-sm text-gray-600 mb-1">Capital</p>
                                 <p className="font-bold text-lg text-blue-600">S/{deuda.capital.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">Tasa: {deuda.tasaInteres}%</p>
                               </div>
                               <div className="bg-white p-4 rounded-lg shadow-sm">
                                 <p className="text-sm text-gray-600 mb-1">Pendiente</p>
                                 <p className="font-bold text-lg text-red-600">S/{deuda.saldoPendiente.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">Plazo: {deuda.plazoMeses} meses</p>
                               </div>
                               <div className="bg-white p-4 rounded-lg shadow-sm">
                                 <p className="text-sm text-gray-600 mb-1">Cuota</p>
                                 <p className="font-bold text-lg text-orange-600">S/{deuda.cuotaMensual.toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">Mensual</p>
+                              </div>
+                              <div className="bg-white p-4 rounded-lg shadow-sm">
+                                <p className="text-sm text-gray-600 mb-1">Próximo Vencimiento</p>
+                                <p className="font-bold text-lg text-purple-600">{new Date(deuda.proximoVencimiento).toLocaleDateString()}</p>
+                                <p className="text-xs text-gray-500">Inicio: {new Date(deuda.fechaInicio).toLocaleDateString()}</p>
                               </div>
                             </div>
                             
                             <div className="flex flex-wrap items-center gap-4">
                               <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                                deuda.estado === 'Activo' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                                deuda.estado === 'Activo' ? 'bg-red-100 text-red-800' : 
+                                deuda.estado === 'Pagado' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                               }`}>
                                 {deuda.estado}
                               </span>
@@ -666,22 +733,26 @@ ${misInversiones.map(i => `${i.nombre},${i.inversion},${i.gananciaEsperada},${i.
                           </div>
                           
                           <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                            <button onClick={() => alert('Funcionalidad próximamente')}
+                            <button 
+                              onClick={() => abrirModal('pago_deuda', deuda)}
                               className="bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Pagar Cuota">
                               <DollarSign size={18} />
                             </button>
-                            <button onClick={() => alert('Funcionalidad próximamente')}
+                            <button 
+                              onClick={() => alert('Historial disponible próximamente')}
                               className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Ver Historial">
                               <Eye size={18} />
                             </button>
-                            <button onClick={() => alert('Funcionalidad próximamente')}
+                            <button 
+                              onClick={() => alert('Funcionalidad disponible próximamente')}
                               className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Editar Deuda">
                               <Edit size={18} />
                             </button>
-                            <button onClick={() => alert('Funcionalidad próximamente')}
+                            <button 
+                              onClick={() => eliminarItem('deuda', deuda.id)}
                               className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Eliminar Deuda">
                               <Trash2 size={18} />
@@ -703,7 +774,7 @@ ${misInversiones.map(i => `${i.nombre},${i.inversion},${i.gananciaEsperada},${i.
                       <h2 className="text-2xl font-bold text-gray-800">Portfolio de Inversiones</h2>
                       <p className="text-gray-600">Gestión de activos y ROI</p>
                     </div>
-                    <button onClick={() => alert('Funcionalidad próximamente')}
+                    <button onClick={() => alert('Funcionalidad disponible próximamente')}
                       className="bg-purple-500 text-white px-6 py-3 rounded-xl hover:bg-purple-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
                       <Plus className="mr-2" size={18} />
                       Nueva Inversión
@@ -767,17 +838,17 @@ ${misInversiones.map(i => `${i.nombre},${i.inversion},${i.gananciaEsperada},${i.
                           </div>
                           
                           <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                            <button onClick={() => alert('Funcionalidad próximamente')}
+                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
                               className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Actualizar Ganancias">
                               <TrendingUp size={18} />
                             </button>
-                            <button onClick={() => alert('Funcionalidad próximamente')}
+                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
                               className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Editar Inversión">
                               <Edit size={18} />
                             </button>
-                            <button onClick={() => alert('Funcionalidad próximamente')}
+                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
                               className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Eliminar Inversión">
                               <Trash2 size={18} />
@@ -832,7 +903,7 @@ ${misInversiones.map(i => `${i.nombre},${i.inversion},${i.gananciaEsperada},${i.
                           </div>
                           
                           <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                            <button onClick={() => alert('Funcionalidad próximamente')}
+                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
                               className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Editar Alerta">
                               <Edit size={18} />
