@@ -5,8 +5,28 @@ import {
   CheckCircle, Cloud, WifiOff, User, Phone, Mail, CreditCard, 
   AlertTriangle, Eye, Link, Save, Download
 } from 'lucide-react';
-
+import useFinancialData from '../hooks/useFinancialData';
 export default function GrizalumFinancial() {
+  // Hook de datos financieros
+  const {
+    misClientes,
+    misDeudas,
+    misInversiones,
+    alertas,
+    firebaseConectado,
+    totalPorCobrar,
+    totalPorPagar,
+    balanceNeto,
+    cobertura,
+    registrarPagoCliente,
+    pagarDeuda,
+    eliminarCliente,
+    eliminarDeuda,
+    eliminarPagoHistorial,
+    eliminarAlerta
+  } = useFinancialData();
+
+  // Estados de UI 
   const [currentView, setCurrentView] = useState('resumen');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [datosGuardados, setDatosGuardados] = useState(false);
@@ -19,132 +39,6 @@ export default function GrizalumFinancial() {
   const [fechaPago, setFechaPago] = useState(new Date().toISOString().split('T')[0]);
   const [notas, setNotas] = useState('');
 
-  const [misClientes, setMisClientes] = useState([
-    {
-      id: 1,
-      nombre: 'Antonio Rodriguez',
-      email: 'antonio@example.com',
-      telefono: '+51 999 123 456',
-      capital: 10000,
-      tasaInteres: 14,
-      plazoMeses: 18,
-      cuotaMensual: 633.30,
-      totalCobrar: 11399.40,
-      saldoPendiente: 8000.00,
-      pagosRecibidos: 3399.40,
-      estado: 'En Proceso',
-      fechaInicio: '2024-06-01',
-      historialPagos: [
-        { id: 1, fecha: '2024-07-01', monto: 633.30, tipo: 'Cuota Regular' },
-        { id: 2, fecha: '2024-08-01', monto: 633.30, tipo: 'Cuota Regular' },
-        { id: 3, fecha: '2024-09-01', monto: 633.30, tipo: 'Cuota Regular' }
-      ]
-    },
-    {
-      id: 2,
-      nombre: 'Maria Gonzalez',
-      email: 'maria@example.com',
-      telefono: '+51 987 654 321',
-      capital: 15000,
-      tasaInteres: 12,
-      plazoMeses: 18,
-      cuotaMensual: 950.00,
-      totalCobrar: 17100.00,
-      saldoPendiente: 12000.00,
-      pagosRecibidos: 5100.00,
-      estado: 'En Proceso',
-      fechaInicio: '2024-05-15',
-      historialPagos: [
-        { id: 1, fecha: '2024-06-15', monto: 950.00, tipo: 'Cuota Regular' },
-        { id: 2, fecha: '2024-07-15', monto: 950.00, tipo: 'Cuota Regular' },
-        { id: 3, fecha: '2024-08-15', monto: 500.00, tipo: 'Pago Parcial' }
-      ]
-    }
-  ]);
-
-  const [misDeudas, setMisDeudas] = useState([
-    {
-      id: 1,
-      acreedor: 'Banco Santander',
-      descripcion: 'Prestamo comercial para capital de trabajo',
-      capital: 50000,
-      tasaInteres: 18,
-      plazoMeses: 24,
-      cuotaMensual: 2500.00,
-      saldoPendiente: 45000.00,
-      estado: 'Activo',
-      fechaInicio: '2024-01-01',
-      proximoVencimiento: '2025-01-01'
-    },
-    {
-      id: 2,
-      acreedor: 'Proveedor Textil SAC',
-      descripcion: 'Compra de mercaderia a credito',
-      capital: 8000,
-      tasaInteres: 0,
-      plazoMeses: 10,
-      cuotaMensual: 800.00,
-      saldoPendiente: 6400.00,
-      estado: 'Activo',
-      fechaInicio: '2024-08-01',
-      proximoVencimiento: '2024-12-15'
-    }
-  ]);
-
-  const [misInversiones] = useState([
-    {
-      id: 1,
-      nombre: 'Maquina Soldadora Industrial',
-      descripcion: 'Maquina profesional para metalurgia',
-      tipo: 'Maquinaria',
-      inversion: 12000,
-      gananciaEsperada: 2500,
-      gananciaActual: 1625,
-      estado: 'En Proceso',
-      roi: 13.5,
-      progreso: 65
-    },
-    {
-      id: 2,
-      nombre: 'Local Comercial Centro',
-      descripcion: 'Alquiler de local estrategico',
-      tipo: 'Inmueble',
-      inversion: 25000,
-      gananciaEsperada: 5000,
-      gananciaActual: 3750,
-      estado: 'En Proceso',
-      roi: 15.0,
-      progreso: 75
-    }
-  ]);
-
-  const [alertas, setAlertas] = useState([
-    {
-      id: 1,
-      mensaje: 'Pago de Antonio Rodriguez vence en 3 dias',
-      urgencia: 'media',
-      tipo: 'pago_pendiente',
-      activa: true
-    },
-    {
-      id: 2,
-      mensaje: 'Cuota BCP vence mañana',
-      urgencia: 'alta',
-      tipo: 'deuda_vencimiento',
-      activa: true
-    }
-  ]);
-
-  const totalPorCobrar = misClientes.reduce((acc, c) => acc + c.saldoPendiente, 0);
-  const totalPorPagar = misDeudas.reduce((acc, d) => acc + d.saldoPendiente, 0);
-  const balanceNeto = totalPorCobrar - totalPorPagar;
-  const recursosDisponibles = totalPorCobrar + misInversiones.reduce((acc, i) => acc + i.gananciaActual, 0);
-  const cobertura = totalPorPagar > 0 ? (recursosDisponibles / totalPorPagar) * 100 : 100;
-
-  useEffect(() => {
-    const interval = setInterval(() => setFirebaseConectado(Math.random() > 0.1), 8000);
-    return () => clearInterval(interval);
-  }, []);
 
   const abrirModal = (tipo, item = null) => {
     setTipoModal(tipo);
@@ -163,68 +57,33 @@ export default function GrizalumFinancial() {
     setNotas('');
   };
 
-  const procesarPago = () => {
-    if (!montoPago || parseFloat(montoPago) <= 0) {
-      alert('Ingrese un monto válido');
-      return;
-    }
+ const procesarPago = () => {
+  if (!montoPago || parseFloat(montoPago) <= 0) {
+    alert('Ingrese un monto válido');
+    return;
+  }
 
-    const monto = parseFloat(montoPago);
-    
-    if (tipoModal === 'pago_cliente') {
-      setMisClientes(prev => prev.map(cliente => {
-        if (cliente.id === itemSeleccionado.id) {
-          const nuevoSaldo = Math.max(0, cliente.saldoPendiente - monto);
-          const nuevoPagado = cliente.pagosRecibidos + monto;
-          
-          const nuevoPago = {
-            id: (cliente.historialPagos?.length || 0) + 1,
-            fecha: fechaPago,
-            monto: monto,
-            tipo: monto >= cliente.cuotaMensual ? 'Cuota Regular' : 'Pago Parcial'
-          };
+  const monto = parseFloat(montoPago);
+  
+  if (tipoModal === 'pago_cliente') {
+    registrarPagoCliente(itemSeleccionado.id, monto, fechaPago);
+    alert(`Pago registrado: S/ ${monto.toLocaleString()} de ${itemSeleccionado.nombre}`);
+  }
+  
+  if (tipoModal === 'pago_deuda') {
+    pagarDeuda(itemSeleccionado.id, monto);
+    alert(`Pago realizado: S/ ${monto.toLocaleString()} a ${itemSeleccionado.acreedor}`);
+  }
 
-          return {
-            ...cliente,
-            saldoPendiente: nuevoSaldo,
-            pagosRecibidos: nuevoPagado,
-            estado: nuevoSaldo === 0 ? 'Completado' : 'En Proceso',
-            historialPagos: [...(cliente.historialPagos || []), nuevoPago]
-          };
-        }
-        return cliente;
-      }));
-      
-      alert(`Pago registrado: S/ ${monto.toLocaleString()} de ${itemSeleccionado.nombre}`);
-    }
-    
-    if (tipoModal === 'pago_deuda') {
-      setMisDeudas(prev => prev.map(deuda => {
-        if (deuda.id === itemSeleccionado.id) {
-          const nuevoSaldo = Math.max(0, deuda.saldoPendiente - monto);
-          
-          return {
-            ...deuda,
-            saldoPendiente: nuevoSaldo,
-            estado: nuevoSaldo === 0 ? 'Pagado' : 'Activo'
-          };
-        }
-        return deuda;
-      }));
-      
-      alert(`Pago realizado: S/ ${monto.toLocaleString()} a ${itemSeleccionado.acreedor}`);
-    }
-
-    cerrarModal();
-  };
-
+  cerrarModal();
+};
   const eliminarItem = (tipo, id) => {
     if (window.confirm('¿Está seguro de eliminar este elemento?')) {
       if (tipo === 'cliente') {
-        setMisClientes(prev => prev.filter(c => c.id !== id));
+        eliminarCliente(id);
         alert('Cliente eliminado');
       } else if (tipo === 'deuda') {
-        setMisDeudas(prev => prev.filter(d => d.id !== id));
+        seliminarDeuda(id);
         alert('Deuda eliminada');
       }
     }
