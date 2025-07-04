@@ -229,14 +229,24 @@ Control Financiero Empresarial Seguro`;
 
               {tipoModal === 'historial' && itemSeleccionado && (
                 <div className="space-y-4">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-gray-800">{itemSeleccionado.nombre}</h4>
-                    <p className="text-sm text-gray-600">
-                      Capital: S/ {itemSeleccionado.capital?.toLocaleString()} | 
-                      Tasa: {itemSeleccionado.tasaInteres}% | 
-                      Plazo: {itemSeleccionado.plazoMeses} meses
-                    </p>
-                  </div>
+                 <div className="bg-gray-50 p-4 rounded-lg">
+  <h4 className="font-semibold text-gray-800">{itemSeleccionado.nombre}</h4>
+  <p className="text-sm text-gray-600">
+    Capital: S/ {itemSeleccionado.capital?.toLocaleString()} | 
+    Tasa: {itemSeleccionado.tasaInteres}% | 
+    Plazo: {itemSeleccionado.plazoMeses} meses
+  </p>
+  <div className="grid grid-cols-2 gap-4 mt-2 text-sm">
+    <div>
+      <span className="text-gray-600">Total Pagado:</span>
+      <span className="font-semibold text-green-600 ml-1">S/ {itemSeleccionado.pagosRecibidos?.toLocaleString()}</span>
+    </div>
+    <div>
+      <span className="text-gray-600">Saldo Pendiente:</span>
+      <span className="font-semibold text-red-600 ml-1">S/ {itemSeleccionado.saldoPendiente?.toLocaleString()}</span>
+    </div>
+  </div>
+</div>
 
                   <div className="max-h-64 overflow-y-auto">
                     <h5 className="font-semibold mb-2">Historial de Pagos:</h5>
