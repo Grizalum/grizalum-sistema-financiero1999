@@ -378,14 +378,27 @@ Control Financiero Empresarial Seguro`;
       </button>
       <button
         onClick={() => {
-          if (formCliente.nombre && formCliente.capital && formCliente.tasaInteres && formCliente.plazoMeses) {
-            agregarCliente(formCliente);
-            alert(`Cliente ${formCliente.nombre} agregado exitosamente`);
-            cerrarModal();
-          } else {
-            alert('Por favor complete todos los campos obligatorios');
-          }
-        }}
+  // Validar campos obligatorios
+  if (!formCliente.nombre || !formCliente.capital || !formCliente.tasaInteres || !formCliente.plazoMeses) {
+    alert('Por favor complete todos los campos obligatorios');
+    return;
+  }
+  
+  // Validar que los números sean válidos
+  if (parseFloat(formCliente.capital) <= 0 || parseFloat(formCliente.tasaInteres) <= 0 || parseInt(formCliente.plazoMeses) <= 0) {
+    alert('Los valores numéricos deben ser mayores a 0');
+    return;
+  }
+  
+  try {
+    agregarCliente(formCliente);
+    alert(`Cliente ${formCliente.nombre} agregado exitosamente`);
+    cerrarModal();
+  } catch (error) {
+    console.error('Error al agregar cliente:', error);
+    alert('Error al agregar el cliente. Revise los datos ingresados.');
+  }
+}}
         className="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all font-semibold"
       >
         Agregar Cliente
