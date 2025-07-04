@@ -35,6 +35,7 @@ export default function GrizalumFinancial() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [tipoModal, setTipoModal] = useState('');
   const [itemSeleccionado, setItemSeleccionado] = useState(null);
+  const [datosEdicion, setDatosEdicion] = useState({});
   const [montoPago, setMontoPago] = useState('');
   const [fechaPago, setFechaPago] = useState(new Date().toISOString().split('T')[0]);
   const [notas, setNotas] = useState('');
@@ -68,6 +69,24 @@ export default function GrizalumFinancial() {
       fechaInicio: new Date().toISOString().split('T')[0]
     });
   }
+  
+  // Cargar datos para edición
+  if (tipo === 'editar_cliente' && item) {
+    setDatosEdicion({
+      nombre: item.nombre,
+      email: item.email,
+      telefono: item.telefono,
+      tasaInteres: item.tasaInteres.toString()
+    });
+  }
+  
+  if (tipo === 'editar_deuda' && item) {
+    setDatosEdicion({
+      acreedor: item.acreedor,
+      descripcion: item.descripcion,
+      tasaInteres: item.tasaInteres.toString()
+    });
+  }
 };
   const cerrarModal = () => {
     setModalAbierto(false);
@@ -82,7 +101,76 @@ export default function GrizalumFinancial() {
     alert('Ingrese un monto válido');
     return;
   }
-
+const guardarEdicion = () => {
+  if (tipoModal === 'editar_cliente') {
+    // Validaciones
+    if (!datosEdicion.nombre || !datosEdicion.email || !datosEdicion.tasaInteres) {
+      alert('Por favor complete todos los campos obligatorios');
+      return;
+    }
+    
+    if (parseFloat(datosEdicion.tasaInteres) <= 0) {
+      alert('La tasa de interés debe ser mayor a 0');
+      return;
+    }
+    
+    // Actualizar cliente usando el hook
+    const clienteActualizado = {
+      ...itemSeleccionado,
+      nombre: datosEdicion.nombre,
+      email: datosEdicion.email,
+      telefono: datosEdicion.telefono,
+      tasaInteres: parseFloat(datosEdicion.tasaInteres)
+    };
+    
+    // Recalcular cuota mensual si cambió la tasa
+    if (clienteActualizado.tasaInteres !== itemSeleccionado.tasaInteres) {
+      const tasaMensual = clienteActualizado.tasaInteres / 100 / 12;
+      const nuevaCuota = clienteActualizado.capital * 
+        (tasaMensual * Math.pow(1 + tasaMensual, clienteActualizado.plazoMeses)) / 
+        (Math.pow(1 + tasaMensual, clienteActualizado.plazoMeses) - 1);
+      clienteActualizado.cuotaMensual = Math.round(nuevaCuota * 100) / 100;
+      clienteActualizado.totalCobrar = clienteActualizado.cuotaMensual * clienteActualizado.plazoMeses;
+      clienteActualizado.saldoPendiente = clienteActualizado.totalCobrar - clienteActualizado.pagosRecibidos;
+    }
+    
+    // Usar función del hook para actualizar
+    setMisClientes(prev => prev.map(c => 
+      c.id === itemSeleccionado.id ? clienteActualizado : c
+    ));
+    
+    alert(`Cliente ${datosEdicion.nombre} actualizado exitosamente`);
+    cerrarModal();
+  }
+  
+  if (tipoModal === 'editar_deuda') {
+    // Validaciones
+    if (!datosEdicion.acreedor || !datosEdicion.descripcion || !datosEdicion.tasaInteres) {
+      alert('Por favor complete todos los campos obligatorios');
+      return;
+    }
+    
+    if (parseFloat(datosEdicion.tasaInteres) < 0) {
+      alert('La tasa de interés no puede ser negativa');
+      return;
+    }
+    
+    // Actualizar deuda
+    const deudaActualizada = {
+      ...itemSeleccionado,
+      acreedor: datosEdicion.acreedor,
+      descripcion: datosEdicion.descripcion,
+      tasaInteres: parseFloat(datosEdicion.tasaInteres)
+    };
+    
+    setMisDeudas(prev => prev.map(d => 
+      d.id === itemSeleccionado.id ? deudaActualizada : d
+    ));
+    
+    alert(`Deuda de ${datosEdicion.acreedor} actualizada exitosamente`);
+    cerrarModal();
+  }
+};
   const monto = parseFloat(montoPago);
   
   if (tipoModal === 'pago_cliente') {
