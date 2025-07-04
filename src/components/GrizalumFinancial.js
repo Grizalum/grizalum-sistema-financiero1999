@@ -23,7 +23,8 @@ export default function GrizalumFinancial() {
     eliminarCliente,
     eliminarDeuda,
     eliminarPagoHistorial,
-    eliminarAlerta
+    eliminarAlerta,
+    agregarCliente,
   } = useFinancialData();
 
   // Estados de UI 
@@ -37,17 +38,37 @@ export default function GrizalumFinancial() {
   const [montoPago, setMontoPago] = useState('');
   const [fechaPago, setFechaPago] = useState(new Date().toISOString().split('T')[0]);
   const [notas, setNotas] = useState('');
+  const [formCliente, setFormCliente] = useState({
+  nombre: '',
+  email: '',
+  telefono: '',
+  capital: '',
+  tasaInteres: '',
+  plazoMeses: '',
+  fechaInicio: new Date().toISOString().split('T')[0]
+});
 
-
-  const abrirModal = (tipo, item = null) => {
-    setTipoModal(tipo);
-    setItemSeleccionado(item);
-    setModalAbierto(true);
-    setMontoPago('');
-    setNotas('');
-    setFechaPago(new Date().toISOString().split('T')[0]);
-  };
-
+ const abrirModal = (tipo, item = null) => {
+  setTipoModal(tipo);
+  setItemSeleccionado(item);
+  setModalAbierto(true);
+  setMontoPago('');
+  setNotas('');
+  setFechaPago(new Date().toISOString().split('T')[0]);
+  
+  // Limpiar formulario de cliente si es nuevo cliente
+  if (tipo === 'nuevo_cliente') {
+    setFormCliente({
+      nombre: '',
+      email: '',
+      telefono: '',
+      capital: '',
+      tasaInteres: '',
+      plazoMeses: '',
+      fechaInicio: new Date().toISOString().split('T')[0]
+    });
+  }
+};
   const cerrarModal = () => {
     setModalAbierto(false);
     setTipoModal('');
@@ -622,7 +643,7 @@ Control Financiero Empresarial Seguro`;
                       <h2 className="text-2xl font-bold text-gray-800">Cartera de Clientes</h2>
                       <p className="text-gray-600">Gestión de préstamos y cobranzas</p>
                     </div>
-                    <button onClick={() => alert('Funcionalidad disponible próximamente')}
+                    <button onClick={() => abrirModal('nuevo_cliente')}
                       className="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
                       <Plus className="mr-2" size={18} />
                       Nuevo Cliente
