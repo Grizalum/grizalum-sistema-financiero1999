@@ -198,16 +198,31 @@ const useFinancialData = () => {
   }, []);
 const agregarCliente = useCallback((nuevoCliente) => {
   setMisClientes(prev => {
+    // Calcular cuota mensual y total a cobrar
+    const capital = parseFloat(nuevoCliente.capital);
+    const tasa = parseFloat(nuevoCliente.tasaInteres) / 100;
+    const meses = parseInt(nuevoCliente.plazoMeses);
+    
+    // Fórmula de cuota mensual
+    const tasaMensual = tasa / 12;
+    const cuotaMensual = capital * (tasaMensual * Math.pow(1 + tasaMensual, meses)) / (Math.pow(1 + tasaMensual, meses) - 1);
+    const totalCobrar = cuotaMensual * meses;
+    
     const clienteConId = {
       ...nuevoCliente,
       id: Math.max(...prev.map(c => c.id), 0) + 1,
-      saldoPendiente: nuevoCliente.capital,
+      capital: capital,
+      tasaInteres: parseFloat(nuevoCliente.tasaInteres),
+      plazoMeses: meses,
+      cuotaMensual: Math.round(cuotaMensual * 100) / 100,
+      totalCobrar: Math.round(totalCobrar * 100) / 100,
+      saldoPendiente: Math.round(totalCobrar * 100) / 100,
       pagosRecibidos: 0,
       estado: 'En Proceso',
       historialPagos: []
     };
     
-    return [...prev, clienteConId];  
+    return [...prev, clienteConId];
   });
 }, []);
   // Simulación de conexión
