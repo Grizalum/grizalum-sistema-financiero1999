@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 
 // Hook personalizado para manejar toda la lógica financiera
@@ -237,5 +236,7 @@ const useFinancialData = () => {
     setAlertas
   };
 };
+
+export default useFinancialData;
 
 export default useFinancialData;
