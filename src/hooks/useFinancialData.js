@@ -1,5 +1,7 @@
+
 import { useState, useEffect, useCallback } from 'react';
 
+// Hook personalizado para manejar toda la lógica financiera
 const useFinancialData = () => {
   // Estados principales
   const [misClientes, setMisClientes] = useState([
@@ -125,7 +127,7 @@ const useFinancialData = () => {
   const recursosDisponibles = totalPorCobrar + misInversiones.reduce((acc, i) => acc + i.gananciaActual, 0);
   const cobertura = totalPorPagar > 0 ? (recursosDisponibles / totalPorPagar) * 100 : 100;
 
-  // Funciones de acción
+  // Funciones de acción con useCallback para evitar re-renders
   const registrarPagoCliente = useCallback((clienteId, monto, fecha) => {
     setMisClientes(prev => prev.map(cliente => {
       if (cliente.id === clienteId) {
@@ -229,7 +231,7 @@ const useFinancialData = () => {
     eliminarPagoHistorial,
     eliminarAlerta,
     
-    // Setters directos
+    // Setters directos (para casos especiales)
     setMisClientes,
     setMisDeudas,
     setAlertas
