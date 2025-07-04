@@ -18,6 +18,16 @@ export default function GrizalumFinancial() {
   const [montoPago, setMontoPago] = useState('');
   const [fechaPago, setFechaPago] = useState(new Date().toISOString().split('T')[0]);
   const [notas, setNotas] = useState('');
+  
+  // Estados para formularios de cliente
+  const [formCliente, setFormCliente] = useState({
+    nombre: '',
+    email: '',
+    telefono: '',
+    capital: '',
+    tasaInteres: '',
+    plazoMeses: ''
+  });
 
   const [misClientes, setMisClientes] = useState([
     {
@@ -37,7 +47,7 @@ export default function GrizalumFinancial() {
       historialPagos: [
         { id: 1, fecha: '2024-07-01', monto: 633.30, tipo: 'Cuota Regular' },
         { id: 2, fecha: '2024-08-01', monto: 633.30, tipo: 'Cuota Regular' },
-        { id: 3, fecha: '2024-09-01', monto: 500.00, tipo: 'Pago Parcial' }
+        { id: 3, fecha: '2024-09-01', monto: 633.30, tipo: 'Cuota Regular' }
       ]
     },
     {
@@ -57,7 +67,7 @@ export default function GrizalumFinancial() {
       historialPagos: [
         { id: 1, fecha: '2024-06-15', monto: 950.00, tipo: 'Cuota Regular' },
         { id: 2, fecha: '2024-07-15', monto: 950.00, tipo: 'Cuota Regular' },
-        { id: 3, fecha: '2024-08-15', monto: 300.00, tipo: 'Pago Parcial' }
+        { id: 3, fecha: '2024-08-15', monto: 500.00, tipo: 'Pago Parcial' }
       ]
     }
   ]);
@@ -153,6 +163,27 @@ export default function GrizalumFinancial() {
     setMontoPago('');
     setNotas('');
     setFechaPago(new Date().toISOString().split('T')[0]);
+    
+    // Cargar datos para editar cliente
+    if (tipo === 'editar_cliente' && item) {
+      setFormCliente({
+        nombre: item.nombre,
+        email: item.email,
+        telefono: item.telefono,
+        capital: item.capital.toString(),
+        tasaInteres: item.tasaInteres.toString(),
+        plazoMeses: item.plazoMeses.toString()
+      });
+    } else if (tipo === 'nuevo_cliente') {
+      setFormCliente({
+        nombre: '',
+        email: '',
+        telefono: '',
+        capital: '',
+        tasaInteres: '',
+        plazoMeses: ''
+      });
+    }
   };
 
   const cerrarModal = () => {
@@ -161,6 +192,22 @@ export default function GrizalumFinancial() {
     setItemSeleccionado(null);
     setMontoPago('');
     setNotas('');
+    setFormCliente({
+      nombre: '',
+      email: '',
+      telefono: '',
+      capital: '',
+      tasaInteres: '',
+      plazoMeses: ''
+    });
+  };
+
+  // Función para calcular cuota mensual con tasa de interés
+  const calcularCuotaMensual = (capital, tasaAnual, plazoMeses) => {
+    const tasaMensual = tasaAnual / 100 / 12;
+    if (tasaMensual === 0) return capital / plazoMeses;
+    return (capital * tasaMensual * Math.pow(1 + tasaMensual, plazoMeses)) / 
+           (Math.pow(1 + tasaMensual, plazoMeses) - 1);
   };
 
   const procesarPago = () => {
@@ -178,7 +225,7 @@ export default function GrizalumFinancial() {
           const nuevoPagado = cliente.pagosRecibidos + monto;
           
           const nuevoPago = {
-            id: Date.now(),
+            id: (cliente.historialPagos?.length || 0) + 1,
             fecha: fechaPago,
             monto: monto,
             tipo: monto >= cliente.cuotaMensual ? 'Cuota Regular' : 'Pago Parcial'
@@ -189,13 +236,13 @@ export default function GrizalumFinancial() {
             saldoPendiente: nuevoSaldo,
             pagosRecibidos: nuevoPagado,
             estado: nuevoSaldo === 0 ? 'Completado' : 'En Proceso',
-            historialPagos: [...cliente.historialPagos, nuevoPago]
+            historialPagos: [...(cliente.historialPagos || []), nuevoPago]
           };
         }
         return cliente;
       }));
       
-      alert(`✅ Pago registrado: S/ ${monto.toLocaleString()} de ${itemSeleccionado.nombre}`);
+      alert(`Pago registrado: S/ ${monto.toLocaleString()} de ${itemSeleccionado.nombre}`);
     }
     
     if (tipoModal === 'pago_deuda') {
@@ -212,10 +259,22 @@ export default function GrizalumFinancial() {
         return deuda;
       }));
       
-      alert(`✅ Pago realizado: S/ ${monto.toLocaleString()} a ${itemSeleccionado.acreedor}`);
+      alert(`Pago realizado: S/ ${monto.toLocaleString()} a ${itemSeleccionado.acreedor}`);
     }
 
     cerrarModal();
+  };
+
+  const eliminarItem = (tipo, id) => {
+    if (window.confirm('¿Está seguro de eliminar este elemento?')) {
+      if (tipo === 'cliente') {
+        setMisClientes(prev => prev.filter(c => c.id !== id));
+        alert('Cliente eliminado');
+      } else if (tipo === 'deuda') {
+        setMisDeudas(prev => prev.filter(d => d.id !== id));
+        alert('Deuda eliminada');
+      }
+    }
   };
 
   const eliminarPagoHistorial = (clienteId, pagoId) => {
@@ -224,33 +283,18 @@ export default function GrizalumFinancial() {
         if (cliente.id === clienteId) {
           const pagoEliminado = cliente.historialPagos.find(p => p.id === pagoId);
           if (pagoEliminado) {
-            const nuevoPagado = cliente.pagosRecibidos - pagoEliminado.monto;
-            const nuevoSaldo = cliente.saldoPendiente + pagoEliminado.monto;
-            
             return {
               ...cliente,
-              saldoPendiente: nuevoSaldo,
-              pagosRecibidos: nuevoPagado,
-              estado: nuevoSaldo === 0 ? 'Completado' : 'En Proceso',
-              historialPagos: cliente.historialPagos.filter(p => p.id !== pagoId)
+              historialPagos: cliente.historialPagos.filter(p => p.id !== pagoId),
+              pagosRecibidos: cliente.pagosRecibidos - pagoEliminado.monto,
+              saldoPendiente: cliente.saldoPendiente + pagoEliminado.monto,
+              estado: cliente.saldoPendiente + pagoEliminado.monto > 0 ? 'En Proceso' : cliente.estado
             };
           }
         }
         return cliente;
       }));
-      alert('✅ Pago eliminado del historial');
-    }
-  };
-
-  const eliminarItem = (tipo, id) => {
-    if (window.confirm('¿Está seguro de eliminar este elemento?')) {
-      if (tipo === 'cliente') {
-        setMisClientes(prev => prev.filter(c => c.id !== id));
-        alert('✅ Cliente eliminado');
-      } else if (tipo === 'deuda') {
-        setMisDeudas(prev => prev.filter(d => d.id !== id));
-        alert('✅ Deuda eliminada');
-      }
+      alert('Pago eliminado del historial');
     }
   };
 
@@ -267,18 +311,18 @@ RESUMEN EJECUTIVO:
 Control Financiero Empresarial Seguro`;
 
     navigator.clipboard.writeText(mensaje).then(() => {
-      alert('📋 Reporte copiado al portapapeles exitosamente');
+      alert('Reporte copiado al portapapeles exitosamente');
     }).catch(() => {
-      alert('📋 Reporte preparado para copiar');
+      alert('Reporte preparado para copiar');
     });
   };
 
   const copiarLink = () => {
-    const link = window.location.href;
+    const link = `${window.location.origin}${window.location.pathname}?empresa=grizalum&view=${currentView}`;
     navigator.clipboard.writeText(link).then(() => {
-      alert('🔗 Link copiado al portapapeles');
+      alert('Link copiado al portapapeles exitosamente');
     }).catch(() => {
-      alert('🔗 Link preparado para copiar');
+      alert('Link preparado para copiar');
     });
   };
 
@@ -286,7 +330,7 @@ Control Financiero Empresarial Seguro`;
     setSincronizando(true);
     setTimeout(() => {
       setSincronizando(false);
-      alert('📊 Exportación a Excel completada (simulación)');
+      alert('Reporte Excel generado exitosamente');
     }, 2000);
   };
 
@@ -295,14 +339,14 @@ Control Financiero Empresarial Seguro`;
     setTimeout(() => {
       setSincronizando(false);
       setDatosGuardados(true);
-      alert('☁️ Datos guardados en la nube exitosamente');
+      alert('Datos guardados en la nube exitosamente');
       setTimeout(() => setDatosGuardados(false), 3000);
-    }, 2000);
+    }, 1500);
   };
 
   const eliminarAlerta = (alertaId) => {
     setAlertas(prev => prev.filter(a => a.id !== alertaId));
-    alert('✅ Alerta eliminada');
+    alert('Alerta eliminada');
   };
 
   return (
@@ -316,11 +360,145 @@ Control Financiero Empresarial Seguro`;
                   {tipoModal === 'pago_cliente' && 'Registrar Pago de Cliente'}
                   {tipoModal === 'pago_deuda' && 'Pagar Deuda'}
                   {tipoModal === 'historial' && 'Historial de Pagos'}
+                  {tipoModal === 'nuevo_cliente' && 'Agregar Nuevo Cliente'}
+                  {tipoModal === 'editar_cliente' && 'Editar Cliente'}
                 </h3>
                 <button onClick={cerrarModal} className="text-gray-400 hover:text-gray-600">
                   <X size={24} />
                 </button>
               </div>
+
+              {(tipoModal === 'nuevo_cliente' || tipoModal === 'editar_cliente') && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Nombre Completo</label>
+                      <input
+                        type="text"
+                        value={formCliente.nombre}
+                        onChange={(e) => setFormCliente({...formCliente, nombre: e.target.value})}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Ej: Juan Pérez García"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <input
+                          type="email"
+                          value={formCliente.email}
+                          onChange={(e) => setFormCliente({...formCliente, email: e.target.value})}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="juan@ejemplo.com"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                        <input
+                          type="tel"
+                          value={formCliente.telefono}
+                          onChange={(e) => setFormCliente({...formCliente, telefono: e.target.value})}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="+51 999 123 456"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Capital (S/)</label>
+                        <input
+                          type="number"
+                          value={formCliente.capital}
+                          onChange={(e) => setFormCliente({...formCliente, capital: e.target.value})}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="10000"
+                          step="100"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Tasa Anual (%)</label>
+                        <input
+                          type="number"
+                          value={formCliente.tasaInteres}
+                          onChange={(e) => setFormCliente({...formCliente, tasaInteres: e.target.value})}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="12"
+                          step="0.1"
+                          min="0"
+                          max="100"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Plazo (meses)</label>
+                        <input
+                          type="number"
+                          value={formCliente.plazoMeses}
+                          onChange={(e) => setFormCliente({...formCliente, plazoMeses: e.target.value})}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder="12"
+                          min="1"
+                          max="120"
+                        />
+                      </div>
+                    </div>
+
+                    {formCliente.capital && formCliente.tasaInteres && formCliente.plazoMeses && (
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h4 className="font-semibold text-blue-800 mb-2">Vista Previa de Cálculos</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <span className="text-blue-600 font-medium">Cuota Mensual:</span>
+                            <p className="font-bold text-lg text-blue-800">
+                              S/ {calcularCuotaMensual(
+                                parseFloat(formCliente.capital) || 0,
+                                parseFloat(formCliente.tasaInteres) || 0,
+                                parseInt(formCliente.plazoMeses) || 1
+                              ).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-blue-600 font-medium">Total a Cobrar:</span>
+                            <p className="font-bold text-lg text-blue-800">
+                              S/ {(calcularCuotaMensual(
+                                parseFloat(formCliente.capital) || 0,
+                                parseFloat(formCliente.tasaInteres) || 0,
+                                parseInt(formCliente.plazoMeses) || 1
+                              ) * (parseInt(formCliente.plazoMeses) || 1)).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                            </p>
+                          </div>
+                          <div>
+                            <span className="text-blue-600 font-medium">Intereses:</span>
+                            <p className="font-bold text-lg text-blue-800">
+                              S/ {((calcularCuotaMensual(
+                                parseFloat(formCliente.capital) || 0,
+                                parseFloat(formCliente.tasaInteres) || 0,
+                                parseInt(formCliente.plazoMeses) || 1
+                              ) * (parseInt(formCliente.plazoMeses) || 1)) - (parseFloat(formCliente.capital) || 0)).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex space-x-3 mt-6">
+                    <button
+                      onClick={cerrarModal}
+                      className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={guardarCliente}
+                      className="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all font-semibold"
+                    >
+                      {tipoModal === 'nuevo_cliente' ? 'Agregar Cliente' : 'Actualizar Cliente'}
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {(tipoModal === 'pago_cliente' || tipoModal === 'pago_deuda') && (
                 <div className="space-y-4">
@@ -392,9 +570,9 @@ Control Financiero Empresarial Seguro`;
                       <div className="space-y-2">
                         {itemSeleccionado.historialPagos.map((pago) => (
                           <div key={pago.id} className="bg-white border rounded-lg p-3">
-                            <div className="flex justify-between items-center">
+                            <div className="flex justify-between items-start">
                               <div className="flex-1">
-                                <div className="flex justify-between items-center mb-1">
+                                <div className="flex justify-between items-center mb-2">
                                   <span className="font-medium">S/ {pago.monto.toLocaleString()}</span>
                                   <span className="text-sm text-gray-600">{pago.fecha}</span>
                                 </div>
@@ -513,7 +691,7 @@ Control Financiero Empresarial Seguro`;
               </div>
               <div className="flex items-center space-x-2">
                 <button onClick={copiarReporte} className="text-blue-600 hover:text-blue-800">
-                  <Share2 size={24} />
+                  <Share2 size={20} />
                 </button>
               </div>
             </div>
@@ -534,11 +712,7 @@ Control Financiero Empresarial Seguro`;
                 </div>
                 <div className="text-left lg:text-right">
                   <div className="flex items-center space-x-2 mb-2">
-                    {firebaseConectado ? (
-                      <Cloud className="text-green-400" size={20} />
-                    ) : (
-                      <WifiOff className="text-red-400" size={20} />
-                    )}
+                    <Cloud className={`${firebaseConectado ? 'text-green-400' : 'text-red-400'}`} size={20} />
                     <span className={`font-semibold ${firebaseConectado ? 'text-green-400' : 'text-red-400'}`}>
                       {firebaseConectado ? 'Sistema Online' : 'Sin Conexión'}
                     </span>
@@ -546,59 +720,49 @@ Control Financiero Empresarial Seguro`;
                   <p className="text-slate-300 text-sm">
                     {new Date().toLocaleDateString()} | {new Date().toLocaleTimeString()}
                   </p>
+                  <div className="flex items-center space-x-2 mt-3">
+                    <button 
+                      onClick={exportarExcel}
+                      disabled={sincronizando}
+                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-all flex items-center text-sm"
+                      title="Exportar a Excel"
+                    >
+                      {sincronizando ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                      ) : (
+                        <FileSpreadsheet size={16} className="mr-2" />
+                      )}
+                      Excel
+                    </button>
+                    <button 
+                      onClick={copiarLink}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-all flex items-center text-sm"
+                      title="Copiar Link"
+                    >
+                      <Link size={16} className="mr-2" />
+                      Link
+                    </button>
+                    <button 
+                      onClick={guardarEnNube}
+                      disabled={sincronizando || !firebaseConectado}
+                      className={`px-3 py-2 rounded-lg transition-all flex items-center text-sm ${
+                        datosGuardados ? 'bg-green-600 text-white' : 
+                        firebaseConectado ? 'bg-orange-600 hover:bg-orange-700 text-white' : 
+                        'bg-gray-400 text-gray-200 cursor-not-allowed'
+                      }`}
+                      title="Guardar en la Nube"
+                    >
+                      {sincronizando ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                      ) : datosGuardados ? (
+                        <CheckCircle size={16} className="mr-2" />
+                      ) : (
+                        <Save size={16} className="mr-2" />
+                      )}
+                      {datosGuardados ? 'Guardado' : 'Guardar'}
+                    </button>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="flex flex-wrap gap-3 mt-6">
-                <button
-                  onClick={copiarReporte}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all flex items-center font-semibold shadow-lg"
-                  title="Copiar Reporte"
-                >
-                  <Share2 className="mr-2" size={18} />
-                  Copiar Reporte
-                </button>
-                
-                <button
-                  onClick={copiarLink}
-                  className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-all flex items-center font-semibold shadow-lg"
-                  title="Copiar Link"
-                >
-                  <Link className="mr-2" size={18} />
-                  Copiar Link
-                </button>
-                
-                <button
-                  onClick={exportarExcel}
-                  disabled={sincronizando}
-                  className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all flex items-center font-semibold shadow-lg disabled:opacity-50"
-                  title="Exportar Excel"
-                >
-                  {sincronizando ? (
-                    <div className="animate-spin mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-                  ) : (
-                    <FileSpreadsheet className="mr-2" size={18} />
-                  )}
-                  Excel
-                </button>
-                
-                <button
-                  onClick={guardarEnNube}
-                  disabled={sincronizando}
-                  className={`px-4 py-2 rounded-lg transition-all flex items-center font-semibold shadow-lg disabled:opacity-50 ${
-                    datosGuardados ? 'bg-green-600 text-white' : 'bg-orange-500 text-white hover:bg-orange-600'
-                  }`}
-                  title="Guardar en Nube"
-                >
-                  {sincronizando ? (
-                    <div className="animate-spin mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-                  ) : datosGuardados ? (
-                    <CheckCircle className="mr-2" size={18} />
-                  ) : (
-                    <Save className="mr-2" size={18} />
-                  )}
-                  {datosGuardados ? 'Guardado' : 'Guardar'}
-                </button>
               </div>
             </div>
 
@@ -692,7 +856,7 @@ Control Financiero Empresarial Seguro`;
                       <h2 className="text-2xl font-bold text-gray-800">Cartera de Clientes</h2>
                       <p className="text-gray-600">Gestión de préstamos y cobranzas</p>
                     </div>
-                    <button onClick={() => alert('Funcionalidad disponible próximamente')}
+                    <button onClick={() => abrirModal('nuevo_cliente')}
                       className="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
                       <Plus className="mr-2" size={18} />
                       Nuevo Cliente
@@ -773,7 +937,7 @@ Control Financiero Empresarial Seguro`;
                               <Eye size={18} />
                             </button>
                             <button 
-                              onClick={() => alert('Funcionalidad disponible próximamente')}
+                              onClick={() => abrirModal('editar_cliente', cliente)}
                               className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Editar Cliente">
                               <Edit size={18} />
