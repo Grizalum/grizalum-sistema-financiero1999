@@ -128,29 +128,34 @@ const useFinancialData = () => {
 
   // Funciones de acción con useCallback para evitar re-renders
   const registrarPagoCliente = useCallback((clienteId, monto, fecha) => {
-    setMisClientes(prev => prev.map(cliente => {
-      if (cliente.id === clienteId) {
-        const nuevoSaldo = Math.max(0, cliente.saldoPendiente - monto);
-        const nuevoPagado = cliente.pagosRecibidos + monto;
-        
-        const nuevoPago = {
-          id: (cliente.historialPagos?.length || 0) + 1,
-          fecha: fecha,
-          monto: monto,
-          tipo: monto >= cliente.cuotaMensual ? 'Cuota Regular' : 'Pago Parcial'
-        };
+  setMisClientes(prev => prev.map(cliente => {
+    if (cliente.id === clienteId) {
+      const nuevoSaldo = Math.max(0, cliente.saldoPendiente - monto);
+      const nuevoPagado = cliente.pagosRecibidos + monto;
+      
+      // Generar ID único para el pago
+      const nuevoId = cliente.historialPagos.length > 0 
+        ? Math.max(...cliente.historialPagos.map(p => p.id)) + 1 
+        : 1;
+      
+      const nuevoPago = {
+        id: nuevoId,
+        fecha: fecha,
+        monto: Math.round(monto * 100) / 100,
+        tipo: monto >= cliente.cuotaMensual ? 'Cuota Regular' : 'Pago Parcial'
+      };
 
-        return {
-          ...cliente,
-          saldoPendiente: nuevoSaldo,
-          pagosRecibidos: nuevoPagado,
-          estado: nuevoSaldo === 0 ? 'Completado' : 'En Proceso',
-          historialPagos: [...(cliente.historialPagos || []), nuevoPago]
-        };
-      }
-      return cliente;
-    }));
-  }, []);
+      return {
+        ...cliente,
+        saldoPendiente: Math.round(nuevoSaldo * 100) / 100,
+        pagosRecibidos: Math.round(nuevoPagado * 100) / 100,
+        estado: nuevoSaldo === 0 ? 'Completado' : 'En Proceso',
+        historialPagos: [...cliente.historialPagos, nuevoPago]
+      };
+    }
+    return cliente;
+  }));
+}, []);
 
   const pagarDeuda = useCallback((deudaId, monto) => {
     setMisDeudas(prev => prev.map(deuda => {
