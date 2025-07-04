@@ -146,6 +146,7 @@ Control Financiero Empresarial Seguro`;
                   {tipoModal === 'pago_cliente' && 'Registrar Pago de Cliente'}
                   {tipoModal === 'pago_deuda' && 'Pagar Deuda'}
                   {tipoModal === 'historial' && 'Historial de Pagos'}
+                  {tipoModal === 'nuevo_cliente' && 'Nuevo Cliente'}
                 </h3>
                 <button onClick={cerrarModal} className="text-gray-400 hover:text-gray-600">
                   <X size={24} />
@@ -258,6 +259,119 @@ Control Financiero Empresarial Seguro`;
                   </button>
                 </div>
               )}
+{tipoModal === 'nuevo_cliente' && (
+  <div className="space-y-4">
+    <div className="bg-blue-50 p-4 rounded-lg">
+      <h4 className="font-semibold text-blue-800">Agregar Nuevo Cliente</h4>
+      <p className="text-sm text-blue-600">Complete la información del préstamo</p>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Nombre Completo</label>
+        <input
+          type="text"
+          value={formCliente.nombre}
+          onChange={(e) => setFormCliente(prev => ({...prev, nombre: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Ej: Juan Pérez"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+        <input
+          type="email"
+          value={formCliente.email}
+          onChange={(e) => setFormCliente(prev => ({...prev, email: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="ejemplo@correo.com"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+        <input
+          type="tel"
+          value={formCliente.telefono}
+          onChange={(e) => setFormCliente(prev => ({...prev, telefono: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="+51 999 123 456"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Capital (S/)</label>
+        <input
+          type="number"
+          value={formCliente.capital}
+          onChange={(e) => setFormCliente(prev => ({...prev, capital: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="10000"
+          step="100"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Tasa de Interés (%)</label>
+        <input
+          type="number"
+          value={formCliente.tasaInteres}
+          onChange={(e) => setFormCliente(prev => ({...prev, tasaInteres: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="14"
+          step="0.1"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Plazo (meses)</label>
+        <input
+          type="number"
+          value={formCliente.plazoMeses}
+          onChange={(e) => setFormCliente(prev => ({...prev, plazoMeses: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="18"
+          min="1"
+          max="60"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>
+      <input
+        type="date"
+        value={formCliente.fechaInicio}
+        onChange={(e) => setFormCliente(prev => ({...prev, fechaInicio: e.target.value}))}
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      />
+    </div>
+
+    <div className="flex space-x-3 mt-6">
+      <button
+        onClick={cerrarModal}
+        className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
+      >
+        Cancelar
+      </button>
+      <button
+        onClick={() => {
+          if (formCliente.nombre && formCliente.capital && formCliente.tasaInteres && formCliente.plazoMeses) {
+            agregarCliente(formCliente);
+            alert(`Cliente ${formCliente.nombre} agregado exitosamente`);
+            cerrarModal();
+          } else {
+            alert('Por favor complete todos los campos obligatorios');
+          }
+        }}
+        className="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all font-semibold"
+      >
+        Agregar Cliente
+      </button>
+    </div>
+  </div>
+)}
             </div>
           </div>
         </div>
