@@ -30,7 +30,6 @@ export default function GrizalumFinancial() {
   const [currentView, setCurrentView] = useState('resumen');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [datosGuardados, setDatosGuardados] = useState(false);
-  const [firebaseConectado, setFirebaseConectado] = useState(true);
   const [sincronizando, setSincronizando] = useState(false);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [tipoModal, setTipoModal] = useState('');
