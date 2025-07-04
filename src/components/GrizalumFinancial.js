@@ -5,7 +5,7 @@ import {
   CheckCircle, Cloud, WifiOff, User, Phone, Mail, CreditCard, 
   AlertTriangle, Eye, Link, Save, Download
 } from 'lucide-react';
-import useFinancialData from '../../src/hooks/useFinancialData';
+import useFinancialData from '../hooks/useFinancialData';
 export default function GrizalumFinancial() {
   // Hook de datos financieros
   const {
@@ -78,34 +78,13 @@ export default function GrizalumFinancial() {
 };
   const eliminarItem = (tipo, id) => {
     if (window.confirm('¿Está seguro de eliminar este elemento?')) {
-      if (tipo === 'cliente') {
-        eliminarCliente(id);
+      if (tipo === 'cliente') {     
+        eliminarDeuda(id);
         alert('Cliente eliminado');
       } else if (tipo === 'deuda') {
         seliminarDeuda(id);
         alert('Deuda eliminada');
       }
-    }
-  };
-
-  const eliminarPagoHistorial = (clienteId, pagoId) => {
-    if (window.confirm('¿Está seguro de eliminar este pago del historial?')) {
-      setMisClientes(prev => prev.map(cliente => {
-        if (cliente.id === clienteId) {
-          const pagoEliminado = cliente.historialPagos.find(p => p.id === pagoId);
-          if (pagoEliminado) {
-            return {
-              ...cliente,
-              historialPagos: cliente.historialPagos.filter(p => p.id !== pagoId),
-              pagosRecibidos: cliente.pagosRecibidos - pagoEliminado.monto,
-              saldoPendiente: cliente.saldoPendiente + pagoEliminado.monto,
-              estado: cliente.saldoPendiente + pagoEliminado.monto > 0 ? 'En Proceso' : cliente.estado
-            };
-          }
-        }
-        return cliente;
-      }));
-      alert('Pago eliminado del historial');
     }
   };
 
@@ -155,10 +134,6 @@ Control Financiero Empresarial Seguro`;
     }, 1500);
   };
 
-  const eliminarAlerta = (alertaId) => {
-    setAlertas(prev => prev.filter(a => a.id !== alertaId));
-    alert('Alerta eliminada');
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative">
