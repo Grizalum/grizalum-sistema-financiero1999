@@ -176,22 +176,25 @@ const useFinancialData = () => {
   }, []);
 
   const eliminarPagoHistorial = useCallback((clienteId, pagoId) => {
-    setMisClientes(prev => prev.map(cliente => {
-      if (cliente.id === clienteId) {
-        const pagoEliminado = cliente.historialPagos.find(p => p.id === pagoId);
-        if (pagoEliminado) {
-          return {
-            ...cliente,
-            historialPagos: cliente.historialPagos.filter(p => p.id !== pagoId),
-            pagosRecibidos: cliente.pagosRecibidos - pagoEliminado.monto,
-            saldoPendiente: cliente.saldoPendiente + pagoEliminado.monto,
-            estado: cliente.saldoPendiente + pagoEliminado.monto > 0 ? 'En Proceso' : cliente.estado
-          };
-        }
+  setMisClientes(prev => prev.map(cliente => {
+    if (cliente.id === clienteId) {
+      const pagoEliminado = cliente.historialPagos.find(p => p.id === pagoId);
+      if (pagoEliminado) {
+        const nuevoPagosRecibidos = cliente.pagosRecibidos - pagoEliminado.monto;
+        const nuevoSaldoPendiente = cliente.saldoPendiente + pagoEliminado.monto;
+        
+        return {
+          ...cliente,
+          historialPagos: cliente.historialPagos.filter(p => p.id !== pagoId),
+          pagosRecibidos: Math.round(nuevoPagosRecibidos * 100) / 100,
+          saldoPendiente: Math.round(nuevoSaldoPendiente * 100) / 100,
+          estado: nuevoSaldoPendiente > 0 ? 'En Proceso' : 'Completado'
+        };
       }
-      return cliente;
-    }));
-  }, []);
+    }
+    return cliente;
+  }));
+}, []);
 
   const eliminarAlerta = useCallback((alertaId) => {
     setAlertas(prev => prev.filter(a => a.id !== alertaId));
