@@ -238,5 +238,3 @@ const useFinancialData = () => {
 };
 
 export default useFinancialData;
-
-
