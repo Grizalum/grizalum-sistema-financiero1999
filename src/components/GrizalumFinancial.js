@@ -18,16 +18,6 @@ export default function GrizalumFinancial() {
   const [montoPago, setMontoPago] = useState('');
   const [fechaPago, setFechaPago] = useState(new Date().toISOString().split('T')[0]);
   const [notas, setNotas] = useState('');
-  
-  // Estados para formularios de cliente
-  const [formCliente, setFormCliente] = useState({
-    nombre: '',
-    email: '',
-    telefono: '',
-    capital: '',
-    tasaInteres: '',
-    plazoMeses: ''
-  });
 
   const [misClientes, setMisClientes] = useState([
     {
@@ -163,27 +153,6 @@ export default function GrizalumFinancial() {
     setMontoPago('');
     setNotas('');
     setFechaPago(new Date().toISOString().split('T')[0]);
-    
-    // Cargar datos para editar cliente
-    if (tipo === 'editar_cliente' && item) {
-      setFormCliente({
-        nombre: item.nombre,
-        email: item.email,
-        telefono: item.telefono,
-        capital: item.capital.toString(),
-        tasaInteres: item.tasaInteres.toString(),
-        plazoMeses: item.plazoMeses.toString()
-      });
-    } else if (tipo === 'nuevo_cliente') {
-      setFormCliente({
-        nombre: '',
-        email: '',
-        telefono: '',
-        capital: '',
-        tasaInteres: '',
-        plazoMeses: ''
-      });
-    }
   };
 
   const cerrarModal = () => {
@@ -192,22 +161,6 @@ export default function GrizalumFinancial() {
     setItemSeleccionado(null);
     setMontoPago('');
     setNotas('');
-    setFormCliente({
-      nombre: '',
-      email: '',
-      telefono: '',
-      capital: '',
-      tasaInteres: '',
-      plazoMeses: ''
-    });
-  };
-
-  // Función para calcular cuota mensual con tasa de interés
-  const calcularCuotaMensual = (capital, tasaAnual, plazoMeses) => {
-    const tasaMensual = tasaAnual / 100 / 12;
-    if (tasaMensual === 0) return capital / plazoMeses;
-    return (capital * tasaMensual * Math.pow(1 + tasaMensual, plazoMeses)) / 
-           (Math.pow(1 + tasaMensual, plazoMeses) - 1);
   };
 
   const procesarPago = () => {
@@ -360,145 +313,11 @@ Control Financiero Empresarial Seguro`;
                   {tipoModal === 'pago_cliente' && 'Registrar Pago de Cliente'}
                   {tipoModal === 'pago_deuda' && 'Pagar Deuda'}
                   {tipoModal === 'historial' && 'Historial de Pagos'}
-                  {tipoModal === 'nuevo_cliente' && 'Agregar Nuevo Cliente'}
-                  {tipoModal === 'editar_cliente' && 'Editar Cliente'}
                 </h3>
                 <button onClick={cerrarModal} className="text-gray-400 hover:text-gray-600">
                   <X size={24} />
                 </button>
               </div>
-
-              {(tipoModal === 'nuevo_cliente' || tipoModal === 'editar_cliente') && (
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Nombre Completo</label>
-                      <input
-                        type="text"
-                        value={formCliente.nombre}
-                        onChange={(e) => setFormCliente({...formCliente, nombre: e.target.value})}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Ej: Juan Pérez García"
-                      />
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input
-                          type="email"
-                          value={formCliente.email}
-                          onChange={(e) => setFormCliente({...formCliente, email: e.target.value})}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="juan@ejemplo.com"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
-                        <input
-                          type="tel"
-                          value={formCliente.telefono}
-                          onChange={(e) => setFormCliente({...formCliente, telefono: e.target.value})}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="+51 999 123 456"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Capital (S/)</label>
-                        <input
-                          type="number"
-                          value={formCliente.capital}
-                          onChange={(e) => setFormCliente({...formCliente, capital: e.target.value})}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="10000"
-                          step="100"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Tasa Anual (%)</label>
-                        <input
-                          type="number"
-                          value={formCliente.tasaInteres}
-                          onChange={(e) => setFormCliente({...formCliente, tasaInteres: e.target.value})}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="12"
-                          step="0.1"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Plazo (meses)</label>
-                        <input
-                          type="number"
-                          value={formCliente.plazoMeses}
-                          onChange={(e) => setFormCliente({...formCliente, plazoMeses: e.target.value})}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                          placeholder="12"
-                          min="1"
-                          max="120"
-                        />
-                      </div>
-                    </div>
-
-                    {formCliente.capital && formCliente.tasaInteres && formCliente.plazoMeses && (
-                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                        <h4 className="font-semibold text-blue-800 mb-2">Vista Previa de Cálculos</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <span className="text-blue-600 font-medium">Cuota Mensual:</span>
-                            <p className="font-bold text-lg text-blue-800">
-                              S/ {calcularCuotaMensual(
-                                parseFloat(formCliente.capital) || 0,
-                                parseFloat(formCliente.tasaInteres) || 0,
-                                parseInt(formCliente.plazoMeses) || 1
-                              ).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-blue-600 font-medium">Total a Cobrar:</span>
-                            <p className="font-bold text-lg text-blue-800">
-                              S/ {(calcularCuotaMensual(
-                                parseFloat(formCliente.capital) || 0,
-                                parseFloat(formCliente.tasaInteres) || 0,
-                                parseInt(formCliente.plazoMeses) || 1
-                              ) * (parseInt(formCliente.plazoMeses) || 1)).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                            </p>
-                          </div>
-                          <div>
-                            <span className="text-blue-600 font-medium">Intereses:</span>
-                            <p className="font-bold text-lg text-blue-800">
-                              S/ {((calcularCuotaMensual(
-                                parseFloat(formCliente.capital) || 0,
-                                parseFloat(formCliente.tasaInteres) || 0,
-                                parseInt(formCliente.plazoMeses) || 1
-                              ) * (parseInt(formCliente.plazoMeses) || 1)) - (parseFloat(formCliente.capital) || 0)).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex space-x-3 mt-6">
-                    <button
-                      onClick={cerrarModal}
-                      className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={guardarCliente}
-                      className="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all font-semibold"
-                    >
-                      {tipoModal === 'nuevo_cliente' ? 'Agregar Cliente' : 'Actualizar Cliente'}
-                    </button>
-                  </div>
-                </div>
-              )}
 
               {(tipoModal === 'pago_cliente' || tipoModal === 'pago_deuda') && (
                 <div className="space-y-4">
@@ -856,7 +675,7 @@ Control Financiero Empresarial Seguro`;
                       <h2 className="text-2xl font-bold text-gray-800">Cartera de Clientes</h2>
                       <p className="text-gray-600">Gestión de préstamos y cobranzas</p>
                     </div>
-                    <button onClick={() => abrirModal('nuevo_cliente')}
+                    <button onClick={() => alert('Funcionalidad disponible próximamente')}
                       className="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
                       <Plus className="mr-2" size={18} />
                       Nuevo Cliente
@@ -937,7 +756,7 @@ Control Financiero Empresarial Seguro`;
                               <Eye size={18} />
                             </button>
                             <button 
-                              onClick={() => abrirModal('editar_cliente', cliente)}
+                              onClick={() => alert('Funcionalidad disponible próximamente')}
                               className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Editar Cliente">
                               <Edit size={18} />
