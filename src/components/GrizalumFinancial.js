@@ -257,9 +257,13 @@ Control Financiero Empresarial Seguro`;
                                 </span>
                               </div>
                               <button
-                                onClick={() => eliminarPagoHistorial(itemSeleccionado.id, pago.id)}
-                                className="ml-2 text-red-500 hover:text-red-700 p-1"
-                                title="Eliminar pago"
+                                onClick={() => {
+                                if (window.confirm(`¿Está seguro de eliminar el pago de S/ ${pago.monto.toLocaleString()}?\n\nEsto actualizará automáticamente:\n• Saldo pendiente\n• Total pagado\n• Estado del cliente`)) {
+                                eliminarPagoHistorial(itemSeleccionado.id, pago.id);
+                               }
+                              }}
+                              className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all"
+                              title="Eliminar pago - Actualiza automáticamente los saldos"
                               >
                                 <Trash2 size={16} />
                               </button>
