@@ -196,7 +196,18 @@ const useFinancialData = () => {
   const eliminarAlerta = useCallback((alertaId) => {
     setAlertas(prev => prev.filter(a => a.id !== alertaId));
   }, []);
-
+const agregarCliente = useCallback((nuevoCliente) => {
+  const clienteConId = {
+    ...nuevoCliente,
+    id: Math.max(...misClientes.map(c => c.id), 0) + 1,
+    saldoPendiente: nuevoCliente.capital,
+    pagosRecibidos: 0,
+    estado: 'En Proceso',
+    historialPagos: []
+  };
+  
+  setMisClientes(prev => [...prev, clienteConId]);
+}, [misClientes]);
   // Simulación de conexión
   const [firebaseConectado, setFirebaseConectado] = useState(true);
   
