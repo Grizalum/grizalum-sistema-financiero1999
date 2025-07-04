@@ -79,10 +79,10 @@ export default function GrizalumFinancial() {
   const eliminarItem = (tipo, id) => {
     if (window.confirm('¿Está seguro de eliminar este elemento?')) {
       if (tipo === 'cliente') {     
-        eliminarDeuda(id);
+        eliminarCliente(id);
         alert('Cliente eliminado');
       } else if (tipo === 'deuda') {
-        seliminarDeuda(id);
+        eliminarDeuda(id);
         alert('Deuda eliminada');
       }
     }
