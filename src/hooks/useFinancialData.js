@@ -239,4 +239,4 @@ const useFinancialData = () => {
 
 export default useFinancialData;
 
-export default useFinancialData;
+
