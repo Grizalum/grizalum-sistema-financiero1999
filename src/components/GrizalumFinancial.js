@@ -1379,3 +1379,5 @@ Control Financiero Empresarial Seguro`;
    );
   }
   }
+
+  export default useFinancialData;
