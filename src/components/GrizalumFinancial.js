@@ -5,7 +5,7 @@ import {
   CheckCircle, Cloud, WifiOff, User, Phone, Mail, CreditCard, 
   AlertTriangle, Eye, Link, Save, Download
 } from 'lucide-react';
-import useFinancialData from '../hooks/useFinancialData';
+import useFinancialData from '../../hooks/useFinancialData';
 export default function GrizalumFinancial() {
   // Hook de datos financieros
   const {
