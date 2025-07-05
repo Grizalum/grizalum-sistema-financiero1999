@@ -343,7 +343,7 @@ const generarAlertasVencimiento = useCallback(() => {
 // Ejecutar alertas cada vez que cambien las deudas
 useEffect(() => {
   generarAlertasVencimiento();
-}, [misDeudas]);
+}, [misDeudas, generarAlertasVencimiento]);
   // Simulación de conexión
   const [firebaseConectado, setFirebaseConectado] = useState(true);
   
