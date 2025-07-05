@@ -338,7 +338,7 @@ Control Financiero Empresarial Seguro`;
               {tipoModal === 'historial' && itemSeleccionado && (
                 <div className="space-y-4">
                  <div className="bg-gray-50 p-4 rounded-lg">
-  <h4 className="font-semibold text-gray-800">{itemSeleccionado.nombre}</h4>
+  <h4 className="font-semibold text-gray-800">{itemSeleccionado.nombre || itemSeleccionado.acreedor}</h4>
   <p className="text-sm text-gray-600">
     Capital: S/ {itemSeleccionado.capital?.toLocaleString()} | 
     Tasa: {itemSeleccionado.tasaInteres}% | 
@@ -347,7 +347,7 @@ Control Financiero Empresarial Seguro`;
   <div className="grid grid-cols-2 gap-4 mt-2 text-sm">
     <div>
       <span className="text-gray-600">Total Pagado:</span>
-      <span className="font-semibold text-green-600 ml-1">S/ {itemSeleccionado.pagosRecibidos?.toLocaleString()}</span>
+      <span className="font-semibold text-green-600 ml-1">S/ {(itemSeleccionado.pagosRecibidos || itemSeleccionado.totalPagado || 0).toLocaleString()}</span>
     </div>
     <div>
       <span className="text-gray-600">Saldo Pendiente:</span>
