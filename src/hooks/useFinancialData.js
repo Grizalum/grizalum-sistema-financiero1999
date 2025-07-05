@@ -270,7 +270,9 @@ const agregarCliente = useCallback((nuevoCliente) => {
     // Setters directos (para casos especiales)
     setMisClientes,
     setMisDeudas,
-    setAlertas
+    setAlertas,
+    setMisClientes,
+    setMisDeudas
   };
 };
 
