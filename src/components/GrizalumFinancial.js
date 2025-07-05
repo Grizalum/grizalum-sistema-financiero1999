@@ -97,6 +97,42 @@ export default function GrizalumFinancial() {
     setMontoPago('');
     setNotas('');
   };
+  const procesarPago = () => {
+  // Validar que el monto sea válido
+  if (!montoPago || parseFloat(montoPago) <= 0) {
+    alert('Por favor ingrese un monto válido mayor a 0');
+    return;
+  }
+
+  const monto = parseFloat(montoPago);
+  
+  if (tipoModal === 'pago_cliente') {
+    // Validar que el monto no sea mayor al saldo pendiente
+    if (monto > itemSeleccionado.saldoPendiente) {
+      alert(`El monto no puede ser mayor al saldo pendiente: S/ ${itemSeleccionado.saldoPendiente.toLocaleString()}`);
+      return;
+    }
+    
+    // Registrar el pago del cliente
+    registrarPagoCliente(itemSeleccionado.id, monto, fechaPago);
+    alert(`Pago de S/ ${monto.toLocaleString()} registrado exitosamente para ${itemSeleccionado.nombre}`);
+  } 
+  else if (tipoModal === 'pago_deuda') {
+    // Validar que el monto no sea mayor al saldo pendiente
+    if (monto > itemSeleccionado.saldoPendiente) {
+      alert(`El monto no puede ser mayor al saldo pendiente: S/ ${itemSeleccionado.saldoPendiente.toLocaleString()}`);
+      return;
+    }
+    
+    // Procesar el pago de la deuda
+    pagarDeuda(itemSeleccionado.id, monto);
+    alert(`Pago de S/ ${monto.toLocaleString()} aplicado exitosamente a ${itemSeleccionado.acreedor}`);
+  }
+  
+  // Cerrar el modal después del pago
+  cerrarModal();
+};
+
 const guardarEdicion = () => {
   if (tipoModal === 'editar_cliente') {
     // Validaciones
