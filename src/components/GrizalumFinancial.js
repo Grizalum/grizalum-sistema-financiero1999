@@ -83,13 +83,14 @@ export default function GrizalumFinancial() {
     });
   }
   
-  if (tipo === 'editar_deuda' && item) {
+if (tipo === 'editar_deuda' && item) {
   setDatosEdicion({
     acreedor: item.acreedor,
     descripcion: item.descripcion,
     capital: item.capital.toString(),
     tasaInteres: item.tasaInteres.toString(),
     plazoMeses: item.plazoMeses.toString(),
+    fechaInicio: item.fechaInicio,
     proximoVencimiento: item.proximoVencimiento
   });
 }
@@ -178,9 +179,9 @@ const guardarEdicion = () => {
     cerrarModal();
   }
   
- if (tipoModal === 'editar_deuda') {
+if (tipoModal === 'editar_deuda') {
   // Validaciones
-  if (!datosEdicion.acreedor || !datosEdicion.descripcion || !datosEdicion.capital || !datosEdicion.plazoMeses) {
+  if (!datosEdicion.acreedor || !datosEdicion.descripcion || !datosEdicion.capital || !datosEdicion.plazoMeses || !datosEdicion.fechaInicio) {
     alert('Por favor complete todos los campos obligatorios');
     return;
   }
@@ -195,10 +196,11 @@ const guardarEdicion = () => {
     return;
   }
   
-  // Calcular nueva cuota mensual si cambió capital o plazo
+  // Calcular nueva cuota mensual y próximo vencimiento
   const nuevoCapital = parseFloat(datosEdicion.capital);
   const nuevosPlazoMeses = parseInt(datosEdicion.plazoMeses);
   const nuevaTasa = parseFloat(datosEdicion.tasaInteres);
+  const nuevaFechaInicio = new Date(datosEdicion.fechaInicio);
   
   let nuevaCuotaMensual;
   if (nuevaTasa > 0) {
@@ -207,6 +209,32 @@ const guardarEdicion = () => {
   } else {
     nuevaCuotaMensual = nuevoCapital / nuevosPlazoMeses;
   }
+  
+  // Calcular próximo vencimiento basado en pagos realizados
+  const pagosRealizados = itemSeleccionado.historialPagos?.length || 0;
+  const proximoVencimiento = new Date(nuevaFechaInicio);
+  proximoVencimiento.setMonth(proximoVencimiento.getMonth() + pagosRealizados + 1);
+  
+  // Actualizar deuda
+  const deudaActualizada = {
+    ...itemSeleccionado,
+    acreedor: datosEdicion.acreedor,
+    descripcion: datosEdicion.descripcion,
+    capital: nuevoCapital,
+    tasaInteres: nuevaTasa,
+    plazoMeses: nuevosPlazoMeses,
+    cuotaMensual: Math.round(nuevaCuotaMensual * 100) / 100,
+    fechaInicio: datosEdicion.fechaInicio,
+    proximoVencimiento: proximoVencimiento.toISOString().split('T')[0]
+  };
+  
+  setMisDeudas(prev => prev.map(d => 
+    d.id === itemSeleccionado.id ? deudaActualizada : d
+  ));
+  
+  alert(`Deuda de ${datosEdicion.acreedor} actualizada exitosamente`);
+  cerrarModal();
+}
   
   // Actualizar deuda
   const deudaActualizada = {
@@ -697,6 +725,16 @@ Control Financiero Empresarial Seguro`;
       </div>
 
       <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>
+        <input
+          type="date"
+          value={datosEdicion.fechaInicio || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, fechaInicio: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+        />
+      </div>
+
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Próximo Vencimiento</label>
         <input
           type="date"
@@ -720,7 +758,7 @@ Control Financiero Empresarial Seguro`;
 
     <div className="bg-yellow-50 p-3 rounded-lg">
       <p className="text-sm text-yellow-800">
-        <strong>Nota:</strong> Al cambiar el capital o plazo, se recalculará automáticamente la cuota mensual.
+        <strong>Nota:</strong> Al cambiar el capital, plazo o fecha de inicio, se recalculará automáticamente la cuota mensual y el próximo vencimiento.
       </p>
     </div>
 
