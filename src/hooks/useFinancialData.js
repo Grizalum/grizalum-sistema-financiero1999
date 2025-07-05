@@ -47,34 +47,46 @@ const useFinancialData = () => {
   ]);
 
   const [misDeudas, setMisDeudas] = useState([
-    {
-      id: 1,
-      acreedor: 'Banco Santander',
-      descripcion: 'Prestamo comercial para capital de trabajo',
-      capital: 50000,
-      tasaInteres: 18,
-      plazoMeses: 24,
-      cuotaMensual: 2500.00,
-      saldoPendiente: 45000.00,
-      estado: 'Activo',
-      fechaInicio: '2024-01-01',
-      proximoVencimiento: '2025-01-01'
-    },
-    {
-      id: 2,
-      acreedor: 'Proveedor Textil SAC',
-      descripcion: 'Compra de mercaderia a credito',
-      capital: 8000,
-      tasaInteres: 0,
-      plazoMeses: 10,
-      cuotaMensual: 800.00,
-      saldoPendiente: 6400.00,
-      estado: 'Activo',
-      fechaInicio: '2024-08-01',
-      proximoVencimiento: '2024-12-15'
-    }
-  ]);
-
+  {
+    id: 1,
+    acreedor: 'Banco Santander',
+    descripcion: 'Prestamo comercial para capital de trabajo',
+    capital: 50000,
+    tasaInteres: 18,
+    plazoMeses: 24,
+    cuotaMensual: 2500.00,
+    saldoPendiente: 42500.00,
+    totalPagado: 7500.00, // ✅ NUEVO
+    estado: 'Activo',
+    fechaInicio: '2024-01-01',
+    proximoVencimiento: '2025-01-01',
+    // ✅ NUEVO: Agregar historial de pagos
+    historialPagos: [
+      { id: 1, fecha: '2024-02-01', monto: 2500.00, tipo: 'Cuota Regular' },
+      { id: 2, fecha: '2024-03-01', monto: 2500.00, tipo: 'Cuota Regular' },
+      { id: 3, fecha: '2024-04-01', monto: 2500.00, tipo: 'Cuota Regular' }
+    ]
+  },
+  {
+    id: 2,
+    acreedor: 'Proveedor Textil SAC',
+    descripcion: 'Compra de mercaderia a credito',
+    capital: 8000,
+    tasaInteres: 0,
+    plazoMeses: 10,
+    cuotaMensual: 800.00,
+    saldoPendiente: 6400.00,
+    totalPagado: 1600.00, // ✅ NUEVO
+    estado: 'Activo',
+    fechaInicio: '2024-08-01',
+    proximoVencimiento: '2024-12-15',
+    // ✅ NUEVO: Agregar historial de pagos
+    historialPagos: [
+      { id: 1, fecha: '2024-09-01', monto: 800.00, tipo: 'Cuota Regular' },
+      { id: 2, fecha: '2024-10-01', monto: 800.00, tipo: 'Cuota Regular' }
+    ]
+  }
+]);
   const [misInversiones] = useState([
     {
       id: 1,
