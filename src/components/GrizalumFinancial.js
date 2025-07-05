@@ -118,7 +118,54 @@ const guardarEdicion = () => {
       telefono: datosEdicion.telefono,
       tasaInteres: parseFloat(datosEdicion.tasaInteres)
     };
+    // Recalcular cuota mensual si cambió la tasa
+    if (clienteActualizado.tasaInteres !== itemSeleccionado.tasaInteres) {
+      const tasaMensual = clienteActualizado.tasaInteres / 100 / 12;
+      const nuevaCuota = clienteActualizado.capital * 
+        (tasaMensual * Math.pow(1 + tasaMensual, clienteActualizado.plazoMeses)) / 
+        (Math.pow(1 + tasaMensual, clienteActualizado.plazoMeses) - 1);
+      clienteActualizado.cuotaMensual = Math.round(nuevaCuota * 100) / 100;
+      clienteActualizado.totalCobrar = clienteActualizado.cuotaMensual * clienteActualizado.plazoMeses;
+      clienteActualizado.saldoPendiente = clienteActualizado.totalCobrar - clienteActualizado.pagosRecibidos;
+    }
     
+    // Usar función del hook para actualizar
+    setMisClientes(prev => prev.map(c => 
+      c.id === itemSeleccionado.id ? clienteActualizado : c
+    ));
+    
+    alert(`Cliente ${datosEdicion.nombre} actualizado exitosamente`);
+    cerrarModal();
+  }
+  
+  if (tipoModal === 'editar_deuda') {
+    // Validaciones
+    if (!datosEdicion.acreedor || !datosEdicion.descripcion || !datosEdicion.tasaInteres) {
+      alert('Por favor complete todos los campos obligatorios');
+      return;
+    }
+    
+    if (parseFloat(datosEdicion.tasaInteres) < 0) {
+      alert('La tasa de interés no puede ser negativa');
+      return;
+    }
+    
+    // Actualizar deuda
+    const deudaActualizada = {
+      ...itemSeleccionado,
+      acreedor: datosEdicion.acreedor,
+      descripcion: datosEdicion.descripcion,
+      tasaInteres: parseFloat(datosEdicion.tasaInteres)
+    };
+    
+    setMisDeudas(prev => prev.map(d => 
+      d.id === itemSeleccionado.id ? deudaActualizada : d
+    ));
+    
+    alert(`Deuda de ${datosEdicion.acreedor} actualizada exitosamente`);
+    cerrarModal();
+  }
+};
   const eliminarItem = (tipo, id) => {
     if (window.confirm('¿Está seguro de eliminar este elemento?')) {
       if (tipo === 'cliente') {     
