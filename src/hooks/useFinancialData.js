@@ -271,8 +271,6 @@ const agregarCliente = useCallback((nuevoCliente) => {
     setMisClientes,
     setMisDeudas,
     setAlertas,
-    setMisClientes,
-    setMisDeudas
   };
 };
 
