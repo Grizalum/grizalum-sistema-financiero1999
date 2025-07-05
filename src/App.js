@@ -1,13 +1,7 @@
-import React from 'react';
-import GrizalumFinancial from './components/GrizalumFinancial';
-import './App.css';
-
 function App() {
   return (
-    <div className="App">
-      <GrizalumFinancial />
+    <div style={{ padding: '20px', fontSize: '24px', color: 'red' }}>
+      ¡PRUEBA DE RENDERIZADO - SI VES ESTO, REACT FUNCIONA!
     </div>
   );
 }
-
-export default App;
