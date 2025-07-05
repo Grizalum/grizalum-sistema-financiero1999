@@ -1089,7 +1089,7 @@ Control Financiero Empresarial Seguro`;
                               <DollarSign size={18} />
                             </button>
                             <button 
-                              onClick={() => alert('Historial disponible próximamente')}
+                              onClick={() => abrirModal('historial', deuda)}
                               className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Ver Historial">
                               <Eye size={18} />
