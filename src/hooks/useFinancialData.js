@@ -206,24 +206,24 @@ const useFinancialData = () => {
     setMisDeudas(prev => prev.filter(d => d.id !== deudaId));
   }, []);
 
- const eliminarPagoHistorialDeuda = useCallback((deudaId, pagoId) => {
-  setMisDeudas(prev => prev.map(deuda => {
-    if (deuda.id === deudaId) {
-      const pagoEliminado = deuda.historialPagos.find(p => p.id === pagoId);
+ const eliminarPagoHistorial = useCallback((clienteId, pagoId) => {
+  setMisClientes(prev => prev.map(cliente => {
+    if (cliente.id === clienteId) {
+      const pagoEliminado = cliente.historialPagos.find(p => p.id === pagoId);
       if (pagoEliminado) {
-        const nuevoTotalPagado = (deuda.totalPagado || 0) - pagoEliminado.monto;
-        const nuevoSaldoPendiente = deuda.saldoPendiente + pagoEliminado.monto;
+        const nuevoPagosRecibidos = cliente.pagosRecibidos - pagoEliminado.monto;
+        const nuevoSaldoPendiente = cliente.saldoPendiente + pagoEliminado.monto;
         
         return {
-          ...deuda,
-          historialPagos: deuda.historialPagos.filter(p => p.id !== pagoId),
-          totalPagado: Math.round(nuevoTotalPagado * 100) / 100,
+          ...cliente,
+          historialPagos: cliente.historialPagos.filter(p => p.id !== pagoId),
+          pagosRecibidos: Math.round(nuevoPagosRecibidos * 100) / 100,
           saldoPendiente: Math.round(nuevoSaldoPendiente * 100) / 100,
-          estado: nuevoSaldoPendiente > 0 ? 'Activo' : 'Pagado'
+          estado: nuevoSaldoPendiente > 0 ? 'En Proceso' : 'Completado'
         };
       }
     }
-    return deuda;
+    return cliente;
   }));
 }, []);
 
