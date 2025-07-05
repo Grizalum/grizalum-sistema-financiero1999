@@ -1,4 +1,4 @@
-/* 📁 src/App.css - ESTILOS PARA LA APLICACIÓN */
+/* 📁 src/App.css - ESTILOS ACTUALIZADOS */
 
 /* 🎨 Reset y estilos base */
 * {
@@ -15,106 +15,107 @@ body {
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 .App {
   text-align: center;
+  min-height: 100vh;
 }
 
-/* 🔄 Animación de carga */
+/* 🔄 Animaciones */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* 🎯 Efectos hover para botones */
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 🎯 Clases de animación */
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.slide-in-right {
+  animation: slideInFromRight 0.5s ease-out;
+}
+
+.bounce-in {
+  animation: bounceIn 0.8s ease-out;
+}
+
+/* 🎪 Efectos hover para botones */
 button {
   transition: all 0.3s ease !important;
+  outline: none;
 }
 
 button:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
 }
 
 button:active {
   transform: translateY(0px) !important;
 }
 
-/* 📱 Responsive */
-@media (max-width: 768px) {
-  .grid-responsive {
-    grid-template-columns: 1fr !important;
-  }
-  
-  .button-group {
-    flex-direction: column !important;
-  }
-  
-  .button-group button {
-    width: 100% !important;
-    margin-bottom: 10px !important;
-  }
+button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 
-/* 🎨 Clases utilitarias */
-.text-center {
-  text-align: center;
-}
-
-.mb-20 {
-  margin-bottom: 20px;
-}
-
-.p-20 {
-  padding: 20px;
-}
-
-.rounded {
-  border-radius: 8px;
-}
-
-.shadow {
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-/* 🔧 Estilos para código */
-code {
-  background-color: #f1f5f9;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: 'Courier New', monospace;
-  color: #1e293b;
-  font-size: 14px;
-}
-
-/* 🌟 Gradientes personalizados */
-.gradient-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.gradient-secondary {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-}
-
-.gradient-success {
-  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-}
-
-/* 🎪 Animaciones adicionales */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.fade-in {
-  animation: fadeIn 0.6s ease-out;
-}
-
-/* 🎯 Estados de loading */
+/* 🎨 Estilos para el loading spinner */
 .loading-spinner {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border: 4px solid rgba(255,255,255,0.3);
   border-top: 4px solid white;
   border-radius: 50%;
@@ -122,7 +123,80 @@ code {
   margin: 0 auto;
 }
 
-/* 🔔 Notificaciones */
+/* 🏢 Estilos específicos para GRIZALUM */
+.grizalum-logo {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(45deg, #ff6b35, #f7931e);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: bold;
+  color: white;
+  margin: 0 auto;
+  animation: pulse 2s infinite;
+}
+
+/* 📱 Responsive design */
+@media (max-width: 768px) {
+  .grid-responsive {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+  }
+  
+  .button-group {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+  
+  .button-group button {
+    width: 100% !important;
+  }
+  
+  .mobile-padding {
+    padding: 20px !important;
+  }
+  
+  .mobile-text-small {
+    font-size: 14px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-hide {
+    display: none !important;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+}
+
+/* 🎨 Gradientes personalizados */
+.gradient-primary {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.gradient-success {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+}
+
+.gradient-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+}
+
+.gradient-danger {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+}
+
+/* 🔔 Estilos para notificaciones */
 .notification {
   position: fixed;
   top: 20px;
@@ -130,9 +204,10 @@ code {
   background: white;
   padding: 15px 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  z-index: 10000;
+  animation: slideInFromRight 0.3s ease-out;
+  max-width: 350px;
 }
 
 .notification.success {
@@ -145,4 +220,122 @@ code {
 
 .notification.warning {
   border-left: 4px solid #f59e0b;
+}
+
+.notification.info {
+  border-left: 4px solid #3b82f6;
+}
+
+/* 🎯 Estados de carga mejorados */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: white;
+}
+
+.loading-content {
+  text-align: center;
+  animation: fadeIn 1s ease-out;
+}
+
+/* 🔧 Utilidades */
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.rounded {
+  border-radius: 8px;
+}
+
+.rounded-lg {
+  border-radius: 12px;
+}
+
+.shadow {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+/* 🎨 Estilos para código */
+code {
+  background-color: #f1f5f9;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', 'Monaco', monospace;
+  color: #1e293b;
+  font-size: 13px;
+  border: 1px solid #e2e8f0;
+}
+
+/* 🚀 Animaciones especiales para elementos de GRIZALUM */
+.grizalum-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.grizalum-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+}
+
+/* 🎭 Efectos especiales */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.neon-glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+}
+
+/* 🔄 Loading states específicos */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
