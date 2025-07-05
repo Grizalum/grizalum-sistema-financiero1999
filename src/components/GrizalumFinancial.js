@@ -125,7 +125,7 @@ export default function GrizalumFinancial() {
     }
     
     // Procesar el pago de la deuda
-    pagarDeuda(itemSeleccionado.id, monto);
+    pagarDeuda(itemSeleccionado.id, monto, fechaPago);
     alert(`Pago de S/ ${monto.toLocaleString()} aplicado exitosamente a ${itemSeleccionado.acreedor}`);
   }
   
