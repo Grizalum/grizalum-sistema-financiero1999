@@ -290,6 +290,7 @@ const agregarCliente = useCallback((nuevoCliente) => {
     eliminarCliente,
     eliminarDeuda,
     eliminarPagoHistorial,
+    eliminarPagoHistorialDeuda,
     eliminarAlerta,
     agregarCliente,
     
