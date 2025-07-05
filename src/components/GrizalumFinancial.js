@@ -251,12 +251,14 @@ Control Financiero Empresarial Seguro`;
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-800">
-                  {tipoModal === 'pago_cliente' && 'Registrar Pago de Cliente'}
-                  {tipoModal === 'pago_deuda' && 'Pagar Deuda'}
-                  {tipoModal === 'historial' && 'Historial de Pagos'}
-                  {tipoModal === 'nuevo_cliente' && 'Nuevo Cliente'}
-                </h3>
+               <h3 className="text-xl font-bold text-gray-800">
+  {tipoModal === 'pago_cliente' && 'Registrar Pago de Cliente'}
+  {tipoModal === 'pago_deuda' && 'Pagar Deuda'}
+  {tipoModal === 'historial' && 'Historial de Pagos'}
+  {tipoModal === 'nuevo_cliente' && 'Nuevo Cliente'}
+  {tipoModal === 'editar_cliente' && 'Editar Cliente'}
+  {tipoModal === 'editar_deuda' && 'Editar Deuda'}
+</h3>
                 <button onClick={cerrarModal} className="text-gray-400 hover:text-gray-600">
                   <X size={24} />
                 </button>
@@ -512,6 +514,145 @@ Control Financiero Empresarial Seguro`;
           </div>
         </div>
       )}
+        {/* Formulario de edición de cliente */}
+{tipoModal === 'editar_cliente' && (
+  <div className="space-y-4">
+    <div className="bg-blue-50 p-4 rounded-lg">
+      <h4 className="font-semibold text-blue-800">Editar Información del Cliente</h4>
+      <p className="text-sm text-blue-600">Modifique los datos necesarios</p>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Nombre Completo</label>
+        <input
+          type="text"
+          value={datosEdicion.nombre || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, nombre: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Ej: Juan Pérez"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+        <input
+          type="email"
+          value={datosEdicion.email || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, email: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="ejemplo@correo.com"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+        <input
+          type="tel"
+          value={datosEdicion.telefono || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, telefono: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="+51 999 123 456"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Tasa de Interés (%)</label>
+        <input
+          type="number"
+          value={datosEdicion.tasaInteres || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, tasaInteres: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="14"
+          step="0.1"
+        />
+      </div>
+    </div>
+
+    <div className="bg-yellow-50 p-3 rounded-lg">
+      <p className="text-sm text-yellow-800">
+        <strong>Nota:</strong> Si modifica la tasa de interés, se recalculará automáticamente la cuota mensual y el saldo pendiente.
+      </p>
+    </div>
+
+    <div className="flex space-x-3 mt-6">
+      <button
+        onClick={cerrarModal}
+        className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
+      >
+        Cancelar
+      </button>
+      <button
+        onClick={guardarEdicion}
+        className="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all font-semibold"
+      >
+        Guardar Cambios
+      </button>
+    </div>
+  </div>
+)}
+
+{/* Formulario de edición de deuda */}
+{tipoModal === 'editar_deuda' && (
+  <div className="space-y-4">
+    <div className="bg-orange-50 p-4 rounded-lg">
+      <h4 className="font-semibold text-orange-800">Editar Información de la Deuda</h4>
+      <p className="text-sm text-orange-600">Modifique los datos necesarios</p>
+    </div>
+
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Acreedor</label>
+        <input
+          type="text"
+          value={datosEdicion.acreedor || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, acreedor: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          placeholder="Nombre del acreedor"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+        <textarea
+          value={datosEdicion.descripcion || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, descripcion: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          placeholder="Descripción de la deuda"
+          rows="3"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Tasa de Interés (%)</label>
+        <input
+          type="number"
+          value={datosEdicion.tasaInteres || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, tasaInteres: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          placeholder="0"
+          step="0.1"
+          min="0"
+        />
+      </div>
+    </div>
+
+    <div className="flex space-x-3 mt-6">
+      <button
+        onClick={cerrarModal}
+        className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
+      >
+        Cancelar
+      </button>
+      <button
+        onClick={guardarEdicion}
+        className="flex-1 bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-all font-semibold"
+      >
+        Guardar Cambios
+      </button>
+    </div>
+  </div>
+)}
       
       <div className="relative z-10">
         {sidebarOpen && (
@@ -839,12 +980,11 @@ Control Financiero Empresarial Seguro`;
                               <Eye size={18} />
                             </button>
                             <button 
-                              onClick={() => alert('Funcionalidad disponible próximamente')}
-                              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Editar Cliente">
-                              <Edit size={18} />
-                            </button>
-                            <button 
+  onClick={() => abrirModal('editar_cliente', cliente)}
+  className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
+  title="Editar Cliente">
+  <Edit size={18} />
+</button>
                               onClick={() => eliminarItem('cliente', cliente.id)}
                               className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Eliminar Cliente">
