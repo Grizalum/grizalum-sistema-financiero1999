@@ -621,7 +621,7 @@ Control Financiero Empresarial Seguro`;
       <p className="text-sm text-orange-600">Modifique los datos necesarios</p>
     </div>
 
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Acreedor</label>
         <input
@@ -634,13 +634,14 @@ Control Financiero Empresarial Seguro`;
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-        <textarea
-          value={datosEdicion.descripcion || ''}
-          onChange={(e) => setDatosEdicion(prev => ({...prev, descripcion: e.target.value}))}
+        <label className="block text-sm font-medium text-gray-700 mb-2">Capital (S/)</label>
+        <input
+          type="number"
+          value={datosEdicion.capital || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, capital: e.target.value}))}
           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="Descripción de la deuda"
-          rows="3"
+          placeholder="50000"
+          step="100"
         />
       </div>
 
@@ -656,6 +657,46 @@ Control Financiero Empresarial Seguro`;
           min="0"
         />
       </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Plazo (meses)</label>
+        <input
+          type="number"
+          value={datosEdicion.plazoMeses || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, plazoMeses: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          placeholder="24"
+          min="1"
+          max="60"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Próximo Vencimiento</label>
+        <input
+          type="date"
+          value={datosEdicion.proximoVencimiento || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, proximoVencimiento: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+      <textarea
+        value={datosEdicion.descripcion || ''}
+        onChange={(e) => setDatosEdicion(prev => ({...prev, descripcion: e.target.value}))}
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+        placeholder="Descripción de la deuda"
+        rows="3"
+      />
+    </div>
+
+    <div className="bg-yellow-50 p-3 rounded-lg">
+      <p className="text-sm text-yellow-800">
+        <strong>Nota:</strong> Al cambiar el capital o plazo, se recalculará automáticamente la cuota mensual.
+      </p>
     </div>
 
     <div className="flex space-x-3 mt-6">
