@@ -26,7 +26,7 @@ export default function GrizalumFinancial() {
     eliminarAlerta,
     agregarCliente,
     setMisClientes,
-    setMisDeudas,
+    setMisDeudas
   } = useFinancialData();
 
   // Estados de UI 
@@ -97,12 +97,6 @@ export default function GrizalumFinancial() {
     setMontoPago('');
     setNotas('');
   };
-
- const procesarPago = () => {
-  if (!montoPago || parseFloat(montoPago) <= 0) {
-    alert('Ingrese un monto válido');
-    return;
-  }
 const guardarEdicion = () => {
   if (tipoModal === 'editar_cliente') {
     // Validaciones
@@ -125,6 +119,12 @@ const guardarEdicion = () => {
       tasaInteres: parseFloat(datosEdicion.tasaInteres)
     };
     
+ const procesarPago = () => {
+  if (!montoPago || parseFloat(montoPago) <= 0) {
+    alert('Ingrese un monto válido');
+    return;
+  }
+
     // Recalcular cuota mensual si cambió la tasa
     if (clienteActualizado.tasaInteres !== itemSeleccionado.tasaInteres) {
       const tasaMensual = clienteActualizado.tasaInteres / 100 / 12;
