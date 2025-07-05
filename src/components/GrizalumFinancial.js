@@ -237,25 +237,6 @@ if (tipoModal === 'editar_deuda') {
 }
   
   // Actualizar deuda
-  const deudaActualizada = {
-    ...itemSeleccionado,
-    acreedor: datosEdicion.acreedor,
-    descripcion: datosEdicion.descripcion,
-    capital: nuevoCapital,
-    tasaInteres: nuevaTasa,
-    plazoMeses: nuevosPlazoMeses,
-    cuotaMensual: Math.round(nuevaCuotaMensual * 100) / 100,
-    proximoVencimiento: datosEdicion.proximoVencimiento || itemSeleccionado.proximoVencimiento
-  };
-  
-  setMisDeudas(prev => prev.map(d => 
-    d.id === itemSeleccionado.id ? deudaActualizada : d
-  ));
-  
-  alert(`Deuda de ${datosEdicion.acreedor} actualizada exitosamente`);
-  cerrarModal();
-}
-};
   const eliminarItem = (tipo, id) => {
     if (window.confirm('¿Está seguro de eliminar este elemento?')) {
       if (tipo === 'cliente') {     
