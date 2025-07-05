@@ -169,21 +169,35 @@ const useFinancialData = () => {
   }));
 }, []);
 
-  const pagarDeuda = useCallback((deudaId, monto) => {
-    setMisDeudas(prev => prev.map(deuda => {
-      if (deuda.id === deudaId) {
-        const nuevoSaldo = Math.max(0, deuda.saldoPendiente - monto);
-        
-        return {
-          ...deuda,
-          saldoPendiente: nuevoSaldo,
-          estado: nuevoSaldo === 0 ? 'Pagado' : 'Activo'
-        };
-      }
-      return deuda;
-    }));
-  }, []);
+  const pagarDeuda = useCallback((deudaId, monto, fecha) => {
+  setMisDeudas(prev => prev.map(deuda => {
+    if (deuda.id === deudaId) {
+      const nuevoSaldo = Math.max(0, deuda.saldoPendiente - monto);
+      const nuevoTotalPagado = (deuda.totalPagado || 0) + monto;
+      
+      // Generar ID único para el pago
+      const nuevoId = deuda.historialPagos?.length > 0 
+        ? Math.max(...deuda.historialPagos.map(p => p.id)) + 1 
+        : 1;
+      
+      const nuevoPago = {
+        id: nuevoId,
+        fecha: fecha || new Date().toISOString().split('T')[0],
+        monto: Math.round(monto * 100) / 100,
+        tipo: monto >= deuda.cuotaMensual ? 'Cuota Regular' : 'Pago Parcial'
+      };
 
+      return {
+        ...deuda,
+        saldoPendiente: Math.round(nuevoSaldo * 100) / 100,
+        totalPagado: Math.round(nuevoTotalPagado * 100) / 100,
+        estado: nuevoSaldo === 0 ? 'Pagado' : 'Activo',
+        historialPagos: [...(deuda.historialPagos || []), nuevoPago]
+      };
+    }
+    return deuda;
+  }));
+}, []);
   const eliminarCliente = useCallback((clienteId) => {
     setMisClientes(prev => prev.filter(c => c.id !== clienteId));
   }, []);
