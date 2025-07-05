@@ -310,7 +310,7 @@ Control Financiero Empresarial Seguro`;
                       Cancelar
                     </button>
                     <button
-                      onClick={() => procesarPago()}
+                      onClick={procesarPago}
                       className="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all font-semibold"
                     >
                       Confirmar Pago
