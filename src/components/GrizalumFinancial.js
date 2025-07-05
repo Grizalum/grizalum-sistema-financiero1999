@@ -23,6 +23,7 @@ export default function GrizalumFinancial() {
     eliminarCliente,
     eliminarDeuda,
     eliminarPagoHistorial,
+    eliminarPagoHistorialDeuda,
     eliminarAlerta,
     agregarCliente,
     setMisClientes,
