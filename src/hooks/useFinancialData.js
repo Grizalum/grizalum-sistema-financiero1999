@@ -169,7 +169,7 @@ const useFinancialData = () => {
   }));
 }, []);
 
-  const pagarDeuda = useCallback((deudaId, monto, fecha) => {
+ const pagarDeuda = useCallback((deudaId, monto, fecha) => {
   setMisDeudas(prev => prev.map(deuda => {
     if (deuda.id === deudaId) {
       const nuevoSaldo = Math.max(0, deuda.saldoPendiente - monto);
@@ -187,12 +187,19 @@ const useFinancialData = () => {
         tipo: monto >= deuda.cuotaMensual ? 'Cuota Regular' : 'Pago Parcial'
       };
 
+      // ✅ CALCULAR PRÓXIMO VENCIMIENTO AUTOMÁTICAMENTE
+      const nuevosHistorialPagos = [...(deuda.historialPagos || []), nuevoPago];
+      const fechaInicio = new Date(deuda.fechaInicio);
+      const proximoVencimiento = new Date(fechaInicio);
+      proximoVencimiento.setMonth(proximoVencimiento.getMonth() + nuevosHistorialPagos.length + 1);
+
       return {
         ...deuda,
         saldoPendiente: Math.round(nuevoSaldo * 100) / 100,
         totalPagado: Math.round(nuevoTotalPagado * 100) / 100,
         estado: nuevoSaldo === 0 ? 'Pagado' : 'Activo',
-        historialPagos: [...(deuda.historialPagos || []), nuevoPago]
+        historialPagos: nuevosHistorialPagos,
+        proximoVencimiento: proximoVencimiento.toISOString().split('T')[0]
       };
     }
     return deuda;
@@ -279,6 +286,64 @@ const agregarCliente = useCallback((nuevoCliente) => {
     return [...prev, clienteConId];
   });
 }, []);
+  // Función para generar alertas automáticas
+const generarAlertasVencimiento = useCallback(() => {
+  const hoy = new Date();
+  const nuevasAlertas = [];
+  
+  misDeudas.forEach(deuda => {
+    if (deuda.estado === 'Activo') {
+      const fechaVencimiento = new Date(deuda.proximoVencimiento);
+      const diasRestantes = Math.ceil((fechaVencimiento - hoy) / (1000 * 60 * 60 * 24));
+      
+      // Alerta 5 días antes del vencimiento
+      if (diasRestantes <= 5 && diasRestantes > 0) {
+        const alertaExistente = alertas.find(a => 
+          a.tipo === 'deuda_vencimiento' && 
+          a.mensaje.includes(deuda.acreedor)
+        );
+        
+        if (!alertaExistente) {
+          nuevasAlertas.push({
+            id: Date.now() + Math.random(),
+            mensaje: `Pago de ${deuda.acreedor} vence en ${diasRestantes} día${diasRestantes > 1 ? 's' : ''}`,
+            urgencia: diasRestantes <= 2 ? 'alta' : 'media',
+            tipo: 'deuda_vencimiento',
+            activa: true
+          });
+        }
+      }
+      
+      // Alerta si ya venció
+      if (diasRestantes < 0) {
+        const alertaExistente = alertas.find(a => 
+          a.tipo === 'deuda_vencida' && 
+          a.mensaje.includes(deuda.acreedor)
+        );
+        
+        if (!alertaExistente) {
+          nuevasAlertas.push({
+            id: Date.now() + Math.random() + 1,
+            mensaje: `¡URGENTE! Pago de ${deuda.acreedor} venció hace ${Math.abs(diasRestantes)} día${Math.abs(diasRestantes) > 1 ? 's' : ''}`,
+            urgencia: 'alta',
+            tipo: 'deuda_vencida',
+            activa: true
+          });
+        }
+      }
+    }
+  });
+  
+  if (nuevasAlertas.length > 0) {
+    setAlertas(prev => [...prev, ...nuevasAlertas]);
+  }
+}, [misDeudas, alertas]);
+
+// ✅ AGREGA esto DESPUÉS de la función anterior
+// Ejecutar alertas cada vez que cambien las deudas
+useEffect(() => {
+  generarAlertasVencimiento();
+}, [misDeudas]);
   // Simulación de conexión
   const [firebaseConectado, setFirebaseConectado] = useState(true);
   
