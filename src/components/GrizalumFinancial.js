@@ -25,6 +25,8 @@ export default function GrizalumFinancial() {
     eliminarPagoHistorial,
     eliminarAlerta,
     agregarCliente,
+    setMisClientes,
+    setMisDeudas,
   } = useFinancialData();
 
   // Estados de UI 
@@ -579,7 +581,7 @@ Control Financiero Empresarial Seguro`;
         Cancelar
       </button>
       <button
-        onClick={guardarEdicion}
+        onClick={() => guardarEdicion()}
         className="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all font-semibold"
       >
         Guardar Cambios
@@ -641,7 +643,7 @@ Control Financiero Empresarial Seguro`;
         Cancelar
       </button>
       <button
-        onClick={guardarEdicion}
+        onClick={() => guardarEdicion()}
         className="flex-1 bg-orange-500 text-white py-3 rounded-lg hover:bg-orange-600 transition-all font-semibold"
       >
         Guardar Cambios
