@@ -980,11 +980,11 @@ Control Financiero Empresarial Seguro`;
                               <Eye size={18} />
                             </button>
                             <button 
-  onClick={() => abrirModal('editar_cliente', cliente)}
-  className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
-  title="Editar Cliente">
-  <Edit size={18} />
-</button>
+                              onClick={() => abrirModal('editar_cliente', cliente)}
+                             className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
+                             title="Editar Cliente">
+                             <Edit size={18} />
+                             </button>
                               onClick={() => eliminarItem('cliente', cliente.id)}
                               className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Eliminar Cliente">
@@ -1076,7 +1076,7 @@ Control Financiero Empresarial Seguro`;
                               <Eye size={18} />
                             </button>
                             <button 
-                              onClick={() => alert('Funcionalidad disponible próximamente')}
+                              onClick={() => abrirModal('editar_deuda', deuda)}
                               className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Editar Deuda">
                               <Edit size={18} />
