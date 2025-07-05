@@ -374,16 +374,23 @@ Control Financiero Empresarial Seguro`;
                                 </span>
                               </div>
                               <button
-                                onClick={() => {
-                                if (window.confirm(`¿Está seguro de eliminar el pago de S/ ${pago.monto.toLocaleString()}?\n\nEsto actualizará automáticamente:\n• Saldo pendiente\n• Total pagado\n• Estado del cliente`)) {
-                                eliminarPagoHistorial(itemSeleccionado.id, pago.id);
-                               }
-                              }}
-                              className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all"
-                              title="Eliminar pago - Actualiza automáticamente los saldos"
-                              >
-                                <Trash2 size={16} />
-                              </button>
+  onClick={() => {
+    if (window.confirm(`¿Está seguro de eliminar el pago de S/ ${pago.monto.toLocaleString()}?\n\nEsto actualizará automáticamente:\n• Saldo pendiente\n• Total pagado\n• Estado`)) {
+      // ✅ DETECTAR si es cliente o deuda
+      if (itemSeleccionado.nombre) {
+        // Es un cliente (tiene nombre)
+        eliminarPagoHistorial(itemSeleccionado.id, pago.id);
+      } else if (itemSeleccionado.acreedor) {
+        // Es una deuda (tiene acreedor)
+        eliminarPagoHistorialDeuda(itemSeleccionado.id, pago.id);
+      }
+    }
+  }}
+  className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all"
+  title="Eliminar pago - Actualiza automáticamente los saldos"
+>
+  <Trash2 size={16} />
+</button>
                             </div>
                           </div>
                         ))}
