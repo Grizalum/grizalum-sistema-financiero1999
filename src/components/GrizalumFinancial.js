@@ -510,11 +510,7 @@ Control Financiero Empresarial Seguro`;
     </div>
   </div>
 )}
-            </div>
-          </div>
-        </div>
-      )}
-        {/* Formulario de edición de cliente */}
+         {/* Formulario de edición de cliente */}
 {tipoModal === 'editar_cliente' && (
   <div className="space-y-4">
     <div className="bg-blue-50 p-4 rounded-lg">
@@ -653,6 +649,11 @@ Control Financiero Empresarial Seguro`;
     </div>
   </div>
 )}
+            </div>
+          </div>
+        </div>
+      )}
+ 
       
       <div className="relative z-10">
         {sidebarOpen && (
@@ -985,6 +986,7 @@ Control Financiero Empresarial Seguro`;
                              title="Editar Cliente">
                              <Edit size={18} />
                              </button>
+                             <button
                               onClick={() => eliminarItem('cliente', cliente.id)}
                               className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Eliminar Cliente">
