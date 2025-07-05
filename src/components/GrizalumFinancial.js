@@ -1376,7 +1376,8 @@ Control Financiero Empresarial Seguro`;
         </div>
       </div>
     </div>
-   );
-  }
-  }
-export default function GrizalumFinancial() {
+    );
+}
+
+// ✅ ESTA DEBE SER LA LÍNEA FINAL:
+export default GrizalumFinancial;
