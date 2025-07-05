@@ -230,6 +230,26 @@ const useFinancialData = () => {
   const eliminarAlerta = useCallback((alertaId) => {
     setAlertas(prev => prev.filter(a => a.id !== alertaId));
   }, []);
+  const eliminarPagoHistorialDeuda = useCallback((deudaId, pagoId) => {
+  setMisDeudas(prev => prev.map(deuda => {
+    if (deuda.id === deudaId) {
+      const pagoEliminado = deuda.historialPagos.find(p => p.id === pagoId);
+      if (pagoEliminado) {
+        const nuevoTotalPagado = (deuda.totalPagado || 0) - pagoEliminado.monto;
+        const nuevoSaldoPendiente = deuda.saldoPendiente + pagoEliminado.monto;
+        
+        return {
+          ...deuda,
+          historialPagos: deuda.historialPagos.filter(p => p.id !== pagoId),
+          totalPagado: Math.round(nuevoTotalPagado * 100) / 100,
+          saldoPendiente: Math.round(nuevoSaldoPendiente * 100) / 100,
+          estado: nuevoSaldoPendiente > 0 ? 'Activo' : 'Pagado'
+        };
+      }
+    }
+    return deuda;
+  }));
+}, []);
 const agregarCliente = useCallback((nuevoCliente) => {
   setMisClientes(prev => {
     // Calcular cuota mensual y total a cobrar
