@@ -1377,6 +1377,8 @@ Control Financiero Empresarial Seguro`;
         </div>
       </div>
     </div>
-  );
+   );
+  }
  }
+
 export default GrizalumFinancial;
