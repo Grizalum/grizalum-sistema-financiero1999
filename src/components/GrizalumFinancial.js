@@ -29,7 +29,6 @@ export default function GrizalumFinancial() {
     setMisClientes,
     setMisDeudas
   } = useFinancialData();
-
   // Estados de UI 
   const [currentView, setCurrentView] = useState('resumen');
   const [sidebarOpen, setSidebarOpen] = useState(false);
