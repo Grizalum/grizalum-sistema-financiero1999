@@ -84,12 +84,15 @@ export default function GrizalumFinancial() {
   }
   
   if (tipo === 'editar_deuda' && item) {
-    setDatosEdicion({
-      acreedor: item.acreedor,
-      descripcion: item.descripcion,
-      tasaInteres: item.tasaInteres.toString()
-    });
-  }
+  setDatosEdicion({
+    acreedor: item.acreedor,
+    descripcion: item.descripcion,
+    capital: item.capital.toString(),
+    tasaInteres: item.tasaInteres.toString(),
+    plazoMeses: item.plazoMeses.toString(),
+    proximoVencimiento: item.proximoVencimiento
+  });
+}
 };
   const cerrarModal = () => {
     setModalAbierto(false);
@@ -175,33 +178,55 @@ const guardarEdicion = () => {
     cerrarModal();
   }
   
-  if (tipoModal === 'editar_deuda') {
-    // Validaciones
-    if (!datosEdicion.acreedor || !datosEdicion.descripcion || !datosEdicion.tasaInteres) {
-      alert('Por favor complete todos los campos obligatorios');
-      return;
-    }
-    
-    if (parseFloat(datosEdicion.tasaInteres) < 0) {
-      alert('La tasa de interés no puede ser negativa');
-      return;
-    }
-    
-    // Actualizar deuda
-    const deudaActualizada = {
-      ...itemSeleccionado,
-      acreedor: datosEdicion.acreedor,
-      descripcion: datosEdicion.descripcion,
-      tasaInteres: parseFloat(datosEdicion.tasaInteres)
-    };
-    
-    setMisDeudas(prev => prev.map(d => 
-      d.id === itemSeleccionado.id ? deudaActualizada : d
-    ));
-    
-    alert(`Deuda de ${datosEdicion.acreedor} actualizada exitosamente`);
-    cerrarModal();
+ if (tipoModal === 'editar_deuda') {
+  // Validaciones
+  if (!datosEdicion.acreedor || !datosEdicion.descripcion || !datosEdicion.capital || !datosEdicion.plazoMeses) {
+    alert('Por favor complete todos los campos obligatorios');
+    return;
   }
+  
+  if (parseFloat(datosEdicion.capital) <= 0 || parseInt(datosEdicion.plazoMeses) <= 0) {
+    alert('El capital y plazo deben ser mayores a 0');
+    return;
+  }
+  
+  if (parseFloat(datosEdicion.tasaInteres) < 0) {
+    alert('La tasa de interés no puede ser negativa');
+    return;
+  }
+  
+  // Calcular nueva cuota mensual si cambió capital o plazo
+  const nuevoCapital = parseFloat(datosEdicion.capital);
+  const nuevosPlazoMeses = parseInt(datosEdicion.plazoMeses);
+  const nuevaTasa = parseFloat(datosEdicion.tasaInteres);
+  
+  let nuevaCuotaMensual;
+  if (nuevaTasa > 0) {
+    const tasaMensual = nuevaTasa / 100 / 12;
+    nuevaCuotaMensual = nuevoCapital * (tasaMensual * Math.pow(1 + tasaMensual, nuevosPlazoMeses)) / (Math.pow(1 + tasaMensual, nuevosPlazoMeses) - 1);
+  } else {
+    nuevaCuotaMensual = nuevoCapital / nuevosPlazoMeses;
+  }
+  
+  // Actualizar deuda
+  const deudaActualizada = {
+    ...itemSeleccionado,
+    acreedor: datosEdicion.acreedor,
+    descripcion: datosEdicion.descripcion,
+    capital: nuevoCapital,
+    tasaInteres: nuevaTasa,
+    plazoMeses: nuevosPlazoMeses,
+    cuotaMensual: Math.round(nuevaCuotaMensual * 100) / 100,
+    proximoVencimiento: datosEdicion.proximoVencimiento || itemSeleccionado.proximoVencimiento
+  };
+  
+  setMisDeudas(prev => prev.map(d => 
+    d.id === itemSeleccionado.id ? deudaActualizada : d
+  ));
+  
+  alert(`Deuda de ${datosEdicion.acreedor} actualizada exitosamente`);
+  cerrarModal();
+}
 };
   const eliminarItem = (tipo, id) => {
     if (window.confirm('¿Está seguro de eliminar este elemento?')) {
