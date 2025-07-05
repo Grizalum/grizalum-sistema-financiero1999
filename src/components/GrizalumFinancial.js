@@ -1379,3 +1379,4 @@ Control Financiero Empresarial Seguro`;
     </div>
   );
  }
+export default GrizalumFinancial;
