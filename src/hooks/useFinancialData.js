@@ -171,7 +171,7 @@ const useFinancialData = () => {
     }
     return cliente;
   }));
-}, [limpiarAlertasClientePagado]);
+  }, []);
 
  const pagarDeuda = useCallback((deudaId, monto, fecha) => {
   setMisDeudas(prev => prev.map(deuda => {
