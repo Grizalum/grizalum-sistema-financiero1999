@@ -1358,7 +1358,6 @@ jsx{modalAbierto && (
     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
       <div className="p-6">
         <div className="flex justify-between items-center mb-6">...</div>
-        
         {tipoModal === 'nueva_deuda' && (...)}
         {tipoModal === 'pago_cliente' && (...)}
         {tipoModal === 'historial' && (...)}
