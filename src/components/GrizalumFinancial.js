@@ -1205,37 +1205,42 @@ Control Financiero Empresarial Seguro`;
                             </div>
                             
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Capital</p>
-                                <p className="font-bold text-lg text-blue-600">S/{deuda.capital.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Tasa: {deuda.tasaInteres}%</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Pendiente</p>
-                                <p className="font-bold text-lg text-red-600">S/{deuda.saldoPendiente.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Plazo: {deuda.plazoMeses} meses</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Cuota</p>
-                                <p className="font-bold text-lg text-orange-600">S/{deuda.cuotaMensual.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Mensual</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Próximo Vencimiento</p>
-                                <p className="font-bold text-lg text-purple-600">{new Date(deuda.proximoVencimiento).toLocaleDateString()}</p>
-                                <p className="text-xs text-gray-500">Inicio: {new Date(deuda.fechaInicio).toLocaleDateString()}</p>
-                              </div>
-                            </div>
+  <div className="bg-white p-4 rounded-lg shadow-sm">
+    <p className="text-sm text-gray-600 mb-1">Capital</p>
+    <p className="font-bold text-lg text-blue-600">S/{deuda.capital.toLocaleString()}</p>
+    <p className="text-xs text-gray-500">Tasa: {deuda.tasaInteres}%</p>
+  </div>
+  <div className="bg-white p-4 rounded-lg shadow-sm">
+    <p className="text-sm text-gray-600 mb-1">Pendiente</p>
+    <p className="font-bold text-lg text-red-600">S/{deuda.saldoPendiente.toLocaleString()}</p>
+    <p className="text-xs text-gray-500">Plazo: {deuda.plazoMeses} meses</p>
+  </div>
+  <div className="bg-white p-4 rounded-lg shadow-sm">
+    <p className="text-sm text-gray-600 mb-1">Cuota</p>
+    <p className="font-bold text-lg text-orange-600">S/{deuda.cuotaMensual.toLocaleString()}</p>
+    <p className="text-xs text-gray-500">Mensual</p>
+  </div>
+  <div className="bg-white p-4 rounded-lg shadow-sm">
+    <p className="text-sm text-gray-600 mb-1">Pagado</p>
+    <p className="font-bold text-lg text-emerald-600">S/{(deuda.totalPagado || 0).toLocaleString()}</p>
+    <p className="text-xs text-gray-500">{deuda.historialPagos?.length || 0} pagos</p>
+  </div>
+</div>
                             
-                            <div className="flex flex-wrap items-center gap-4">
-                              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                                deuda.estado === 'Activo' ? 'bg-red-100 text-red-800' : 
-                                deuda.estado === 'Pagado' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                              }`}>
-                                {deuda.estado}
-                              </span>
-                            </div>
-                          </div>
+                           <div className="flex flex-wrap items-center gap-4">
+  <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+    deuda.estado === 'Activo' ? 'bg-red-100 text-red-800' : 
+    deuda.estado === 'Pagado' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+  }`}>
+    {deuda.estado}
+  </span>
+  <div className="flex items-center space-x-4 text-sm text-gray-600">
+    <span>Inicio: {new Date(deuda.fechaInicio).toLocaleDateString()}</span>
+    <span className="font-semibold text-purple-600">
+      Próximo: {new Date(deuda.proximoVencimiento).toLocaleDateString()}
+    </span>
+  </div>
+</div>
                           
                           <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
                             <button 
