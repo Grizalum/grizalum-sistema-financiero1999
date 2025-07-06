@@ -1204,7 +1204,7 @@ Control Financiero Empresarial Seguro`;
                               </div>
                             </div>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                               <div className="bg-white p-4 rounded-lg shadow-sm">
                                 <p className="text-sm text-gray-600 mb-1">Capital</p>
                                 <p className="font-bold text-lg text-blue-600">S/{deuda.capital.toLocaleString()}</p>
@@ -1221,9 +1221,9 @@ Control Financiero Empresarial Seguro`;
                                 <p className="text-xs text-gray-500">Mensual</p>
                               </div>
                               <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Próximo Vencimiento</p>
-                                <p className="font-bold text-lg text-purple-600">{new Date(deuda.proximoVencimiento).toLocaleDateString()}</p>
-                                <p className="text-xs text-gray-500">Inicio: {new Date(deuda.fechaInicio).toLocaleDateString()}</p>
+                                <p className="text-sm text-gray-600 mb-1">Pagado</p>
+                                <p className="font-bold text-lg text-emerald-600">S/{(deuda.totalPagado || 0).toLocaleString()}</p>
+                                <p className="text-xs text-gray-500">{deuda.historialPagos?.length || 0} pagos</p>
                               </div>
                             </div>
                             
