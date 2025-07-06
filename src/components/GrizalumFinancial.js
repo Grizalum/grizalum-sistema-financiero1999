@@ -1371,12 +1371,12 @@ Control Financiero Empresarial Seguro`;
                   )}
                 </div>
               </div>
-            )}
+           )}
           </div>
         </div>
       </div>
     </div>
-    );
-  }
-  
-  export default GrizalumFinancial;
+  );
+}
+
+export default GrizalumFinancial;
