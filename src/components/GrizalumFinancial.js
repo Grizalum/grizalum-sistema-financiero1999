@@ -6,7 +6,7 @@ import {
   AlertTriangle, Eye, Link, Save, Download
 } from 'lucide-react';
 import useFinancialData from '../hooks/useFinancialData';
-export default function GrizalumFinancial() {
+function GrizalumFinancial() {
   // Hook de datos financieros
   const {
     misClientes,
