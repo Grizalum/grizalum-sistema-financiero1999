@@ -27,6 +27,8 @@ export default function GrizalumFinancial() {
     eliminarAlerta,
     agregarCliente,
     agregarDeuda,
+    obtenerProximasFechasCobro,    
+    limpiarAlertasClientePagado,
     setMisClientes,
     setMisDeudas
   } = useFinancialData();
@@ -61,6 +63,9 @@ const [formDeuda, setFormDeuda] = useState({
   fechaInicio: new Date().toISOString().split('T')[0],
   proximoVencimiento: ''
 });
+  
+  const proximasFechas = obtenerProximasFechasCobro();
+  
  const abrirModal = (tipo, item = null) => {
   setTipoModal(tipo);
   setItemSeleccionado(item);
@@ -1143,7 +1148,37 @@ Control Financiero Empresarial Seguro`;
                         <TrendingUp size={32} className="text-green-200" />
                       </div>
                     </div>
-                    
+                        <div className="bg-white rounded-2xl shadow-xl p-6">
+                   <h2 className="text-2xl font-bold text-gray-800 mb-4">📅 Próximos Cobros</h2>
+                    <div className="space-y-3">
+                    {proximasFechas.length > 0 ? (
+                   proximasFechas.slice(0, 5).map(fecha => (
+                  <div key={fecha.clienteId} className={`p-4 rounded-lg border-l-4 ${
+                   fecha.estado === 'retrasado' ? 'border-red-500 bg-red-50' :
+                   fecha.estado === 'hoy' ? 'border-orange-500 bg-orange-50' :
+                   'border-blue-500 bg-blue-50'
+                   }`}>
+                   <div className="flex justify-between items-center">
+                   <div>
+                  <h3 className="font-semibold">{fecha.nombre}</h3>
+                  <p className="text-sm text-gray-600">
+                   {fecha.estado === 'retrasado' ? `Retrasado ${Math.abs(fecha.diasRestantes)} días` :
+                    fecha.estado === 'hoy' ? 'Cobrar HOY' :
+                  `En ${fecha.diasRestantes} días`}
+                   </p>
+                 </div>
+                  <div className="text-right">
+                  <p className="font-bold text-lg">S/ {fecha.monto.toLocaleString()}</p>
+                    <p className="text-sm text-gray-600">{fecha.proximaFecha}</p>
+                 </div>
+               </div>
+              </div>
+                ))
+            ) : (
+                 <p className="text-gray-500 text-center py-8">No hay cobros pendientes</p>
+              )}
+         </div>
+       </div>
                     <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-2xl shadow-lg">
                       <div className="flex items-center justify-between">
                         <div>
