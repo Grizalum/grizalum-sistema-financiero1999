@@ -829,10 +829,6 @@ Control Financiero Empresarial Seguro`;
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
         )}
-
-        {sidebarOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
-        )}
         
         <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-white transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static lg:transform-none`}>
           <div className="flex flex-col h-full">
@@ -1437,11 +1433,10 @@ Control Financiero Empresarial Seguro`;
                 </div>
               </div>
             )}
-          </div>
+           </div>
         </div>
       </div>
-   </div>
+    </div>
     </>
   );
-}
 }
