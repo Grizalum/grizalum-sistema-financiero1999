@@ -233,13 +233,21 @@ if (tipoModal === 'editar_deuda') {
   let nuevaCuota = 0;
   if (nuevaTasa > 0) {
     const tasaMensual = nuevaTasa / 100 / 12;
-    nuevaCuota = nuevoCapital * 
-      (tasaMensual * Math.pow(1 + tasaMensual, nuevosPlazo)) / 
-      (Math.pow(1 + tasaMensual, nuevosPlazo) - 1);
+let nuevaCuota = 0;
+
+if (nuevaTasa > 0) {
+  const factor = Math.pow(1 + tasaMensual, nuevosPlazo);
+  const denominador = factor - 1;
+  
+  if (denominador > 0) {
+    nuevaCuota = nuevoCapital * (tasaMensual * factor) / denominador;
   } else {
-    // Sin interés, solo dividir el capital
-    nuevaCuota = nuevoCapital / nuevosPlazo;
+    nuevaCuota = nuevoCapital / nuevosPlazo; // Sin interés
   }
+} else {
+  // Sin interés, solo dividir el capital
+  nuevaCuota = nuevoCapital / nuevosPlazo;
+}
   
   // Actualizar deuda con todos los recálculos
   const deudaActualizada = {
@@ -913,18 +921,31 @@ Control Financiero Empresarial Seguro`;
             <span className="text-gray-600">Nueva Cuota Mensual:</span>
             <span className="font-bold text-blue-600 ml-1">
               S/ {(() => {
-                const capital = parseFloat(datosEdicion.capital);
-                const tasa = parseFloat(datosEdicion.tasaInteres);
-                const meses = parseInt(datosEdicion.plazoMeses);
+               const capital = parseFloat(datosEdicion.capital);
+               const tasa = parseFloat(datosEdicion.tasaInteres);
+               const meses = parseInt(datosEdicion.plazoMeses);
                 
-                if (tasa > 0) {
-                  const tasaMensual = tasa / 100 / 12;
-                  const cuota = capital * (tasaMensual * Math.pow(1 + tasaMensual, meses)) / (Math.pow(1 + tasaMensual, meses) - 1);
-                  return cuota.toLocaleString();
-                } else {
-                  return (capital / meses).toLocaleString();
-                }
-              })()}
+                // VALIDAR PRIMERO
+                if (isNaN(capital) || isNaN(tasa) || isNaN(meses) || 
+                 capital <= 0 || meses <= 0 || tasa < 0) {
+                  return "0";
+                 }
+  
+               if (tasa > 0) {
+                const tasaMensual = tasa / 100 / 12;
+                const factor = Math.pow(1 + tasaMensual, meses);
+               const denominador = factor - 1;
+    
+              if (denominador > 0) {
+              const cuota = capital * (tasaMensual * factor) / denominador;
+             return cuota.toLocaleString();
+             } else {
+             return (capital / meses).toLocaleString();
+             }
+             } else {
+             return (capital / meses).toLocaleString();
+            }
+            })()}
             </span>
           </div>
           <div>
@@ -1151,8 +1172,8 @@ Control Financiero Empresarial Seguro`;
                         <div className="bg-white rounded-2xl shadow-xl p-6">
                    <h2 className="text-2xl font-bold text-gray-800 mb-4">📅 Próximos Cobros</h2>
                     <div className="space-y-3">
-                    {proximasFechas.length > 0 ? (
-                   proximasFechas.slice(0, 5).map(fecha => (
+                    {proximasFechas && proximasFechas.length > 0 ? (
+                     proximasFechas.slice(0, 5).map(fecha => (
                   <div key={fecha.clienteId} className={`p-4 rounded-lg border-l-4 ${
                    fecha.estado === 'retrasado' ? 'border-red-500 bg-red-50' :
                    fecha.estado === 'hoy' ? 'border-orange-500 bg-orange-50' :
