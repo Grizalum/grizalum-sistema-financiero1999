@@ -378,10 +378,6 @@ const generarAlertasVencimiento = useCallback(() => {
 
 // ✅ AGREGA esto DESPUÉS de la función anterior
 // Ejecutar alertas cada vez que cambien las deudas Y clientes
-useEffect(() => {
-  generarAlertasVencimiento();
-  generarAlertasCobranza();    
-}, [misDeudas, misClientes]); 
   // Simulación de conexión
   const [firebaseConectado, setFirebaseConectado] = useState(true);
   
@@ -526,6 +522,10 @@ const limpiarAlertasClientePagado = useCallback((clienteId) => {
       ['cobro_preventivo', 'cobro_proximo', 'cobro_hoy', 'cobro_retrasado'].includes(alerta.tipo))
   ));
 }, []);
+  useEffect(() => {
+  generarAlertasVencimiento();
+  generarAlertasCobranza();    
+}, [misDeudas, misClientes]); 
 
   return {
     // Estados
