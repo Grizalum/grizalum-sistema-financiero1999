@@ -819,7 +819,7 @@ Control Financiero Empresarial Seguro`;
     </button>
   </div>
 </div>
-    )}
+           )}
             </div>
           </div>
         </div>
@@ -829,7 +829,7 @@ Control Financiero Empresarial Seguro`;
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
         )}
-</>
+
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
         )}
