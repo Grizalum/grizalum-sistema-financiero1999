@@ -6,7 +6,7 @@ import {
   AlertTriangle, Eye, Link, Save, Download
 } from 'lucide-react';
 import useFinancialData from '../hooks/useFinancialData';
-function GrizalumFinancial() {
+export default function GrizalumFinancial() {
   // Hook de datos financieros
   const {
     misClientes,
@@ -29,6 +29,7 @@ function GrizalumFinancial() {
     setMisClientes,
     setMisDeudas
   } = useFinancialData();
+
   // Estados de UI 
   const [currentView, setCurrentView] = useState('resumen');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -1371,12 +1372,11 @@ Control Financiero Empresarial Seguro`;
                   )}
                 </div>
               </div>
-           )}
+            )}
           </div>
         </div>
       </div>
     </div>
   );
-}
-
-export default GrizalumFinancial;
+ }
+} 
