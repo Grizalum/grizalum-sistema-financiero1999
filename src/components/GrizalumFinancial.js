@@ -6,6 +6,7 @@ import {
   AlertTriangle, Eye, Link, Save, Download
 } from 'lucide-react';
 import useFinancialData from '../hooks/useFinancialData';
+export default GrizalumFinancial;
   // Hook de datos financieros
   const {
     misClientes,
@@ -1378,5 +1379,3 @@ Control Financiero Empresarial Seguro`;
     );
   }
   }
-
-export default GrizalumFinancial;
