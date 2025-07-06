@@ -1150,116 +1150,125 @@ Control Financiero Empresarial Seguro`;
             </div>
 
             {currentView === 'resumen' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-xl p-6">
-                  <h2 className="text-2xl font-bold text-gray-800 mb-2">Dashboard Financiero</h2>
-                  <p className="text-gray-600 mb-4">Análisis completo en tiempo real</p>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-green-100 text-sm font-medium">Por Cobrar</p>
-                          <p className="text-2xl font-bold">S/{totalPorCobrar.toLocaleString()}</p>
-                          <p className="text-green-200 text-xs mt-1">{misClientes.filter(c => c.estado === 'En Proceso').length} clientes</p>
-                        </div>
-                        <TrendingUp size={32} className="text-green-200" />
-                      </div>
-                    </div>
-                        <div className="bg-white rounded-2xl shadow-xl p-6">
-                   <h2 className="text-2xl font-bold text-gray-800 mb-4">📅 Próximos Cobros</h2>
-                    <div className="space-y-3">
-                    {proximasFechas && proximasFechas.length > 0 ? (
-                     proximasFechas.slice(0, 5).map(fecha => (
-                  <div key={fecha.clienteId} className={`p-4 rounded-lg border-l-4 ${
-                   fecha.estado === 'retrasado' ? 'border-red-500 bg-red-50' :
-                   fecha.estado === 'hoy' ? 'border-orange-500 bg-orange-50' :
-                   'border-blue-500 bg-blue-50'
-                   }`}>
-                   <div className="flex justify-between items-center">
-                   <div>
+  <div className="space-y-6">
+    <div className="bg-white rounded-2xl shadow-xl p-6">
+      <h2 className="text-2xl font-bold text-gray-800 mb-2">Dashboard Financiero</h2>
+      <p className="text-gray-600 mb-4">Análisis completo en tiempo real</p>
+      
+      {/* GRID DE 4 TARJETAS PRINCIPALES */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Tarjeta Por Cobrar */}
+        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-green-100 text-sm font-medium">Por Cobrar</p>
+              <p className="text-2xl font-bold">S/{totalPorCobrar.toLocaleString()}</p>
+              <p className="text-green-200 text-xs mt-1">{misClientes.filter(c => c.estado === 'En Proceso').length} clientes</p>
+            </div>
+            <TrendingUp size={32} className="text-green-200" />
+          </div>
+        </div>
+
+        {/* Tarjeta Deudas */}
+        <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-2xl shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-red-100 text-sm font-medium">Deudas</p>
+              <p className="text-2xl font-bold">S/{totalPorPagar.toLocaleString()}</p>
+              <p className="text-red-200 text-xs mt-1">{misDeudas.filter(d => d.estado === 'Activo').length} activas</p>
+            </div>
+            <TrendingDown size={32} className="text-red-200" />
+          </div>
+        </div>
+        
+        {/* Tarjeta Balance */}
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-2xl shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-blue-100 text-sm font-medium">Balance</p>
+              <p className="text-2xl font-bold">S/{balanceNeto.toLocaleString()}</p>
+              <p className="text-blue-200 text-xs mt-1">{balanceNeto >= 0 ? 'Favorable' : 'Atención'}</p>
+            </div>
+            <DollarSign size={32} className="text-blue-200" />
+          </div>
+        </div>
+        
+        {/* Tarjeta Cobertura */}
+        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-purple-100 text-sm font-medium">Cobertura</p>
+              <p className="text-2xl font-bold">{Math.round(cobertura)}%</p>
+              <p className="text-purple-200 text-xs mt-1">{cobertura >= 100 ? 'Excelente' : 'Mejorar'}</p>
+            </div>
+            <Calculator size={32} className="text-purple-200" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* SECCIÓN SEPARADA PARA PRÓXIMOS COBROS */}
+    <div className="bg-white rounded-2xl shadow-xl p-6">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">📅 Próximos Cobros</h2>
+      <div className="space-y-3">
+        {proximasFechas && proximasFechas.length > 0 ? (
+          proximasFechas.slice(0, 5).map(fecha => (
+            <div key={fecha.clienteId} className={`p-4 rounded-lg border-l-4 ${
+              fecha.estado === 'retrasado' ? 'border-red-500 bg-red-50' :
+              fecha.estado === 'hoy' ? 'border-orange-500 bg-orange-50' :
+              'border-blue-500 bg-blue-50'
+            }`}>
+              <div className="flex justify-between items-center">
+                <div>
                   <h3 className="font-semibold">{fecha.nombre}</h3>
                   <p className="text-sm text-gray-600">
-                   {fecha.estado === 'retrasado' ? `Retrasado ${Math.abs(fecha.diasRestantes)} días` :
-                    fecha.estado === 'hoy' ? 'Cobrar HOY' :
-                  `En ${fecha.diasRestantes} días`}
-                   </p>
-                 </div>
-                  <div className="text-right">
-                  <p className="font-bold text-lg">S/ {fecha.monto.toLocaleString()}</p>
-                    <p className="text-sm text-gray-600">{fecha.proximaFecha}</p>
-                 </div>
-               </div>
-              </div>
-                ))
-            ) : (
-                 <p className="text-gray-500 text-center py-8">No hay cobros pendientes</p>
-              )}
-         </div>
-       </div>
-                    <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 rounded-2xl shadow-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-red-100 text-sm font-medium">Deudas</p>
-                          <p className="text-2xl font-bold">S/{totalPorPagar.toLocaleString()}</p>
-                          <p className="text-red-200 text-xs mt-1">{misDeudas.filter(d => d.estado === 'Activo').length} activas</p>
-                        </div>
-                        <TrendingDown size={32} className="text-red-200" />
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-2xl shadow-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-blue-100 text-sm font-medium">Balance</p>
-                          <p className="text-2xl font-bold">S/{balanceNeto.toLocaleString()}</p>
-                          <p className="text-blue-200 text-xs mt-1">{balanceNeto >= 0 ? 'Favorable' : 'Atención'}</p>
-                        </div>
-                        <DollarSign size={32} className="text-blue-200" />
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-purple-100 text-sm font-medium">Cobertura</p>
-                          <p className="text-2xl font-bold">{Math.round(cobertura)}%</p>
-                          <p className="text-purple-200 text-xs mt-1">{cobertura >= 100 ? 'Excelente' : 'Mejorar'}</p>
-                        </div>
-                        <Calculator size={32} className="text-purple-200" />
-                      </div>
-                    </div>
-                  </div>
+                    {fecha.estado === 'retrasado' ? `Retrasado ${Math.abs(fecha.diasRestantes)} días` :
+                     fecha.estado === 'hoy' ? 'Cobrar HOY' :
+                     `En ${fecha.diasRestantes} días`}
+                  </p>
                 </div>
-
-                {alertas.filter(a => a.activa).length > 0 && (
-                  <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-r-2xl p-6">
-                    <h4 className="font-bold text-yellow-800 mb-4 flex items-center">
-                      <AlertTriangle className="mr-2" size={20} />
-                      Alertas del Sistema
-                    </h4>
-                    <div className="space-y-3">
-                      {alertas.filter(a => a.activa).slice(0, 3).map(alerta => (
-                        <div key={alerta.id} className="flex items-center justify-between bg-white p-3 rounded-lg">
-                          <div className="flex-1">
-                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                              alerta.urgencia === 'alta' ? 'bg-red-100 text-red-800' :
-                              alerta.urgencia === 'media' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
-                            }`}>
-                              {alerta.urgencia.toUpperCase()}
-                            </span>
-                            <p className="text-sm text-gray-600 mt-1">{alerta.mensaje}</p>
-                          </div>
-                          <button onClick={() => eliminarAlerta(alerta.id)} className="text-gray-400 hover:text-red-600">
-                            <X size={20} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <div className="text-right">
+                  <p className="font-bold text-lg">S/ {fecha.monto.toLocaleString()}</p>
+                  <p className="text-sm text-gray-600">{fecha.proximaFecha}</p>
+                </div>
               </div>
-            )}
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-500 text-center py-8">No hay cobros pendientes</p>
+        )}
+      </div>
+    </div>
+
+    {/* ALERTAS DEL SISTEMA */}
+    {alertas.filter(a => a.activa).length > 0 && (
+      <div className="bg-yellow-50 border-l-4 border-yellow-400 rounded-r-2xl p-6">
+        <h4 className="font-bold text-yellow-800 mb-4 flex items-center">
+          <AlertTriangle className="mr-2" size={20} />
+          Alertas del Sistema
+        </h4>
+        <div className="space-y-3">
+          {alertas.filter(a => a.activa).slice(0, 3).map(alerta => (
+            <div key={alerta.id} className="flex items-center justify-between bg-white p-3 rounded-lg">
+              <div className="flex-1">
+                <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                  alerta.urgencia === 'alta' ? 'bg-red-100 text-red-800' :
+                  alerta.urgencia === 'media' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {alerta.urgencia.toUpperCase()}
+                </span>
+                <p className="text-sm text-gray-600 mt-1">{alerta.mensaje}</p>
+              </div>
+              <button onClick={() => eliminarAlerta(alerta.id)} className="text-gray-400 hover:text-red-600">
+                <X size={20} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+)}
 
             {currentView === 'clientes' && (
               <div className="space-y-6">
