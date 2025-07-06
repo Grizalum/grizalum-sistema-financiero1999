@@ -1062,306 +1062,326 @@ Control Financiero Empresarial Seguro`;
       </button>
     </div>
   </div>
+{/* MODAL: Nueva Inversión */}
+{tipoModal === 'nueva_inversion' && (
+  <div className="space-y-4">
+    <div className="bg-purple-50 p-4 rounded-lg">
+      <h4 className="font-semibold text-purple-800">Agregar Nueva Inversión</h4>
+      <p className="text-sm text-purple-600">Complete la información del proyecto de inversión</p>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Proyecto</label>
+        <input
+          type="text"
+          value={formInversion.nombre}
+          onChange={(e) => setFormInversion(prev => ({...prev, nombre: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          placeholder="Ej: Maquina Soldadora Industrial"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Inversión</label>
+        <select
+          value={formInversion.tipo}
+          onChange={(e) => setFormInversion(prev => ({...prev, tipo: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+        >
+          <option value="Maquinaria">Maquinaria</option>
+          <option value="Inmueble">Inmueble</option>
+          <option value="Tecnología">Tecnología</option>
+          <option value="Vehículo">Vehículo</option>
+          <option value="Otros">Otros</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Inversión Inicial (S/)</label>
+        <input
+          type="number"
+          value={formInversion.inversion}
+          onChange={(e) => setFormInversion(prev => ({...prev, inversion: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          placeholder="50000"
+          step="100"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Ganancia Esperada (S/)</label>
+        <input
+          type="number"
+          value={formInversion.gananciaEsperada}
+          onChange={(e) => setFormInversion(prev => ({...prev, gananciaEsperada: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          placeholder="15000"
+          step="100"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>
+      <input
+        type="date"
+        value={formInversion.fechaInicio}
+        onChange={(e) => setFormInversion(prev => ({...prev, fechaInicio: e.target.value}))}
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+      />
+    </div>
+
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+      <textarea
+        value={formInversion.descripcion}
+        onChange={(e) => setFormInversion(prev => ({...prev, descripcion: e.target.value}))}
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+        placeholder="Descripción detallada de la inversión"
+        rows="3"
+      />
+    </div>
+
+    <div className="flex space-x-3 mt-6">
+      <button
+        onClick={cerrarModal}
+        className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
+      >
+        Cancelar
+      </button>
+      <button
+        onClick={() => {
+          if (!formInversion.nombre || !formInversion.inversion || !formInversion.gananciaEsperada) {
+            alert('Por favor complete todos los campos obligatorios');
+            return;
+          }
+          
+          if (parseFloat(formInversion.inversion) <= 0 || parseFloat(formInversion.gananciaEsperada) <= 0) {
+            alert('Los valores deben ser mayores a 0');
+            return;
+          }
+          
+          try {
+            agregarInversion(formInversion);
+            alert(`Inversión "${formInversion.nombre}" agregada exitosamente`);
+            cerrarModal();
+          } catch (error) {
+            console.error('Error al agregar inversión:', error);
+            alert('Error al agregar la inversión. Revise los datos ingresados.');
+          }
+        }}
+        className="flex-1 bg-purple-500 text-white py-3 rounded-lg hover:bg-purple-600 transition-all font-semibold"
+      >
+        Agregar Inversión
+      </button>
+    </div>
+  </div>
+)}
+
+{/* MODAL: Actualizar Ganancias */}
+{tipoModal === 'actualizar_ganancias' && (
+  <div className="space-y-4">
+    <div className="bg-green-50 p-4 rounded-lg">
+      <h4 className="font-semibold text-green-800">{itemSeleccionado?.nombre}</h4>
+      <p className="text-sm text-green-600">Actualizar ganancias actuales</p>
+      <div className="grid grid-cols-2 gap-4 mt-2 text-sm">
+        <div>
+          <span className="text-gray-600">Inversión:</span>
+          <span className="font-semibold text-blue-600 ml-1">S/ {itemSeleccionado?.inversion?.toLocaleString()}</span>
+        </div>
+        <div>
+          <span className="text-gray-600">Esperada:</span>
+          <span className="font-semibold text-purple-600 ml-1">S/ {itemSeleccionado?.gananciaEsperada?.toLocaleString()}</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">Ganancia Actual (S/)</label>
+      <input
+        type="number"
+        value={gananciaActualizar}
+        onChange={(e) => setGananciaActualizar(e.target.value)}
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+        placeholder="0.00"
+        step="0.01"
+      />
+    </div>
+
+    <div className="bg-blue-50 p-4 rounded-lg">
+      <h5 className="font-semibold text-blue-800 mb-2">Vista Previa:</h5>
+      {gananciaActualizar && (
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-gray-600">Nuevo ROI:</span>
+            <span className="font-bold text-green-600 ml-1">
+              {((parseFloat(gananciaActualizar) / itemSeleccionado?.inversion) * 100).toFixed(1)}%
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600">Progreso:</span>
+            <span className="font-bold text-purple-600 ml-1">
+              {Math.min((parseFloat(gananciaActualizar) / itemSeleccionado?.gananciaEsperada) * 100, 100).toFixed(0)}%
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+
+    <div className="flex space-x-3 mt-6">
+      <button
+        onClick={cerrarModal}
+        className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
+      >
+        Cancelar
+      </button>
+      <button
+        onClick={() => {
+          if (!gananciaActualizar || parseFloat(gananciaActualizar) < 0) {
+            alert('Por favor ingrese una ganancia válida');
+            return;
+          }
+          
+          actualizarGanancias(itemSeleccionado.id, gananciaActualizar);
+          alert('Ganancias actualizadas exitosamente');
+          cerrarModal();
+        }}
+        className="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all font-semibold"
+      >
+        Actualizar Ganancias
+      </button>
+    </div>
+  </div>
+)}
+
+{/* MODAL: Editar Inversión */}
+{tipoModal === 'editar_inversion' && (
+  <div className="space-y-4">
+    <div className="bg-blue-50 p-4 rounded-lg">
+      <h4 className="font-semibold text-blue-800">Editar Inversión</h4>
+      <p className="text-sm text-blue-600">Modifique los datos de la inversión</p>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Proyecto</label>
+        <input
+          type="text"
+          value={datosEdicion.nombre || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, nombre: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Nombre del proyecto"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Inversión</label>
+        <select
+          value={datosEdicion.tipo || 'Maquinaria'}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, tipo: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="Maquinaria">Maquinaria</option>
+          <option value="Inmueble">Inmueble</option>
+          <option value="Tecnología">Tecnología</option>
+          <option value="Vehículo">Vehículo</option>
+          <option value="Otros">Otros</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Inversión (S/)</label>
+        <input
+          type="number"
+          value={datosEdicion.inversion || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, inversion: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="50000"
+          step="100"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Ganancia Esperada (S/)</label>
+        <input
+          type="number"
+          value={datosEdicion.gananciaEsperada || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, gananciaEsperada: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="15000"
+          step="100"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+      <textarea
+        value={datosEdicion.descripcion || ''}
+        onChange={(e) => setDatosEdicion(prev => ({...prev, descripcion: e.target.value}))}
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="Descripción detallada de la inversión"
+        rows="3"
+      />
+    </div>
+
+    <div className="flex space-x-3 mt-6">
+      <button
+        onClick={cerrarModal}
+        className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
+      >
+        Cancelar
+      </button>
+      <button
+        onClick={() => {
+          if (!datosEdicion.nombre || !datosEdicion.inversion || !datosEdicion.gananciaEsperada) {
+            alert('Por favor complete todos los campos obligatorios');
+            return;
+          }
+          
+          editarInversion(itemSeleccionado.id, datosEdicion);
+          alert('Inversión actualizada exitosamente');
+          cerrarModal();
+        }}
+        className="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all font-semibold"
+      >
+        Guardar Cambios
+      </button>
+    </div>
+  </div>
+)}
+📍 PASO 5: VERIFICAR LA ESTRUCTURA FINAL
+Tu estructura debe quedar así:
+jsx{modalAbierto && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">...</div>
+        
+        {tipoModal === 'nueva_deuda' && (...)}
+        {tipoModal === 'pago_cliente' && (...)}
+        {tipoModal === 'historial' && (...)}
+        {tipoModal === 'nuevo_cliente' && (...)}
+        {tipoModal === 'editar_cliente' && (...)}
+        {tipoModal === 'editar_deuda' && (...)}
+        
+        {/* AQUÍ VAN LOS MODALES QUE AGREGASTE */}
+        {tipoModal === 'nueva_inversion' && (...)}
+        {tipoModal === 'actualizar_ganancias' && (...)}
+        {tipoModal === 'editar_inversion' && (...)}
+        
+      </div>
+    </div>
+  </div>
+)}
+
 )}
             </div>
           </div>
         </div>
       )}
-      
-  {/* MODAL: Nueva Inversión */}
-              {tipoModal === 'nueva_inversion' && (
-                <div className="space-y-4">
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-purple-800">Agregar Nueva Inversión</h4>
-                    <p className="text-sm text-purple-600">Complete la información del proyecto de inversión</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Proyecto</label>
-                      <input
-                        type="text"
-                        value={formInversion.nombre}
-                        onChange={(e) => setFormInversion(prev => ({...prev, nombre: e.target.value}))}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="Ej: Maquina Soldadora Industrial"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Inversión</label>
-                      <select
-                        value={formInversion.tipo}
-                        onChange={(e) => setFormInversion(prev => ({...prev, tipo: e.target.value}))}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      >
-                        <option value="Maquinaria">Maquinaria</option>
-                        <option value="Inmueble">Inmueble</option>
-                        <option value="Tecnología">Tecnología</option>
-                        <option value="Vehículo">Vehículo</option>
-                        <option value="Otros">Otros</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Inversión Inicial (S/)</label>
-                      <input
-                        type="number"
-                        value={formInversion.inversion}
-                        onChange={(e) => setFormInversion(prev => ({...prev, inversion: e.target.value}))}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="50000"
-                        step="100"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Ganancia Esperada (S/)</label>
-                      <input
-                        type="number"
-                        value={formInversion.gananciaEsperada}
-                        onChange={(e) => setFormInversion(prev => ({...prev, gananciaEsperada: e.target.value}))}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        placeholder="15000"
-                        step="100"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>
-                    <input
-                      type="date"
-                      value={formInversion.fechaInicio}
-                      onChange={(e) => setFormInversion(prev => ({...prev, fechaInicio: e.target.value}))}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-                    <textarea
-                      value={formInversion.descripcion}
-                      onChange={(e) => setFormInversion(prev => ({...prev, descripcion: e.target.value}))}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      placeholder="Descripción detallada de la inversión"
-                      rows="3"
-                    />
-                  </div>
-
-                  <div className="flex space-x-3 mt-6">
-                    <button
-                      onClick={cerrarModal}
-                      className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (!formInversion.nombre || !formInversion.inversion || !formInversion.gananciaEsperada) {
-                          alert('Por favor complete todos los campos obligatorios');
-                          return;
-                        }
-                        
-                        if (parseFloat(formInversion.inversion) <= 0 || parseFloat(formInversion.gananciaEsperada) <= 0) {
-                          alert('Los valores deben ser mayores a 0');
-                          return;
-                        }
-                        
-                        try {
-                          agregarInversion(formInversion);
-                          alert(`Inversión "${formInversion.nombre}" agregada exitosamente`);
-                          cerrarModal();
-                        } catch (error) {
-                          console.error('Error al agregar inversión:', error);
-                          alert('Error al agregar la inversión. Revise los datos ingresados.');
-                        }
-                      }}
-                      className="flex-1 bg-purple-500 text-white py-3 rounded-lg hover:bg-purple-600 transition-all font-semibold"
-                    >
-                      Agregar Inversión
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* MODAL: Actualizar Ganancias */}
-              {tipoModal === 'actualizar_ganancias' && (
-                <div className="space-y-4">
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-green-800">{itemSeleccionado?.nombre}</h4>
-                    <p className="text-sm text-green-600">Actualizar ganancias actuales</p>
-                    <div className="grid grid-cols-2 gap-4 mt-2 text-sm">
-                      <div>
-                        <span className="text-gray-600">Inversión:</span>
-                        <span className="font-semibold text-blue-600 ml-1">S/ {itemSeleccionado?.inversion?.toLocaleString()}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Esperada:</span>
-                        <span className="font-semibold text-purple-600 ml-1">S/ {itemSeleccionado?.gananciaEsperada?.toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Ganancia Actual (S/)</label>
-                    <input
-                      type="number"
-                      value={gananciaActualizar}
-                      onChange={(e) => setGananciaActualizar(e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="0.00"
-                      step="0.01"
-                    />
-                  </div>
-
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h5 className="font-semibold text-blue-800 mb-2">Vista Previa:</h5>
-                    {gananciaActualizar && (
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-600">Nuevo ROI:</span>
-                          <span className="font-bold text-green-600 ml-1">
-                            {((parseFloat(gananciaActualizar) / itemSeleccionado?.inversion) * 100).toFixed(1)}%
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Progreso:</span>
-                          <span className="font-bold text-purple-600 ml-1">
-                            {Math.min((parseFloat(gananciaActualizar) / itemSeleccionado?.gananciaEsperada) * 100, 100).toFixed(0)}%
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex space-x-3 mt-6">
-                    <button
-                      onClick={cerrarModal}
-                      className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (!gananciaActualizar || parseFloat(gananciaActualizar) < 0) {
-                          alert('Por favor ingrese una ganancia válida');
-                          return;
-                        }
-                        
-                        actualizarGanancias(itemSeleccionado.id, gananciaActualizar);
-                        alert('Ganancias actualizadas exitosamente');
-                        cerrarModal();
-                      }}
-                      className="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all font-semibold"
-                    >
-                      Actualizar Ganancias
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* MODAL: Editar Inversión */}
-              {tipoModal === 'editar_inversion' && (
-                <div className="space-y-4">
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-blue-800">Editar Inversión</h4>
-                    <p className="text-sm text-blue-600">Modifique los datos de la inversión</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Proyecto</label>
-                      <input
-                        type="text"
-                        value={datosEdicion.nombre || ''}
-                        onChange={(e) => setDatosEdicion(prev => ({...prev, nombre: e.target.value}))}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Nombre del proyecto"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Inversión</label>
-                      <select
-                        value={datosEdicion.tipo || 'Maquinaria'}
-                        onChange={(e) => setDatosEdicion(prev => ({...prev, tipo: e.target.value}))}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      >
-                        <option value="Maquinaria">Maquinaria</option>
-                        <option value="Inmueble">Inmueble</option>
-                        <option value="Tecnología">Tecnología</option>
-                        <option value="Vehículo">Vehículo</option>
-                        <option value="Otros">Otros</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Inversión (S/)</label>
-                      <input
-                        type="number"
-                        value={datosEdicion.inversion || ''}
-                        onChange={(e) => setDatosEdicion(prev => ({...prev, inversion: e.target.value}))}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="50000"
-                        step="100"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Ganancia Esperada (S/)</label>
-                      <input
-                        type="number"
-                        value={datosEdicion.gananciaEsperada || ''}
-                        onChange={(e) => setDatosEdicion(prev => ({...prev, gananciaEsperada: e.target.value}))}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="15000"
-                        step="100"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-                    <textarea
-                      value={datosEdicion.descripcion || ''}
-                      onChange={(e) => setDatosEdicion(prev => ({...prev, descripcion: e.target.value}))}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Descripción detallada de la inversión"
-                      rows="3"
-                    />
-                  </div>
-
-                  <div className="flex space-x-3 mt-6">
-                    <button
-                      onClick={cerrarModal}
-                      className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (!datosEdicion.nombre || !datosEdicion.inversion || !datosEdicion.gananciaEsperada) {
-                          alert('Por favor complete todos los campos obligatorios');
-                          return;
-                        }
-                        
-                        editarInversion(itemSeleccionado.id, datosEdicion);
-                        alert('Inversión actualizada exitosamente');
-                        cerrarModal();
-                      }}
-                      className="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all font-semibold"
-                    >
-                      Guardar Cambios
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-        
+             
       <div className="relative z-10">
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
