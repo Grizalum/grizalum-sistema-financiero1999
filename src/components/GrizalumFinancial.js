@@ -233,21 +233,18 @@ if (tipoModal === 'editar_deuda') {
   let nuevaCuota = 0;
   if (nuevaTasa > 0) {
     const tasaMensual = nuevaTasa / 100 / 12;
-let nuevaCuota = 0;
-
-if (nuevaTasa > 0) {
-  const factor = Math.pow(1 + tasaMensual, nuevosPlazo);
-  const denominador = factor - 1;
-  
-  if (denominador > 0) {
-    nuevaCuota = nuevoCapital * (tasaMensual * factor) / denominador;
+    const factor = Math.pow(1 + tasaMensual, nuevosPlazo);
+    const denominador = factor - 1;
+    
+    if (denominador > 0) {
+      nuevaCuota = nuevoCapital * (tasaMensual * factor) / denominador;
+    } else {
+      nuevaCuota = nuevoCapital / nuevosPlazo; // Sin interés
+    }
   } else {
-    nuevaCuota = nuevoCapital / nuevosPlazo; // Sin interés
+    // Sin interés, solo dividir el capital
+    nuevaCuota = nuevoCapital / nuevosPlazo;
   }
-} else {
-  // Sin interés, solo dividir el capital
-  nuevaCuota = nuevoCapital / nuevosPlazo;
-}
   
   // Actualizar deuda con todos los recálculos
   const deudaActualizada = {
