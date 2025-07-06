@@ -655,7 +655,6 @@ Control Financiero Empresarial Seguro`;
     <h4 className="font-semibold text-orange-800">Editar Información Completa de la Deuda</h4>
     <p className="text-sm text-orange-600">Modifique todos los datos necesarios</p>
   </div>
-  )} 
 
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
     {/* Acreedor */}
