@@ -340,6 +340,7 @@ Control Financiero Empresarial Seguro`;
   {tipoModal === 'pago_deuda' && 'Pagar Deuda'}
   {tipoModal === 'historial' && 'Historial de Pagos'}
   {tipoModal === 'nuevo_cliente' && 'Nuevo Cliente'}
+  {tipoModal === 'nueva_deuda' && 'Nueva Deuda'}
   {tipoModal === 'editar_cliente' && 'Editar Cliente'}
   {tipoModal === 'editar_deuda' && 'Editar Deuda'}
 </h3>
@@ -1380,108 +1381,153 @@ Control Financiero Empresarial Seguro`;
             )}
 
             {currentView === 'deudas' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-xl p-6">
-                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800">Gestión de Deudas</h2>
-                      <p className="text-gray-600">Control de obligaciones financieras</p>
+  <div className="space-y-6">
+    <div className="bg-white rounded-2xl shadow-xl p-6">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Gestión de Deudas</h2>
+          <p className="text-gray-600">Control automático de obligaciones financieras</p>
+        </div>
+        <button onClick={() => abrirModal('nueva_deuda')}
+          className="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
+          <Plus className="mr-2" size={18} />
+          Nueva Deuda
+        </button>
+      </div>
+      
+      <div className="grid gap-6">
+        {misDeudas.map(deuda => {
+          const estadoDeuda = calcularEstadoDeuda(deuda);
+          
+          return (
+            <div key={deuda.id} className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-6 hover:shadow-lg transition-all">
+              <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center">
+                      <CreditCard className="text-white" size={20} />
                     </div>
-                    <button onClick={() => abrirModal('nueva_deuda')}
-                      className="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
-                      <Plus className="mr-2" size={18} />
-                      Nueva Deuda
-                    </button>
-                  </div>
-                  
-                  <div className="grid gap-6">
-                    {misDeudas.map(deuda => (
-                      <div key={deuda.id} className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-6 hover:shadow-lg transition-all">
-                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-4">
-                              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center">
-                                <CreditCard className="text-white" size={20} />
-                              </div>
-                              <div>
-                                <h3 className="font-bold text-xl text-gray-800">{deuda.acreedor}</h3>
-                                <p className="text-sm text-gray-600">{deuda.descripcion}</p>
-                              </div>
-                            </div>
-                            
-                           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Capital</p>
-                                <p className="font-bold text-lg text-blue-600">S/{deuda.capital.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Tasa: {deuda.tasaInteres}%</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Pendiente</p>
-                                <p className="font-bold text-lg text-red-600">S/{deuda.saldoPendiente.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Plazo: {deuda.plazoMeses} meses</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Cuota</p>
-                                <p className="font-bold text-lg text-orange-600">S/{deuda.cuotaMensual.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Mensual</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Pagado</p>
-                                <p className="font-bold text-lg text-emerald-600">S/{(deuda.totalPagado || 0).toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">{deuda.historialPagos?.length || 0} pagos</p>
-                              </div>
-                            </div>
-                            
-                           <div className="flex flex-wrap items-center gap-4">
-                              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                                deuda.estado === 'Activo' ? 'bg-red-100 text-red-800' : 
-                                deuda.estado === 'Pagado' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                              }`}>
-                                {deuda.estado}
-                              </span>
-                              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                                <span>Inicio: {new Date(deuda.fechaInicio).toLocaleDateString()}</span>
-                                <span className="font-semibold text-purple-600">
-                                  Próximo: {new Date(deuda.proximoVencimiento).toLocaleDateString()}
-                                </span>
-                               </div>
-                             </div>
-                           </div> 
-                                   
-                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                            <button 
-                              onClick={() => abrirModal('pago_deuda', deuda)}
-                              className="bg-orange-500 text-white p-3 rounded-lg hover:bg-orange-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Pagar Cuota">
-                              <DollarSign size={18} />
-                            </button>
-                            <button 
-                              onClick={() => abrirModal('historial', deuda)}
-                              className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Ver Historial">
-                              <Eye size={18} />
-                            </button>
-                            <button 
-                              onClick={() => abrirModal('editar_deuda', deuda)}
-                              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Editar Deuda">
-                              <Edit size={18} />
-                            </button>
-                            <button 
-                              onClick={() => eliminarItem('deuda', deuda.id)}
-                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Eliminar Deuda">
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-xl text-gray-800">{deuda.acreedor}</h3>
+                        {/* NUEVO: Indicador de estado automático */}
+                        <div className={`px-3 py-1 rounded-full text-xs font-bold flex items-center ${
+                          estadoDeuda.estado === 'al-dia' ? 'bg-green-100 text-green-800' :
+                          estadoDeuda.estado === 'proximo' ? 'bg-yellow-100 text-yellow-800' :
+                          estadoDeuda.estado === 'hoy' ? 'bg-orange-100 text-orange-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {estadoDeuda.estado === 'al-dia' && '✅'}
+                          {estadoDeuda.estado === 'proximo' && '⚠️'}
+                          {estadoDeuda.estado === 'hoy' && '🔥'}
+                          {(estadoDeuda.estado === 'atrasado' || estadoDeuda.estado === 'vencido') && '🚨'}
+                          <span className="ml-1">{estadoDeuda.mensaje}</span>
                         </div>
                       </div>
-                    ))}
+                      <p className="text-sm text-gray-600">{deuda.descripcion}</p>
+                    </div>
                   </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                      <p className="text-sm text-gray-600 mb-1">Capital</p>
+                      <p className="font-bold text-lg text-blue-600">S/{deuda.capital.toLocaleString()}</p>
+                      <p className="text-xs text-gray-500">Tasa: {deuda.tasaInteres}%</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                      <p className="text-sm text-gray-600 mb-1">Pendiente</p>
+                      <p className="font-bold text-lg text-red-600">S/{deuda.saldoPendiente.toLocaleString()}</p>
+                      <p className="text-xs text-gray-500">Plazo: {deuda.plazoMeses} meses</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                      <p className="text-sm text-gray-600 mb-1">Cuota</p>
+                      <p className="font-bold text-lg text-orange-600">S/{deuda.cuotaMensual.toLocaleString()}</p>
+                      <p className="text-xs text-gray-500">Mensual</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                      <p className="text-sm text-gray-600 mb-1">Pagado</p>
+                      <p className="font-bold text-lg text-emerald-600">S/{(deuda.totalPagado || 0).toLocaleString()}</p>
+                      <p className="text-xs text-gray-500">{deuda.historialPagos?.length || 0} pagos</p>
+                    </div>
+                  </div>
+
+                  {/* NUEVO: Progreso de pagos automático */}
+                  <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-gray-700">Progreso de Pagos</span>
+                      <span className="text-sm font-bold text-purple-600">
+                        {estadoDeuda.cuotasPagadas}/{estadoDeuda.cuotasEsperadas} cuotas
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div className={`h-3 rounded-full transition-all ${
+                        estadoDeuda.cuotasPagadas >= estadoDeuda.cuotasEsperadas ? 'bg-green-500' : 'bg-red-500'
+                      }`} style={{width: `${Math.min((estadoDeuda.cuotasPagadas / Math.max(estadoDeuda.cuotasEsperadas, 1)) * 100, 100)}%`}}></div>
+                    </div>
+                    {estadoDeuda.cuotasAtrasadas > 0 && (
+                      <p className="text-xs text-red-600 mt-1 font-semibold">
+                        ⚠️ {estadoDeuda.cuotasAtrasadas} cuota{estadoDeuda.cuotasAtrasadas > 1 ? 's' : ''} pendiente{estadoDeuda.cuotasAtrasadas > 1 ? 's' : ''}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-4">
+                    <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                      deuda.estado === 'Activo' ? 'bg-red-100 text-red-800' : 
+                      deuda.estado === 'Pagado' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {deuda.estado}
+                    </span>
+                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                      <span>Inicio: {new Date(deuda.fechaInicio).toLocaleDateString()}</span>
+                      <span className={`font-semibold ${
+                        estadoDeuda.diasRestantes <= 0 ? 'text-red-600' :
+                        estadoDeuda.diasRestantes <= 7 ? 'text-orange-600' : 'text-purple-600'
+                      }`}>
+                        Próximo: {new Date(deuda.proximoVencimiento).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div> 
+                        
+                <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                  <button 
+                    onClick={() => abrirModal('pago_deuda', deuda)}
+                    className={`p-3 rounded-lg transition-all shadow-lg flex-1 lg:flex-none text-white ${
+                      estadoDeuda.urgencia === 'alta' ? 'bg-red-500 hover:bg-red-600 animate-pulse' :
+                      estadoDeuda.urgencia === 'media' ? 'bg-orange-500 hover:bg-orange-600' :
+                      'bg-green-500 hover:bg-green-600'
+                    }`}
+                    title="Pagar Cuota">
+                    <DollarSign size={18} />
+                  </button>
+                  <button 
+                    onClick={() => abrirModal('historial', deuda)}
+                    className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
+                    title="Ver Historial">
+                    <Eye size={18} />
+                  </button>
+                  <button 
+                    onClick={() => abrirModal('editar_deuda', deuda)}
+                    className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
+                    title="Editar Deuda">
+                    <Edit size={18} />
+                  </button>
+                  <button 
+                    onClick={() => eliminarItem('deuda', deuda.id)}
+                    className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
+                    title="Eliminar Deuda">
+                    <Trash2 size={18} />
+                  </button>
                 </div>
               </div>
-            )}
-
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+)}
             {currentView === 'inversiones' && (
               <div className="space-y-6">
                 <div className="bg-white rounded-2xl shadow-xl p-6">
