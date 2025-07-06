@@ -12,10 +12,6 @@ export default function GrizalumFinancial() {
     misClientes,
     misDeudas,
     misInversiones,
-    agregarInversion,
-    actualizarGanancias,
-    editarInversion,
-    eliminarInversion,
     alertas,
     firebaseConectado,
     totalPorCobrar,
@@ -68,16 +64,6 @@ const [formDeuda, setFormDeuda] = useState({
   proximoVencimiento: ''
 });
   
-  const [formInversion, setFormInversion] = useState({
-  nombre: '',
-  descripcion: '',
-  tipo: 'Maquinaria',
-  inversion: '',
-  gananciaEsperada: '',
-  fechaInicio: new Date().toISOString().split('T')[0]
-});
-  
-const [gananciaActualizar, setGananciaActualizar] = useState('');
   const proximasFechas = obtenerProximasFechasCobro();
 
   const calcularEstadoDeuda = (deuda) => {
@@ -135,66 +121,58 @@ const [gananciaActualizar, setGananciaActualizar] = useState('');
   setMontoPago('');
   setNotas('');
   setFechaPago(new Date().toISOString().split('T')[0]);
-  setGananciaActualizar('');
    
-  // Limpiar formularios
-  if (tipo === 'nueva_deuda') {
-    setFormDeuda({
-      acreedor: '', descripcion: '', capital: '', tasaInteres: '', 
-      plazoMeses: '', fechaInicio: new Date().toISOString().split('T')[0],
-      proximoVencimiento: ''
-    });
-  }
-  
+  // Limpiar formulario de deuda si es nueva deuda
+if (tipo === 'nueva_deuda') {
+  setFormDeuda({
+    acreedor: '',
+    descripcion: '',
+    capital: '',
+    tasaInteres: '',
+    plazoMeses: '',
+    fechaInicio: new Date().toISOString().split('T')[0],
+    proximoVencimiento: ''
+  });
+}
+  // Limpiar formulario de cliente si es nuevo cliente
   if (tipo === 'nuevo_cliente') {
     setFormCliente({
-      nombre: '', email: '', telefono: '', capital: '', tasaInteres: '', 
-      plazoMeses: '', fechaInicio: new Date().toISOString().split('T')[0]
+      nombre: '',
+      email: '',
+      telefono: '',
+      capital: '',
+      tasaInteres: '',
+      plazoMeses: '',
+      fechaInicio: new Date().toISOString().split('T')[0]
     });
   }
   
-  // 🔥 NUEVO: Limpiar formulario de inversión
-  if (tipo === 'nueva_inversion') {
-    setFormInversion({
-      nombre: '', descripcion: '', tipo: 'Maquinaria', inversion: '', 
-      gananciaEsperada: '', fechaInicio: new Date().toISOString().split('T')[0]
-    });
-  }
-  
-  // Cargar datos para edición de cliente
-  if (tipo === 'editar_cliente' && item) {
-    setDatosEdicion({
-      nombre: item.nombre, email: item.email, telefono: item.telefono,
-      capital: item.capital.toString(), tasaInteres: item.tasaInteres.toString(),
-      plazoMeses: item.plazoMeses.toString(), fechaInicio: item.fechaInicio
-    });
-  }
+  // Cargar datos para edición
+ if (tipo === 'editar_cliente' && item) {
+  setDatosEdicion({
+    nombre: item.nombre,
+    email: item.email,
+    telefono: item.telefono,
+    capital: item.capital.toString(),
+    tasaInteres: item.tasaInteres.toString(),
+    plazoMeses: item.plazoMeses.toString(),
+    fechaInicio: item.fechaInicio
+  });
+}
 
-  // Cargar datos para edición de deuda
-  if (tipo === 'editar_deuda' && item) {
-    setDatosEdicion({
-      acreedor: item.acreedor, descripcion: item.descripcion,
-      capital: item.capital.toString(), tasaInteres: item.tasaInteres.toString(),
-      plazoMeses: item.plazoMeses.toString(), fechaInicio: item.fechaInicio,
-      proximoVencimiento: item.proximoVencimiento
-    });
-  }
-  
-  // 🔥 NUEVO: Cargar datos para edición de inversión
-  if (tipo === 'editar_inversion' && item) {
-    setDatosEdicion({
-      nombre: item.nombre, descripcion: item.descripcion, tipo: item.tipo,
-      inversion: item.inversion.toString(), gananciaEsperada: item.gananciaEsperada.toString(),
-      fechaInicio: item.fechaInicio
-    });
-  }
-  
-  // 🔥 NUEVO: Prellenar ganancia actual para actualización
-  if (tipo === 'actualizar_ganancias' && item) {
-   setGananciaActualizar(item.gananciaActual?.toString() || '0');
-  }
+// 🔥 NUEVO: Cargar datos COMPLETOS para edición de deuda
+if (tipo === 'editar_deuda' && item) {
+  setDatosEdicion({
+    acreedor: item.acreedor,
+    descripcion: item.descripcion,
+    capital: item.capital.toString(),
+    tasaInteres: item.tasaInteres.toString(),
+    plazoMeses: item.plazoMeses.toString(),
+    fechaInicio: item.fechaInicio,
+    proximoVencimiento: item.proximoVencimiento
+  });
+}
 };
-
   
   const cerrarModal = () => {
     setModalAbierto(false);
@@ -413,9 +391,6 @@ Control Financiero Empresarial Seguro`;
   {tipoModal === 'nueva_deuda' && 'Nueva Deuda'}
   {tipoModal === 'editar_cliente' && 'Editar Cliente'}
   {tipoModal === 'editar_deuda' && 'Editar Deuda'}
-  {tipoModal === 'nueva_inversion' && 'Nueva Inversión'}
-  {tipoModal === 'actualizar_ganancias' && 'Actualizar Ganancias'}
-  {tipoModal === 'editar_inversion' && 'Editar Inversión'}
 </h3>
                 <button onClick={cerrarModal} className="text-gray-400 hover:text-gray-600">
                   <X size={24} />
@@ -1063,326 +1038,11 @@ Control Financiero Empresarial Seguro`;
     </div>
   </div>
 )}
-{/* MODAL: Nueva Inversión */}
-{tipoModal === 'nueva_inversion' && (
-  <div className="space-y-4">
-    <div className="bg-purple-50 p-4 rounded-lg">
-      <h4 className="font-semibold text-purple-800">Agregar Nueva Inversión</h4>
-      <p className="text-sm text-purple-600">Complete la información del proyecto de inversión</p>
-    </div>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Proyecto</label>
-        <input
-          type="text"
-          value={formInversion.nombre}
-          onChange={(e) => setFormInversion(prev => ({...prev, nombre: e.target.value}))}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          placeholder="Ej: Maquina Soldadora Industrial"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Inversión</label>
-        <select
-          value={formInversion.tipo}
-          onChange={(e) => setFormInversion(prev => ({...prev, tipo: e.target.value}))}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-        >
-          <option value="Maquinaria">Maquinaria</option>
-          <option value="Inmueble">Inmueble</option>
-          <option value="Tecnología">Tecnología</option>
-          <option value="Vehículo">Vehículo</option>
-          <option value="Otros">Otros</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Inversión Inicial (S/)</label>
-        <input
-          type="number"
-          value={formInversion.inversion}
-          onChange={(e) => setFormInversion(prev => ({...prev, inversion: e.target.value}))}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          placeholder="50000"
-          step="100"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Ganancia Esperada (S/)</label>
-        <input
-          type="number"
-          value={formInversion.gananciaEsperada}
-          onChange={(e) => setFormInversion(prev => ({...prev, gananciaEsperada: e.target.value}))}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          placeholder="15000"
-          step="100"
-        />
-      </div>
-    </div>
-
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>
-      <input
-        type="date"
-        value={formInversion.fechaInicio}
-        onChange={(e) => setFormInversion(prev => ({...prev, fechaInicio: e.target.value}))}
-        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-      />
-    </div>
-
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-      <textarea
-        value={formInversion.descripcion}
-        onChange={(e) => setFormInversion(prev => ({...prev, descripcion: e.target.value}))}
-        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-        placeholder="Descripción detallada de la inversión"
-        rows="3"
-      />
-    </div>
-
-    <div className="flex space-x-3 mt-6">
-      <button
-        onClick={cerrarModal}
-        className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
-      >
-        Cancelar
-      </button>
-      <button
-        onClick={() => {
-          if (!formInversion.nombre || !formInversion.inversion || !formInversion.gananciaEsperada) {
-            alert('Por favor complete todos los campos obligatorios');
-            return;
-          }
-          
-          if (parseFloat(formInversion.inversion) <= 0 || parseFloat(formInversion.gananciaEsperada) <= 0) {
-            alert('Los valores deben ser mayores a 0');
-            return;
-          }
-          
-          try {
-            agregarInversion(formInversion);
-            alert(`Inversión "${formInversion.nombre}" agregada exitosamente`);
-            cerrarModal();
-          } catch (error) {
-            console.error('Error al agregar inversión:', error);
-            alert('Error al agregar la inversión. Revise los datos ingresados.');
-          }
-        }}
-        className="flex-1 bg-purple-500 text-white py-3 rounded-lg hover:bg-purple-600 transition-all font-semibold"
-      >
-        Agregar Inversión
-      </button>
-    </div>
-  </div>
-)}
-
-{/* MODAL: Actualizar Ganancias */}
-{tipoModal === 'actualizar_ganancias' && (
-  <div className="space-y-4">
-    <div className="bg-green-50 p-4 rounded-lg">
-      <h4 className="font-semibold text-green-800">{itemSeleccionado?.nombre}</h4>
-      <p className="text-sm text-green-600">Actualizar ganancias actuales</p>
-      <div className="grid grid-cols-2 gap-4 mt-2 text-sm">
-        <div>
-          <span className="text-gray-600">Inversión:</span>
-          <span className="font-semibold text-blue-600 ml-1">S/ {itemSeleccionado?.inversion?.toLocaleString()}</span>
-        </div>
-        <div>
-          <span className="text-gray-600">Esperada:</span>
-          <span className="font-semibold text-purple-600 ml-1">S/ {itemSeleccionado?.gananciaEsperada?.toLocaleString()}</span>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">Ganancia Actual (S/)</label>
-      <input
-        type="number"
-        value={gananciaActualizar}
-        onChange={(e) => setGananciaActualizar(e.target.value)}
-        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-        placeholder="0.00"
-        step="0.01"
-      />
-    </div>
-
-    <div className="bg-blue-50 p-4 rounded-lg">
-      <h5 className="font-semibold text-blue-800 mb-2">Vista Previa:</h5>
-      {gananciaActualizar && (
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="text-gray-600">Nuevo ROI:</span>
-            <span className="font-bold text-green-600 ml-1">
-              {((parseFloat(gananciaActualizar) / itemSeleccionado?.inversion) * 100).toFixed(1)}%
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-600">Progreso:</span>
-            <span className="font-bold text-purple-600 ml-1">
-              {Math.min((parseFloat(gananciaActualizar) / itemSeleccionado?.gananciaEsperada) * 100, 100).toFixed(0)}%
-            </span>
+            </div>
           </div>
         </div>
       )}
-    </div>
-
-    <div className="flex space-x-3 mt-6">
-      <button
-        onClick={cerrarModal}
-        className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
-      >
-        Cancelar
-      </button>
-      <button
-        onClick={() => {
-          if (!gananciaActualizar || parseFloat(gananciaActualizar) < 0) {
-            alert('Por favor ingrese una ganancia válida');
-            return;
-          }
-          
-          actualizarGanancias(itemSeleccionado.id, gananciaActualizar);
-          alert('Ganancias actualizadas exitosamente');
-          cerrarModal();
-        }}
-        className="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all font-semibold"
-      >
-        Actualizar Ganancias
-      </button>
-    </div>
-  </div>
-)}
-
-{/* MODAL: Editar Inversión */}
-{tipoModal === 'editar_inversion' && (
-  <div className="space-y-4">
-    <div className="bg-blue-50 p-4 rounded-lg">
-      <h4 className="font-semibold text-blue-800">Editar Inversión</h4>
-      <p className="text-sm text-blue-600">Modifique los datos de la inversión</p>
-    </div>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Proyecto</label>
-        <input
-          type="text"
-          value={datosEdicion.nombre || ''}
-          onChange={(e) => setDatosEdicion(prev => ({...prev, nombre: e.target.value}))}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Nombre del proyecto"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Inversión</label>
-        <select
-          value={datosEdicion.tipo || 'Maquinaria'}
-          onChange={(e) => setDatosEdicion(prev => ({...prev, tipo: e.target.value}))}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="Maquinaria">Maquinaria</option>
-          <option value="Inmueble">Inmueble</option>
-          <option value="Tecnología">Tecnología</option>
-          <option value="Vehículo">Vehículo</option>
-          <option value="Otros">Otros</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Inversión (S/)</label>
-        <input
-          type="number"
-          value={datosEdicion.inversion || ''}
-          onChange={(e) => setDatosEdicion(prev => ({...prev, inversion: e.target.value}))}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="50000"
-          step="100"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Ganancia Esperada (S/)</label>
-        <input
-          type="number"
-          value={datosEdicion.gananciaEsperada || ''}
-          onChange={(e) => setDatosEdicion(prev => ({...prev, gananciaEsperada: e.target.value}))}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="15000"
-          step="100"
-        />
-      </div>
-    </div>
-
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-      <textarea
-        value={datosEdicion.descripcion || ''}
-        onChange={(e) => setDatosEdicion(prev => ({...prev, descripcion: e.target.value}))}
-        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        placeholder="Descripción detallada de la inversión"
-        rows="3"
-      />
-    </div>
-
-    <div className="flex space-x-3 mt-6">
-      <button
-        onClick={cerrarModal}
-        className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
-      >
-        Cancelar
-      </button>
-      <button
-        onClick={() => {
-          if (!datosEdicion.nombre || !datosEdicion.inversion || !datosEdicion.gananciaEsperada) {
-            alert('Por favor complete todos los campos obligatorios');
-            return;
-          }
-          
-          editarInversion(itemSeleccionado.id, datosEdicion);
-          alert('Inversión actualizada exitosamente');
-          cerrarModal();
-        }}
-        className="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all font-semibold"
-      >
-        Guardar Cambios
-      </button>
-    </div>
-  </div>
-)}
-
-jsx{modalAbierto && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">...</div>
-        {tipoModal === 'nueva_deuda' && (...)}
-        {tipoModal === 'pago_cliente' && (...)}
-        {tipoModal === 'historial' && (...)}
-        {tipoModal === 'nuevo_cliente' && (...)}
-        {tipoModal === 'editar_cliente' && (...)}
-        {tipoModal === 'editar_deuda' && (...)}
-        
-        {/* AQUÍ VAN LOS MODALES QUE AGREGASTE */}
-        {tipoModal === 'nueva_inversion' && (...)}
-        {tipoModal === 'actualizar_ganancias' && (...)}
-        {tipoModal === 'editar_inversion' && (...)}
-        
-      </div>
-    </div>
-  </div>
-)}
-  div className="relative z-10">
-        {sidebarOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
-             </div>
-          </div>
-         </>
-         );
-         }
-             
+      
       <div className="relative z-10">
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
@@ -1924,7 +1584,7 @@ jsx{modalAbierto && (
                       <h2 className="text-2xl font-bold text-gray-800">Portfolio de Inversiones</h2>
                       <p className="text-gray-600">Gestión de activos y ROI</p>
                     </div>
-                    <button onClick={() => abrirModal('nueva_inversion')}
+                    <button onClick={() => alert('Funcionalidad disponible próximamente')}
                       className="bg-purple-500 text-white px-6 py-3 rounded-xl hover:bg-purple-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
                       <Plus className="mr-2" size={18} />
                       Nueva Inversión
@@ -1987,22 +1647,19 @@ jsx{modalAbierto && (
                             </div>
                           </div>
                           
-                           <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                           <button 
-                            onClick={() => abrirModal('actualizar_ganancias', inversion)}
+                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
                               className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none"
-                             title="Actualizar Ganancias">
-                            <TrendingUp size={18} />
+                              title="Actualizar Ganancias">
+                              <TrendingUp size={18} />
                             </button>
-                            <button 
-                            onClick={() => abrirModal('editar_inversion', inversion)}
+                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
                               className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              t title="Editar Inversión">
+                              title="Editar Inversión">
                               <Edit size={18} />
-                              </button>
-                              <button 
-                            onClick={() => eliminarItem('inversion', inversion.id)}
-                             className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
+                            </button>
+                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
+                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Eliminar Inversión">
                               <Trash2 size={18} />
                             </button>
@@ -2080,14 +1737,14 @@ jsx{modalAbierto && (
                       <p className="text-gray-500 text-lg">No hay alertas activas</p>
                       <p className="text-gray-400 text-sm">El sistema funciona correctamente</p>
                     </div>
-                   )}
-                 </div>
-               </div>
-             )}
-            </div>
-         </div>
-       </div>
-     </div>
-  </>
-);
+                  )}
+                </div>
+              </div>
+            )}
+           </div>
+        </div>
+      </div>
+    </div>
+    </>
+   );
 }
