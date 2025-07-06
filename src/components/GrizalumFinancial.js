@@ -74,23 +74,30 @@ export default function GrizalumFinancial() {
   }
   
   // Cargar datos para edición
-  if (tipo === 'editar_cliente' && item) {
-    setDatosEdicion({
-      nombre: item.nombre,
-      email: item.email,
-      telefono: item.telefono,
-      tasaInteres: item.tasaInteres.toString()
-    });
-  }
-  
-  if (tipo === 'editar_deuda' && item) {
-    setDatosEdicion({
-      acreedor: item.acreedor,
-      descripcion: item.descripcion,
-      tasaInteres: item.tasaInteres.toString()
-    });
-  }
-};
+ if (tipo === 'editar_cliente' && item) {
+  setDatosEdicion({
+    nombre: item.nombre,
+    email: item.email,
+    telefono: item.telefono,
+    capital: item.capital.toString(),
+    tasaInteres: item.tasaInteres.toString(),
+    plazoMeses: item.plazoMeses.toString(),
+    fechaInicio: item.fechaInicio
+  });
+}
+
+// 🔥 NUEVO: Cargar datos COMPLETOS para edición de deuda
+if (tipo === 'editar_deuda' && item) {
+  setDatosEdicion({
+    acreedor: item.acreedor,
+    descripcion: item.descripcion,
+    capital: item.capital.toString(),
+    tasaInteres: item.tasaInteres.toString(),
+    plazoMeses: item.plazoMeses.toString(),
+    fechaInicio: item.fechaInicio,
+    proximoVencimiento: item.proximoVencimiento
+  });
+}
   const cerrarModal = () => {
     setModalAbierto(false);
     setTipoModal('');
@@ -175,33 +182,58 @@ const guardarEdicion = () => {
     cerrarModal();
   }
   
-  if (tipoModal === 'editar_deuda') {
-    // Validaciones
-    if (!datosEdicion.acreedor || !datosEdicion.descripcion || !datosEdicion.tasaInteres) {
-      alert('Por favor complete todos los campos obligatorios');
-      return;
-    }
-    
-    if (parseFloat(datosEdicion.tasaInteres) < 0) {
-      alert('La tasa de interés no puede ser negativa');
-      return;
-    }
-    
-    // Actualizar deuda
-    const deudaActualizada = {
-      ...itemSeleccionado,
-      acreedor: datosEdicion.acreedor,
-      descripcion: datosEdicion.descripcion,
-      tasaInteres: parseFloat(datosEdicion.tasaInteres)
-    };
-    
-    setMisDeudas(prev => prev.map(d => 
-      d.id === itemSeleccionado.id ? deudaActualizada : d
-    ));
-    
-    alert(`Deuda de ${datosEdicion.acreedor} actualizada exitosamente`);
-    cerrarModal();
+ // 🔥 NUEVO: Edición COMPLETA de deudas
+if (tipoModal === 'editar_deuda') {
+  // Validaciones completas
+  if (!datosEdicion.acreedor || !datosEdicion.descripcion || !datosEdicion.capital || 
+      !datosEdicion.tasaInteres || !datosEdicion.plazoMeses) {
+    alert('Por favor complete todos los campos obligatorios');
+    return;
   }
+  
+  if (parseFloat(datosEdicion.capital) <= 0 || parseFloat(datosEdicion.tasaInteres) < 0 || 
+      parseInt(datosEdicion.plazoMeses) <= 0) {
+    alert('Revise los valores numéricos ingresados');
+    return;
+  }
+  
+  // 🧮 Recálculos automáticos para deudas
+  const nuevoCapital = parseFloat(datosEdicion.capital);
+  const nuevaTasa = parseFloat(datosEdicion.tasaInteres);
+  const nuevosPlazo = parseInt(datosEdicion.plazoMeses);
+  
+  let nuevaCuota = 0;
+  if (nuevaTasa > 0) {
+    const tasaMensual = nuevaTasa / 100 / 12;
+    nuevaCuota = nuevoCapital * 
+      (tasaMensual * Math.pow(1 + tasaMensual, nuevosPlazo)) / 
+      (Math.pow(1 + tasaMensual, nuevosPlazo) - 1);
+  } else {
+    // Sin interés, solo dividir el capital
+    nuevaCuota = nuevoCapital / nuevosPlazo;
+  }
+  
+  // Actualizar deuda con todos los recálculos
+  const deudaActualizada = {
+    ...itemSeleccionado,
+    acreedor: datosEdicion.acreedor,
+    descripcion: datosEdicion.descripcion,
+    capital: nuevoCapital,
+    tasaInteres: nuevaTasa,
+    plazoMeses: nuevosPlazo,
+    fechaInicio: datosEdicion.fechaInicio,
+    cuotaMensual: Math.round(nuevaCuota * 100) / 100,
+    saldoPendiente: Math.round((nuevoCapital - (itemSeleccionado.totalPagado || 0)) * 100) / 100,
+    proximoVencimiento: datosEdicion.proximoVencimiento
+  };
+  
+  setMisDeudas(prev => prev.map(d => 
+    d.id === itemSeleccionado.id ? deudaActualizada : d
+  ));
+  
+  alert(`Deuda de ${datosEdicion.acreedor} actualizada exitosamente`);
+  cerrarModal();
+}
 };
   const eliminarItem = (tipo, id) => {
     if (window.confirm('¿Está seguro de eliminar este elemento?')) {
