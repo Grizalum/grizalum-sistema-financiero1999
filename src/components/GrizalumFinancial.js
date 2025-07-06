@@ -2059,14 +2059,14 @@ Control Financiero Empresarial Seguro`;
                       <p className="text-gray-500 text-lg">No hay alertas activas</p>
                       <p className="text-gray-400 text-sm">El sistema funciona correctamente</p>
                     </div>
-                  )}
-                </div>
-              </div>
-            )}
-           </div>
-        </div>
-      </div>
-    </div>
-    </>
-   );
+                   )}
+                 </div>
+               </div>
+             )}
+            </div>
+         </div>
+       </div>
+     </div>
+  </>
+);
 }
