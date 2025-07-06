@@ -1,103 +1,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-// Hook personalizado para manejar toda la lógica financiera
-const [misInversiones, setMisInversiones] = useState([
-  {
-    id: 'inv1',
-    nombre: 'Maquina Soldadora Industrial',
-    descripcion: 'Maquina profesional para metalurgia',
-    tipo: 'Maquinaria',
-    inversion: 12000,
-    gananciaEsperada: 2500,
-    gananciaActual: 1625,
-    roi: 13.5,
-    progreso: 65,
-    estado: 'En Proceso',
-    fechaInicio: '2024-01-15'
-  },
-  {
-    id: 'inv2', 
-    nombre: 'Local Comercial Centro',
-    descripcion: 'Alquiler de local estratégico',
-    tipo: 'Inmueble',
-    inversion: 25000,
-    gananciaEsperada: 5000,
-    gananciaActual: 3750,
-    roi: 15.0,
-    progreso: 75,
-    estado: 'En Proceso',
-    fechaInicio: '2024-02-01'
-  }
-]);
-
-// 2. AGREGAR ESTAS FUNCIONES DENTRO DEL HOOK
-
-const agregarInversion = (nuevaInversion) => {
-  const inversion = {
-    id: `inv${Date.now()}`,
-    nombre: nuevaInversion.nombre,
-    descripcion: nuevaInversion.descripcion,
-    tipo: nuevaInversion.tipo,
-    inversion: parseFloat(nuevaInversion.inversion),
-    gananciaEsperada: parseFloat(nuevaInversion.gananciaEsperada),
-    gananciaActual: 0,
-    roi: 0,
-    progreso: 0,
-    estado: 'En Proceso',
-    fechaInicio: nuevaInversion.fechaInicio
-  };
-  
-  setMisInversiones(prev => [...prev, inversion]);
-};
-
-const actualizarGanancias = (id, nuevaGanancia) => {
-  setMisInversiones(prev => prev.map(inv => {
-    if (inv.id === id) {
-      const gananciaActual = parseFloat(nuevaGanancia);
-      const roi = ((gananciaActual / inv.inversion) * 100);
-      const progreso = Math.min((gananciaActual / inv.gananciaEsperada) * 100, 100);
-      const estado = progreso >= 100 ? 'Completado' : 'En Proceso';
-      
-      return {
-        ...inv,
-        gananciaActual,
-        roi: Math.round(roi * 10) / 10,
-        progreso: Math.round(progreso),
-        estado
-      };
-    }
-    return inv;
-  }));
-};
-
-const editarInversion = (id, datosActualizados) => {
-  setMisInversiones(prev => prev.map(inv => {
-    if (inv.id === id) {
-      const inversionActualizada = parseFloat(datosActualizados.inversion);
-      const gananciaEsperada = parseFloat(datosActualizados.gananciaEsperada);
-      const roi = ((inv.gananciaActual / inversionActualizada) * 100);
-      const progreso = Math.min((inv.gananciaActual / gananciaEsperada) * 100, 100);
-      
-      return {
-        ...inv,
-        nombre: datosActualizados.nombre,
-        descripcion: datosActualizados.descripcion,
-        tipo: datosActualizados.tipo,
-        inversion: inversionActualizada,
-        gananciaEsperada,
-        roi: Math.round(roi * 10) / 10,
-        progreso: Math.round(progreso)
-      };
-    }
-    return inv;
-  }));
-};
-
-const eliminarInversion = (id) => {
-  setMisInversiones(prev => prev.filter(inv => inv.id !== id));
-};
 const useFinancialData = () => {
+// Hook personalizado para manejar toda la lógica financiera
   // Estados principales
   const [misClientes, setMisClientes] = useState([
     {
@@ -183,7 +88,8 @@ const useFinancialData = () => {
     ]
   }
 ]);
-  const [misInversiones] = useState([
+  const [misInversiones, setMisInversiones] = useState([
+    
     {
       id: 1,
       nombre: 'Maquina Soldadora Industrial',
@@ -209,6 +115,71 @@ const useFinancialData = () => {
       progreso: 75
     }
   ]);
+  
+  const agregarInversion = useCallback((nuevaInversion) => {
+    const inversion = {
+      id: `inv${Date.now()}`,
+      nombre: nuevaInversion.nombre,
+      descripcion: nuevaInversion.descripcion,
+      tipo: nuevaInversion.tipo,
+      inversion: parseFloat(nuevaInversion.inversion),
+      gananciaEsperada: parseFloat(nuevaInversion.gananciaEsperada),
+      gananciaActual: 0,
+      roi: 0,
+      progreso: 0,
+      estado: 'En Proceso',
+      fechaInicio: nuevaInversion.fechaInicio
+    };
+    
+    setMisInversiones(prev => [...prev, inversion]);
+  }, []);
+
+  const actualizarGanancias = useCallback((id, nuevaGanancia) => {
+    setMisInversiones(prev => prev.map(inv => {
+      if (inv.id === id) {
+        const gananciaActual = parseFloat(nuevaGanancia);
+        const roi = ((gananciaActual / inv.inversion) * 100);
+        const progreso = Math.min((gananciaActual / inv.gananciaEsperada) * 100, 100);
+        const estado = progreso >= 100 ? 'Completado' : 'En Proceso';
+        
+        return {
+          ...inv,
+          gananciaActual,
+          roi: Math.round(roi * 10) / 10,
+          progreso: Math.round(progreso),
+          estado
+        };
+      }
+      return inv;
+    }));
+  }, []);
+
+  const editarInversion = useCallback((id, datosActualizados) => {
+    setMisInversiones(prev => prev.map(inv => {
+      if (inv.id === id) {
+        const inversionActualizada = parseFloat(datosActualizados.inversion);
+        const gananciaEsperada = parseFloat(datosActualizados.gananciaEsperada);
+        const roi = ((inv.gananciaActual / inversionActualizada) * 100);
+        const progreso = Math.min((inv.gananciaActual / gananciaEsperada) * 100, 100);
+        
+        return {
+          ...inv,
+          nombre: datosActualizados.nombre,
+          descripcion: datosActualizados.descripcion,
+          tipo: datosActualizados.tipo,
+          inversion: inversionActualizada,
+          gananciaEsperada,
+          roi: Math.round(roi * 10) / 10,
+          progreso: Math.round(progreso)
+        };
+      }
+      return inv;
+    }));
+  }, []);
+
+  const eliminarInversion = useCallback((id) => {
+    setMisInversiones(prev => prev.filter(inv => inv.id !== id));
+  }, []);
 
   const [alertas, setAlertas] = useState([
     {
