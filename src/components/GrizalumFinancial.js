@@ -819,15 +819,16 @@ Control Financiero Empresarial Seguro`;
     </button>
   </div>
 </div>
+    )}
             </div>
           </div>
         </div>
       )}
- 
       
-     <>
-  </div>
-  <div className="relative z-10">
+      <div className="relative z-10">
+        {sidebarOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        )}
 </>
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
