@@ -287,6 +287,39 @@ const agregarCliente = useCallback((nuevoCliente) => {
     return [...prev, clienteConId];
   });
 }, []);
+  const agregarDeuda = useCallback((nuevaDeuda) => {
+  setMisDeudas(prev => {
+    // Calcular cuota mensual y total a pagar
+    const capital = parseFloat(nuevaDeuda.capital);
+    const tasa = parseFloat(nuevaDeuda.tasaInteres) / 100;
+    const meses = parseInt(nuevaDeuda.plazoMeses);
+    
+    let cuotaMensual = 0;
+    if (tasa > 0) {
+      // Fórmula de cuota mensual con interés
+      const tasaMensual = tasa / 12;
+      cuotaMensual = capital * (tasaMensual * Math.pow(1 + tasaMensual, meses)) / (Math.pow(1 + tasaMensual, meses) - 1);
+    } else {
+      // Sin interés, solo dividir el capital
+      cuotaMensual = capital / meses;
+    }
+    
+    const deudaConId = {
+      ...nuevaDeuda,
+      id: Math.max(...prev.map(d => d.id), 0) + 1,
+      capital: capital,
+      tasaInteres: parseFloat(nuevaDeuda.tasaInteres),
+      plazoMeses: meses,
+      cuotaMensual: Math.round(cuotaMensual * 100) / 100,
+      saldoPendiente: capital,
+      totalPagado: 0,
+      estado: 'Activo',
+      historialPagos: []
+    };
+    
+    return [...prev, deudaConId];
+  });
+}, []);
   // Función para generar alertas automáticas
 const generarAlertasVencimiento = useCallback(() => {
   const hoy = new Date();
@@ -379,6 +412,7 @@ useEffect(() => {
     eliminarPagoHistorialDeuda,
     eliminarAlerta,
     agregarCliente,
+    agregarDeuda,
     
     // Setters directos (para casos especiales)
     setMisClientes,
