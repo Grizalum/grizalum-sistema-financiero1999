@@ -83,17 +83,13 @@ export default function GrizalumFinancial() {
     });
   }
   
-if (tipo === 'editar_deuda' && item) {
-  setDatosEdicion({
-    acreedor: item.acreedor,
-    descripcion: item.descripcion,
-    capital: item.capital.toString(),
-    tasaInteres: item.tasaInteres.toString(),
-    plazoMeses: item.plazoMeses.toString(),
-    fechaInicio: item.fechaInicio,
-    proximoVencimiento: item.proximoVencimiento
-  });
-}
+  if (tipo === 'editar_deuda' && item) {
+    setDatosEdicion({
+      acreedor: item.acreedor,
+      descripcion: item.descripcion,
+      tasaInteres: item.tasaInteres.toString()
+    });
+  }
 };
   const cerrarModal = () => {
     setModalAbierto(false);
@@ -179,64 +175,34 @@ const guardarEdicion = () => {
     cerrarModal();
   }
   
-if (tipoModal === 'editar_deuda') {
-  // Validaciones
-  if (!datosEdicion.acreedor || !datosEdicion.descripcion || !datosEdicion.capital || !datosEdicion.plazoMeses || !datosEdicion.fechaInicio) {
-    alert('Por favor complete todos los campos obligatorios');
-    return;
+  if (tipoModal === 'editar_deuda') {
+    // Validaciones
+    if (!datosEdicion.acreedor || !datosEdicion.descripcion || !datosEdicion.tasaInteres) {
+      alert('Por favor complete todos los campos obligatorios');
+      return;
+    }
+    
+    if (parseFloat(datosEdicion.tasaInteres) < 0) {
+      alert('La tasa de interés no puede ser negativa');
+      return;
+    }
+    
+    // Actualizar deuda
+    const deudaActualizada = {
+      ...itemSeleccionado,
+      acreedor: datosEdicion.acreedor,
+      descripcion: datosEdicion.descripcion,
+      tasaInteres: parseFloat(datosEdicion.tasaInteres)
+    };
+    
+    setMisDeudas(prev => prev.map(d => 
+      d.id === itemSeleccionado.id ? deudaActualizada : d
+    ));
+    
+    alert(`Deuda de ${datosEdicion.acreedor} actualizada exitosamente`);
+    cerrarModal();
   }
-  
-  if (parseFloat(datosEdicion.capital) <= 0 || parseInt(datosEdicion.plazoMeses) <= 0) {
-    alert('El capital y plazo deben ser mayores a 0');
-    return;
-  }
-  
-  if (parseFloat(datosEdicion.tasaInteres) < 0) {
-    alert('La tasa de interés no puede ser negativa');
-    return;
-  }
-  
-  // Calcular nueva cuota mensual y próximo vencimiento
-  const nuevoCapital = parseFloat(datosEdicion.capital);
-  const nuevosPlazoMeses = parseInt(datosEdicion.plazoMeses);
-  const nuevaTasa = parseFloat(datosEdicion.tasaInteres);
-  const nuevaFechaInicio = new Date(datosEdicion.fechaInicio);
-  
-  let nuevaCuotaMensual;
-  if (nuevaTasa > 0) {
-    const tasaMensual = nuevaTasa / 100 / 12;
-    nuevaCuotaMensual = nuevoCapital * (tasaMensual * Math.pow(1 + tasaMensual, nuevosPlazoMeses)) / (Math.pow(1 + tasaMensual, nuevosPlazoMeses) - 1);
-  } else {
-    nuevaCuotaMensual = nuevoCapital / nuevosPlazoMeses;
-  }
-  
-  // Calcular próximo vencimiento basado en pagos realizados
-  const pagosRealizados = itemSeleccionado.historialPagos?.length || 0;
-  const proximoVencimiento = new Date(nuevaFechaInicio);
-  proximoVencimiento.setMonth(proximoVencimiento.getMonth() + pagosRealizados + 1);
-  
-  // Actualizar deuda
-  const deudaActualizada = {
-    ...itemSeleccionado,
-    acreedor: datosEdicion.acreedor,
-    descripcion: datosEdicion.descripcion,
-    capital: nuevoCapital,
-    tasaInteres: nuevaTasa,
-    plazoMeses: nuevosPlazoMeses,
-    cuotaMensual: Math.round(nuevaCuotaMensual * 100) / 100,
-    fechaInicio: datosEdicion.fechaInicio,
-    proximoVencimiento: proximoVencimiento.toISOString().split('T')[0]
-  };
-  
-  setMisDeudas(prev => prev.map(d => 
-    d.id === itemSeleccionado.id ? deudaActualizada : d
-  ));
-  
-  alert(`Deuda de ${datosEdicion.acreedor} actualizada exitosamente`);
-  cerrarModal();
-}
-  
-  // Actualizar deuda
+};
   const eliminarItem = (tipo, id) => {
     if (window.confirm('¿Está seguro de eliminar este elemento?')) {
       if (tipo === 'cliente') {     
@@ -655,7 +621,7 @@ Control Financiero Empresarial Seguro`;
       <p className="text-sm text-orange-600">Modifique los datos necesarios</p>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Acreedor</label>
         <input
@@ -668,14 +634,13 @@ Control Financiero Empresarial Seguro`;
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Capital (S/)</label>
-        <input
-          type="number"
-          value={datosEdicion.capital || ''}
-          onChange={(e) => setDatosEdicion(prev => ({...prev, capital: e.target.value}))}
+        <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+        <textarea
+          value={datosEdicion.descripcion || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, descripcion: e.target.value}))}
           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="50000"
-          step="100"
+          placeholder="Descripción de la deuda"
+          rows="3"
         />
       </div>
 
@@ -691,56 +656,6 @@ Control Financiero Empresarial Seguro`;
           min="0"
         />
       </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Plazo (meses)</label>
-        <input
-          type="number"
-          value={datosEdicion.plazoMeses || ''}
-          onChange={(e) => setDatosEdicion(prev => ({...prev, plazoMeses: e.target.value}))}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="24"
-          min="1"
-          max="60"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>
-        <input
-          type="date"
-          value={datosEdicion.fechaInicio || ''}
-          onChange={(e) => setDatosEdicion(prev => ({...prev, fechaInicio: e.target.value}))}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Próximo Vencimiento</label>
-        <input
-          type="date"
-          value={datosEdicion.proximoVencimiento || ''}
-          onChange={(e) => setDatosEdicion(prev => ({...prev, proximoVencimiento: e.target.value}))}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-        />
-      </div>
-    </div>
-
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
-      <textarea
-        value={datosEdicion.descripcion || ''}
-        onChange={(e) => setDatosEdicion(prev => ({...prev, descripcion: e.target.value}))}
-        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-        placeholder="Descripción de la deuda"
-        rows="3"
-      />
-    </div>
-
-    <div className="bg-yellow-50 p-3 rounded-lg">
-      <p className="text-sm text-yellow-800">
-        <strong>Nota:</strong> Al cambiar el capital, plazo o fecha de inicio, se recalculará automáticamente la cuota mensual y el próximo vencimiento.
-      </p>
     </div>
 
     <div className="flex space-x-3 mt-6">
@@ -1378,5 +1293,4 @@ Control Financiero Empresarial Seguro`;
       </div>
     </div>
   );
- }
-} 
+}
