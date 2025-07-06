@@ -1062,6 +1062,7 @@ Control Financiero Empresarial Seguro`;
       </button>
     </div>
   </div>
+)}
 {/* MODAL: Nueva Inversión */}
 {tipoModal === 'nueva_inversion' && (
   <div className="space-y-4">
