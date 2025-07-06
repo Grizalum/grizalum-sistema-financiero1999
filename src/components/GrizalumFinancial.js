@@ -294,7 +294,8 @@ Control Financiero Empresarial Seguro`;
   };
 
 
-  return (
+ return (
+  <>
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative">
       {modalAbierto && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -824,7 +825,10 @@ Control Financiero Empresarial Seguro`;
       )}
  
       
-      <div className="relative z-10">
+     <>
+  </div>
+  <div className="relative z-10">
+</>
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
         )}
@@ -1435,6 +1439,7 @@ Control Financiero Empresarial Seguro`;
           </div>
         </div>
       </div>
-    </div>
+   </div>
+    </>
   );
 }
