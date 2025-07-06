@@ -1239,7 +1239,7 @@ Control Financiero Empresarial Seguro`;
                                   Próximo: {new Date(deuda.proximoVencimiento).toLocaleDateString()}
                                 </span>
                               </div>
-                            </div>>
+                            </div>
                           
                           <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
                             <button 
