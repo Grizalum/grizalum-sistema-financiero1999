@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 
 // Hook personalizado para manejar toda la lógica financiera
@@ -188,17 +189,18 @@ const useFinancialData = () => {
       };
 
       // ✅ CALCULAR PRÓXIMO VENCIMIENTO AUTOMÁTICAMENTE
-      const fechaActual = new Date(deuda.proximoVencimiento);
-      fechaActual.setMonth(fechaActual.getMonth() + 1); // Avanza 1 mes
-      const nuevoProximoVencimiento = fechaActual.toISOString().split('T')[0];
+      const nuevosHistorialPagos = [...(deuda.historialPagos || []), nuevoPago];
+      const fechaInicio = new Date(deuda.fechaInicio);
+      const proximoVencimiento = new Date(fechaInicio);
+      proximoVencimiento.setMonth(proximoVencimiento.getMonth() + nuevosHistorialPagos.length + 1);
 
       return {
         ...deuda,
         saldoPendiente: Math.round(nuevoSaldo * 100) / 100,
         totalPagado: Math.round(nuevoTotalPagado * 100) / 100,
         estado: nuevoSaldo === 0 ? 'Pagado' : 'Activo',
-        historialPagos: [...(deuda.historialPagos || []), nuevoPago],
-        proximoVencimiento: nuevoProximoVencimiento // ✅ AUTO-AVANCE
+        historialPagos: nuevosHistorialPagos,
+        proximoVencimiento: proximoVencimiento.toISOString().split('T')[0]
       };
     }
     return deuda;
