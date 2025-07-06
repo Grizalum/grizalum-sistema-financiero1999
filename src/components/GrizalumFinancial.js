@@ -1375,12 +1375,14 @@ jsx{modalAbierto && (
     </div>
   </div>
 )}
-
-)}
-            </div>
+  div className="relative z-10">
+        {sidebarOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+             </div>
           </div>
-        </div>
-      )}
+         </>
+         );
+         }
              
       <div className="relative z-10">
         {sidebarOpen && (
