@@ -12,6 +12,10 @@ export default function GrizalumFinancial() {
     misClientes,
     misDeudas,
     misInversiones,
+    agregarInversion,
+    actualizarGanancias,
+    editarInversion,
+    eliminarInversion,
     alertas,
     firebaseConectado,
     totalPorCobrar,
@@ -64,6 +68,16 @@ const [formDeuda, setFormDeuda] = useState({
   proximoVencimiento: ''
 });
   
+  const [formInversion, setFormInversion] = useState({
+  nombre: '',
+  descripcion: '',
+  tipo: 'Maquinaria',
+  inversion: '',
+  gananciaEsperada: '',
+  fechaInicio: new Date().toISOString().split('T')[0]
+});
+  
+const [gananciaActualizar, setGananciaActualizar] = useState('');
   const proximasFechas = obtenerProximasFechasCobro();
 
   const calcularEstadoDeuda = (deuda) => {
@@ -121,58 +135,66 @@ const [formDeuda, setFormDeuda] = useState({
   setMontoPago('');
   setNotas('');
   setFechaPago(new Date().toISOString().split('T')[0]);
+  setGananciaActualizar('');
    
-  // Limpiar formulario de deuda si es nueva deuda
-if (tipo === 'nueva_deuda') {
-  setFormDeuda({
-    acreedor: '',
-    descripcion: '',
-    capital: '',
-    tasaInteres: '',
-    plazoMeses: '',
-    fechaInicio: new Date().toISOString().split('T')[0],
-    proximoVencimiento: ''
-  });
-}
-  // Limpiar formulario de cliente si es nuevo cliente
-  if (tipo === 'nuevo_cliente') {
-    setFormCliente({
-      nombre: '',
-      email: '',
-      telefono: '',
-      capital: '',
-      tasaInteres: '',
-      plazoMeses: '',
-      fechaInicio: new Date().toISOString().split('T')[0]
+  // Limpiar formularios
+  if (tipo === 'nueva_deuda') {
+    setFormDeuda({
+      acreedor: '', descripcion: '', capital: '', tasaInteres: '', 
+      plazoMeses: '', fechaInicio: new Date().toISOString().split('T')[0],
+      proximoVencimiento: ''
     });
   }
   
-  // Cargar datos para edición
- if (tipo === 'editar_cliente' && item) {
-  setDatosEdicion({
-    nombre: item.nombre,
-    email: item.email,
-    telefono: item.telefono,
-    capital: item.capital.toString(),
-    tasaInteres: item.tasaInteres.toString(),
-    plazoMeses: item.plazoMeses.toString(),
-    fechaInicio: item.fechaInicio
-  });
-}
+  if (tipo === 'nuevo_cliente') {
+    setFormCliente({
+      nombre: '', email: '', telefono: '', capital: '', tasaInteres: '', 
+      plazoMeses: '', fechaInicio: new Date().toISOString().split('T')[0]
+    });
+  }
+  
+  // 🔥 NUEVO: Limpiar formulario de inversión
+  if (tipo === 'nueva_inversion') {
+    setFormInversion({
+      nombre: '', descripcion: '', tipo: 'Maquinaria', inversion: '', 
+      gananciaEsperada: '', fechaInicio: new Date().toISOString().split('T')[0]
+    });
+  }
+  
+  // Cargar datos para edición de cliente
+  if (tipo === 'editar_cliente' && item) {
+    setDatosEdicion({
+      nombre: item.nombre, email: item.email, telefono: item.telefono,
+      capital: item.capital.toString(), tasaInteres: item.tasaInteres.toString(),
+      plazoMeses: item.plazoMeses.toString(), fechaInicio: item.fechaInicio
+    });
+  }
 
-// 🔥 NUEVO: Cargar datos COMPLETOS para edición de deuda
-if (tipo === 'editar_deuda' && item) {
-  setDatosEdicion({
-    acreedor: item.acreedor,
-    descripcion: item.descripcion,
-    capital: item.capital.toString(),
-    tasaInteres: item.tasaInteres.toString(),
-    plazoMeses: item.plazoMeses.toString(),
-    fechaInicio: item.fechaInicio,
-    proximoVencimiento: item.proximoVencimiento
-  });
-}
+  // Cargar datos para edición de deuda
+  if (tipo === 'editar_deuda' && item) {
+    setDatosEdicion({
+      acreedor: item.acreedor, descripcion: item.descripcion,
+      capital: item.capital.toString(), tasaInteres: item.tasaInteres.toString(),
+      plazoMeses: item.plazoMeses.toString(), fechaInicio: item.fechaInicio,
+      proximoVencimiento: item.proximoVencimiento
+    });
+  }
+  
+  // 🔥 NUEVO: Cargar datos para edición de inversión
+  if (tipo === 'editar_inversion' && item) {
+    setDatosEdicion({
+      nombre: item.nombre, descripcion: item.descripcion, tipo: item.tipo,
+      inversion: item.inversion.toString(), gananciaEsperada: item.gananciaEsperada.toString(),
+      fechaInicio: item.fechaInicio
+    });
+  }
+  
+  // 🔥 NUEVO: Prellenar ganancia actual para actualización
+  if (tipo === 'actualizar_ganancias' && item) {
+    setGananciaActualizar(item.gananciaActual.toString());
+  }
 };
+
   
   const cerrarModal = () => {
     setModalAbierto(false);
@@ -1584,7 +1606,7 @@ Control Financiero Empresarial Seguro`;
                       <h2 className="text-2xl font-bold text-gray-800">Portfolio de Inversiones</h2>
                       <p className="text-gray-600">Gestión de activos y ROI</p>
                     </div>
-                    <button onClick={() => alert('Funcionalidad disponible próximamente')}
+                    <button onClick={() => abrirModal('nueva_inversion')}
                       className="bg-purple-500 text-white px-6 py-3 rounded-xl hover:bg-purple-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
                       <Plus className="mr-2" size={18} />
                       Nueva Inversión
@@ -1647,19 +1669,22 @@ Control Financiero Empresarial Seguro`;
                             </div>
                           </div>
                           
-                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
+                           <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                           <button 
+                            onClick={() => abrirModal('actualizar_ganancias', inversion)}
                               className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Actualizar Ganancias">
-                              <TrendingUp size={18} />
+                             title="Actualizar Ganancias">
+                            <TrendingUp size={18} />
                             </button>
-                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
+                            <button 
+                            onClick={() => abrirModal('editar_inversion', inversion)}
                               className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Editar Inversión">
+                              t title="Editar Inversión">
                               <Edit size={18} />
-                            </button>
-                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
-                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
+                              </button>
+                              <button 
+                            onClick={() => eliminarItem('inversion', inversion.id)}
+                             className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Eliminar Inversión">
                               <Trash2 size={18} />
                             </button>
