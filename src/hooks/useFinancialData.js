@@ -381,7 +381,7 @@ const generarAlertasVencimiento = useCallback(() => {
 useEffect(() => {
   generarAlertasVencimiento();
   generarAlertasCobranza();    
-}, [misDeudas, misClientes, generarAlertasVencimiento, generarAlertasCobranza]);
+}, [misDeudas, misClientes]); 
   // Simulación de conexión
   const [firebaseConectado, setFirebaseConectado] = useState(true);
   
