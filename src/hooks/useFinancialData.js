@@ -158,6 +158,9 @@ const useFinancialData = () => {
         tipo: monto >= cliente.cuotaMensual ? 'Cuota Regular' : 'Pago Parcial'
       };
 
+      // 🆕 LIMPIAR ALERTAS DEL CLIENTE AL REGISTRAR PAGO
+      limpiarAlertasClientePagado(clienteId);
+
       return {
         ...cliente,
         saldoPendiente: Math.round(nuevoSaldo * 100) / 100,
@@ -168,7 +171,7 @@ const useFinancialData = () => {
     }
     return cliente;
   }));
-}, []);
+}, [limpiarAlertasClientePagado]);
 
  const pagarDeuda = useCallback((deudaId, monto, fecha) => {
   setMisDeudas(prev => prev.map(deuda => {
@@ -374,10 +377,11 @@ const generarAlertasVencimiento = useCallback(() => {
 }, [misDeudas, alertas]);
 
 // ✅ AGREGA esto DESPUÉS de la función anterior
-// Ejecutar alertas cada vez que cambien las deudas
+// Ejecutar alertas cada vez que cambien las deudas Y clientes
 useEffect(() => {
   generarAlertasVencimiento();
-}, [misDeudas, generarAlertasVencimiento]);
+  generarAlertasCobranza();    
+}, [misDeudas, misClientes, generarAlertasVencimiento, generarAlertasCobranza]);
   // Simulación de conexión
   const [firebaseConectado, setFirebaseConectado] = useState(true);
   
@@ -387,6 +391,141 @@ useEffect(() => {
     }, 8000);
     return () => clearInterval(interval);
   }, []);
+  // 🔥 FUNCIÓN PARA CALCULAR PRÓXIMA FECHA DE COBRO
+const calcularProximaFechaCobro = (fechaInicio, numerosPagosRealizados) => {
+  const fecha = new Date(fechaInicio);
+  fecha.setMonth(fecha.getMonth() + numerosPagosRealizados + 1);
+  return fecha;
+};
+
+// 🔥 FUNCIÓN PRINCIPAL PARA GENERAR ALERTAS DE COBRANZA
+const generarAlertasCobranza = useCallback(() => {
+  const hoy = new Date();
+  const nuevasAlertas = [];
+  
+  misClientes.forEach(cliente => {
+    if (cliente.estado === 'En Proceso') {
+      const numerosPagosRealizados = cliente.historialPagos?.length || 0;
+      const proximaFechaCobro = calcularProximaFechaCobro(cliente.fechaInicio, numerosPagosRealizados);
+      const diasRestantes = Math.ceil((proximaFechaCobro - hoy) / (1000 * 60 * 60 * 24));
+      
+      // ✅ ALERTAS PREVENTIVAS (7 días antes)
+      if (diasRestantes <= 7 && diasRestantes > 3) {
+        const alertaExistente = alertas.find(a => 
+          a.tipo === 'cobro_preventivo' && 
+          a.mensaje.includes(cliente.nombre)
+        );
+        
+        if (!alertaExistente) {
+          nuevasAlertas.push({
+            id: Date.now() + Math.random(),
+            mensaje: `Recordatorio: Cobro de ${cliente.nombre} en ${diasRestantes} días - S/ ${cliente.cuotaMensual.toLocaleString()}`,
+            urgencia: 'baja',
+            tipo: 'cobro_preventivo',
+            activa: true,
+            clienteId: cliente.id,
+            fechaEsperada: proximaFechaCobro.toISOString().split('T')[0]
+          });
+        }
+      }
+      
+      // ⚠️ ALERTAS CERCANAS (3 días antes)
+      if (diasRestantes <= 3 && diasRestantes > 0) {
+        const alertaExistente = alertas.find(a => 
+          a.tipo === 'cobro_proximo' && 
+          a.mensaje.includes(cliente.nombre)
+        );
+        
+        if (!alertaExistente) {
+          nuevasAlertas.push({
+            id: Date.now() + Math.random() + 1,
+            mensaje: `Cobro próximo: ${cliente.nombre} - ${diasRestantes} día${diasRestantes > 1 ? 's' : ''} - S/ ${cliente.cuotaMensual.toLocaleString()}`,
+            urgencia: 'media',
+            tipo: 'cobro_proximo',
+            activa: true,
+            clienteId: cliente.id,
+            fechaEsperada: proximaFechaCobro.toISOString().split('T')[0]
+          });
+        }
+      }
+      
+      // 🚨 ALERTAS URGENTES (hoy es el día)
+      if (diasRestantes === 0) {
+        const alertaExistente = alertas.find(a => 
+          a.tipo === 'cobro_hoy' && 
+          a.mensaje.includes(cliente.nombre)
+        );
+        
+        if (!alertaExistente) {
+          nuevasAlertas.push({
+            id: Date.now() + Math.random() + 2,
+            mensaje: `¡HOY! Cobrar a ${cliente.nombre} - S/ ${cliente.cuotaMensual.toLocaleString()}`,
+            urgencia: 'alta',
+            tipo: 'cobro_hoy',
+            activa: true,
+            clienteId: cliente.id,
+            fechaEsperada: proximaFechaCobro.toISOString().split('T')[0]
+          });
+        }
+      }
+      
+      // 🔴 ALERTAS DE RETRASO (después de la fecha)
+      if (diasRestantes < 0) {
+        const diasRetraso = Math.abs(diasRestantes);
+        const alertaExistente = alertas.find(a => 
+          a.tipo === 'cobro_retrasado' && 
+          a.mensaje.includes(cliente.nombre)
+        );
+        
+        if (!alertaExistente) {
+          nuevasAlertas.push({
+            id: Date.now() + Math.random() + 3,
+            mensaje: `¡RETRASO! ${cliente.nombre} debe ${diasRetraso} día${diasRetraso > 1 ? 's' : ''} - S/ ${cliente.cuotaMensual.toLocaleString()}`,
+            urgencia: 'alta',
+            tipo: 'cobro_retrasado',
+            activa: true,
+            clienteId: cliente.id,
+            fechaEsperada: proximaFechaCobro.toISOString().split('T')[0],
+            diasRetraso: diasRetraso
+          });
+        }
+      }
+    }
+  });
+  
+  if (nuevasAlertas.length > 0) {
+    setAlertas(prev => [...prev, ...nuevasAlertas]);
+  }
+}, [misClientes, alertas]);
+  
+// 🔥 FUNCIÓN PARA MOSTRAR PRÓXIMAS FECHAS DE COBRO
+const obtenerProximasFechasCobro = useCallback(() => {
+  return misClientes
+    .filter(cliente => cliente.estado === 'En Proceso')
+    .map(cliente => {
+      const numerosPagosRealizados = cliente.historialPagos?.length || 0;
+      const proximaFecha = calcularProximaFechaCobro(cliente.fechaInicio, numerosPagosRealizados);
+      const diasRestantes = Math.ceil((proximaFecha - new Date()) / (1000 * 60 * 60 * 24));
+      
+      return {
+        clienteId: cliente.id,
+        nombre: cliente.nombre,
+        proximaFecha: proximaFecha.toISOString().split('T')[0],
+        diasRestantes: diasRestantes,
+        monto: cliente.cuotaMensual,
+        estado: diasRestantes < 0 ? 'retrasado' : diasRestantes === 0 ? 'hoy' : 'proximo'
+      };
+    })
+    .sort((a, b) => a.diasRestantes - b.diasRestantes);
+}, [misClientes]);
+  
+// 🔥 FUNCIÓN PARA LIMPIAR ALERTAS CUANDO SE REGISTRA UN PAGO
+const limpiarAlertasClientePagado = useCallback((clienteId) => {
+  setAlertas(prev => prev.filter(alerta => 
+    !(alerta.clienteId === clienteId && 
+      ['cobro_preventivo', 'cobro_proximo', 'cobro_hoy', 'cobro_retrasado'].includes(alerta.tipo))
+  ));
+}, []);
 
   return {
     // Estados
@@ -413,6 +552,10 @@ useEffect(() => {
     eliminarAlerta,
     agregarCliente,
     agregarDeuda,
+    
+    // 🆕 NUEVAS FUNCIONES DE ALERTAS
+    obtenerProximasFechasCobro,      
+    limpiarAlertasClientePagado, 
     
     // Setters directos (para casos especiales)
     setMisClientes,
