@@ -65,6 +65,54 @@ const [formDeuda, setFormDeuda] = useState({
 });
   
   const proximasFechas = obtenerProximasFechasCobro();
+
+  const calcularEstadoDeuda = (deuda) => {
+    const hoy = new Date();
+    const fechaVencimiento = new Date(deuda.proximoVencimiento);
+    const diasRestantes = Math.ceil((fechaVencimiento - hoy) / (1000 * 60 * 60 * 24));
+    
+    // Calcular cuotas esperadas vs pagadas
+    const fechaInicio = new Date(deuda.fechaInicio);
+    const mesesTranscurridos = Math.max(0, Math.floor((hoy - fechaInicio) / (1000 * 60 * 60 * 24 * 30)));
+    const cuotasEsperadas = Math.min(mesesTranscurridos + 1, deuda.plazoMeses);
+    const cuotasPagadas = Math.floor((deuda.totalPagado || 0) / deuda.cuotaMensual);
+    const cuotasAtrasadas = Math.max(0, cuotasEsperadas - cuotasPagadas);
+    
+    // Determinar estado y urgencia
+    let estado, mensaje, urgencia;
+    
+    if (diasRestantes < 0) {
+      estado = 'vencido';
+      mensaje = `Vencido ${Math.abs(diasRestantes)} días`;
+      urgencia = 'alta';
+    } else if (diasRestantes === 0) {
+      estado = 'hoy';
+      mensaje = 'Vence HOY';
+      urgencia = 'alta';
+    } else if (diasRestantes <= 3) {
+      estado = 'atrasado';
+      mensaje = `Vence en ${diasRestantes} días`;
+      urgencia = 'alta';
+    } else if (diasRestantes <= 7) {
+      estado = 'proximo';
+      mensaje = `Vence en ${diasRestantes} días`;
+      urgencia = 'media';
+    } else {
+      estado = 'al-dia';
+      mensaje = `Al día (${diasRestantes} días)`;
+      urgencia = 'baja';
+    }
+    
+    return {
+      estado,
+      mensaje,
+      urgencia,
+      diasRestantes,
+      cuotasEsperadas,
+      cuotasPagadas,
+      cuotasAtrasadas
+    };
+  };
   
  const abrirModal = (tipo, item = null) => {
   setTipoModal(tipo);
