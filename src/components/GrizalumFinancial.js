@@ -26,6 +26,7 @@ export default function GrizalumFinancial() {
     eliminarPagoHistorialDeuda,
     eliminarAlerta,
     agregarCliente,
+    agregarDeuda,
     setMisClientes,
     setMisDeudas
   } = useFinancialData();
@@ -51,7 +52,15 @@ export default function GrizalumFinancial() {
   plazoMeses: '',
   fechaInicio: new Date().toISOString().split('T')[0]
 });
-
+const [formDeuda, setFormDeuda] = useState({
+  acreedor: '',
+  descripcion: '',
+  capital: '',
+  tasaInteres: '',
+  plazoMeses: '',
+  fechaInicio: new Date().toISOString().split('T')[0],
+  proximoVencimiento: ''
+});
  const abrirModal = (tipo, item = null) => {
   setTipoModal(tipo);
   setItemSeleccionado(item);
@@ -59,7 +68,19 @@ export default function GrizalumFinancial() {
   setMontoPago('');
   setNotas('');
   setFechaPago(new Date().toISOString().split('T')[0]);
-  
+   
+  // Limpiar formulario de deuda si es nueva deuda
+if (tipo === 'nueva_deuda') {
+  setFormDeuda({
+    acreedor: '',
+    descripcion: '',
+    capital: '',
+    tasaInteres: '',
+    plazoMeses: '',
+    fechaInicio: new Date().toISOString().split('T')[0],
+    proximoVencimiento: ''
+  });
+}
   // Limpiar formulario de cliente si es nuevo cliente
   if (tipo === 'nuevo_cliente') {
     setFormCliente({
@@ -316,7 +337,130 @@ Control Financiero Empresarial Seguro`;
                   <X size={24} />
                 </button>
               </div>
+              {tipoModal === 'nueva_deuda' && (
+  <div className="space-y-4">
+    <div className="bg-red-50 p-4 rounded-lg">
+      <h4 className="font-semibold text-red-800">Agregar Nueva Deuda</h4>
+      <p className="text-sm text-red-600">Complete la información de la obligación financiera</p>
+    </div>
 
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Acreedor</label>
+        <input
+          type="text"
+          value={formDeuda.acreedor}
+          onChange={(e) => setFormDeuda(prev => ({...prev, acreedor: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          placeholder="Ej: Banco Santander"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Capital (S/)</label>
+        <input
+          type="number"
+          value={formDeuda.capital}
+          onChange={(e) => setFormDeuda(prev => ({...prev, capital: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          placeholder="50000"
+          step="100"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Tasa de Interés (%)</label>
+        <input
+          type="number"
+          value={formDeuda.tasaInteres}
+          onChange={(e) => setFormDeuda(prev => ({...prev, tasaInteres: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          placeholder="18"
+          step="0.1"
+          min="0"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Plazo (meses)</label>
+        <input
+          type="number"
+          value={formDeuda.plazoMeses}
+          onChange={(e) => setFormDeuda(prev => ({...prev, plazoMeses: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          placeholder="24"
+          min="1"
+          max="120"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>
+        <input
+          type="date"
+          value={formDeuda.fechaInicio}
+          onChange={(e) => setFormDeuda(prev => ({...prev, fechaInicio: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Próximo Vencimiento</label>
+        <input
+          type="date"
+          value={formDeuda.proximoVencimiento}
+          onChange={(e) => setFormDeuda(prev => ({...prev, proximoVencimiento: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+      <textarea
+        value={formDeuda.descripcion}
+        onChange={(e) => setFormDeuda(prev => ({...prev, descripcion: e.target.value}))}
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+        placeholder="Descripción detallada de la deuda"
+        rows="3"
+      />
+    </div>
+
+    <div className="flex space-x-3 mt-6">
+      <button
+        onClick={cerrarModal}
+        className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
+      >
+        Cancelar
+      </button>
+      <button
+        onClick={() => {
+          if (!formDeuda.acreedor || !formDeuda.descripcion || !formDeuda.capital || !formDeuda.tasaInteres || !formDeuda.plazoMeses) {
+            alert('Por favor complete todos los campos obligatorios');
+            return;
+          }
+          
+          if (parseFloat(formDeuda.capital) <= 0 || parseFloat(formDeuda.tasaInteres) < 0 || parseInt(formDeuda.plazoMeses) <= 0) {
+            alert('Revise los valores numéricos ingresados');
+            return;
+          }
+          
+          try {
+            agregarDeuda(formDeuda);
+            alert(`Deuda de ${formDeuda.acreedor} agregada exitosamente`);
+            cerrarModal();
+          } catch (error) {
+            console.error('Error al agregar deuda:', error);
+            alert('Error al agregar la deuda. Revise los datos ingresados.');
+          }
+        }}
+        className="flex-1 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-all font-semibold"
+      >
+        Agregar Deuda
+      </button>
+    </div>
+  </div>
+)}
               {(tipoModal === 'pago_cliente' || tipoModal === 'pago_deuda') && (
                 <div className="space-y-4">
                   <div className="bg-gray-50 p-4 rounded-lg">
@@ -1181,7 +1325,7 @@ Control Financiero Empresarial Seguro`;
                       <h2 className="text-2xl font-bold text-gray-800">Gestión de Deudas</h2>
                       <p className="text-gray-600">Control de obligaciones financieras</p>
                     </div>
-                    <button onClick={() => alert('Funcionalidad disponible próximamente')}
+                    <button onClick={() => abrirModal('nueva_deuda')}
                       className="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
                       <Plus className="mr-2" size={18} />
                       Nueva Deuda
