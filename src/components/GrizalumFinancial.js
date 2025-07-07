@@ -37,19 +37,12 @@ export default function GrizalumFinancial() {
   } = useFinancialData();
   
 const watermarkStyle = {
-  position: 'fixed',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
   backgroundImage: 'url(/grizalum-logo.png.jpg)',
   backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'center',
-  backgroundSize: 'contain',
-  width: '400px',
-  height: '400px',
-  opacity: '0.03',                        // ← MUY sutil
-  zIndex: -10,                           // ← Muy atrás
-  pointerEvents: 'none'                  // ← No interfiere
+  backgroundPosition: 'center center',
+  backgroundSize: '200px 200px',
+  backgroundAttachment: 'fixed',
+  opacity: '0.025'  
 };
   // Estados de UI 
   const [currentView, setCurrentView] = useState('resumen');
@@ -441,7 +434,6 @@ Control Financiero Empresarial Seguro`;
  return (
   <>
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative"
-     style={watermarkStyle}>
       {modalAbierto && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
