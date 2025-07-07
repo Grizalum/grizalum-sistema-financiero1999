@@ -2141,67 +2141,79 @@ Control Financiero Empresarial Seguro`;
               </div>
             )}
 
-          {currentView === 'alertas' && (
-  <div className="space-y-6">
-    <div className="bg-white rounded-2xl shadow-xl p-6">
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">Centro de Alertas</h2>
-          <p className="text-gray-600">Notificaciones importantes</p>
-        </div>
-      </div>
-      
-      <div className="grid gap-4">
-        {alertas.map(alerta => (
-          <div key={alerta.id} className={`border rounded-xl p-6 hover:shadow-lg transition-all ${
-            alerta.urgencia === 'alta' ? 'bg-red-50 border-red-200' : 
-            alerta.urgencia === 'media' ? 'bg-yellow-50 border-yellow-200' : 'bg-blue-50 border-blue-200'
-          }`}>
-            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-              <div className="flex-1">
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                    alerta.urgencia === 'alta' ? 'bg-red-500' :
-                    alerta.urgencia === 'media' ? 'bg-yellow-500' : 'bg-blue-500'
-                  }`}>
-                    <Bell className="text-white" size={20} />
-                  </div>
-                  <div>
-                    <div className="flex items-center space-x-3 mb-1">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        alerta.urgencia === 'alta' ? 'bg-red-100 text-red-800' : 
-                        alerta.urgencia === 'media' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {alerta.urgencia.toUpperCase()}
-                      </span>
-                      <span className="text-sm text-gray-600 font-medium">{alerta.tipo}</span>
+            {currentView === 'alertas' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl shadow-xl p-6">
+                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-800">Centro de Alertas</h2>
+                      <p className="text-gray-600">Notificaciones importantes</p>
                     </div>
-                    <h3 className="font-semibold text-lg text-gray-800">{alerta.mensaje}</h3>
                   </div>
+                  
+                  <div className="grid gap-4">
+                    {alertas.map(alerta => (
+                      <div key={alerta.id} className={`border rounded-xl p-6 hover:shadow-lg transition-all ${
+                        alerta.urgencia === 'alta' ? 'bg-red-50 border-red-200' : 
+                        alerta.urgencia === 'media' ? 'bg-yellow-50 border-yellow-200' : 'bg-blue-50 border-blue-200'
+                      }`}>
+                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-3">
+                              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                                alerta.urgencia === 'alta' ? 'bg-red-500' :
+                                alerta.urgencia === 'media' ? 'bg-yellow-500' : 'bg-blue-500'
+                              }`}>
+                                <Bell className="text-white" size={20} />
+                              </div>
+                              <div>
+                                <div className="flex items-center space-x-3 mb-1">
+                                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                    alerta.urgencia === 'alta' ? 'bg-red-100 text-red-800' : 
+                                    alerta.urgencia === 'media' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
+                                  }`}>
+                                    {alerta.urgencia.toUpperCase()}
+                                  </span>
+                                  <span className="text-sm text-gray-600 font-medium">{alerta.tipo}</span>
+                                </div>
+                                <h3 className="font-semibold text-lg text-gray-800">{alerta.mensaje}</h3>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
+                              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
+                              title="Editar Alerta">
+                              <Edit size={18} />
+                            </button>
+                            <button onClick={() => eliminarAlerta(alerta.id)}
+                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
+                              title="Eliminar Alerta">
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {alertas.length === 0 && (
+                    <div className="text-center py-12">
+                      <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Bell className="text-gray-400" size={32} />
+                      </div>
+                      <p className="text-gray-500 text-lg">No hay alertas activas</p>
+                      <p className="text-gray-400 text-sm">El sistema funciona correctamente</p>
+                    </div>
+                  )}
                 </div>
               </div>
-              
-              <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                <button onClick={() => eliminarAlerta(alerta.id)}
-                  className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
-                  title="Eliminar Alerta">
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      
-      {alertas.length === 0 && (
-        <div className="text-center py-12">
-          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Bell className="text-gray-400" size={32} />
-          </div>
-          <p className="text-gray-500 text-lg">No hay alertas activas</p>
-          <p className="text-gray-400 text-sm">El sistema funciona correctamente</p>
+            )}
+           </div>
         </div>
-      )}
+      </div>
     </div>
-  </div>
-)}
+    </>
+   );
+}
