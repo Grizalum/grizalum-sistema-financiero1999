@@ -2147,181 +2147,44 @@ Control Financiero Empresarial Seguro`;
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">Centro de Alertas</h2>
-          <p className="text-gray-600">
-            {alertas.filter(a => a.activa).length} notificaciones activas • Sistema de monitoreo automático
-          </p>
-        </div>
-        
-        {/* 🆕 FILTROS RÁPIDOS Y ESTADÍSTICAS */}
-        <div className="flex flex-wrap gap-2">
-          <div className="bg-red-100 text-red-800 px-3 py-2 rounded-full text-sm font-semibold flex items-center">
-            🚨 Alta ({alertas.filter(a => a.urgencia === 'alta' && a.activa).length})
-          </div>
-          <div className="bg-yellow-100 text-yellow-800 px-3 py-2 rounded-full text-sm font-semibold flex items-center">
-            ⚠️ Media ({alertas.filter(a => a.urgencia === 'media' && a.activa).length})
-          </div>
-          <div className="bg-blue-100 text-blue-800 px-3 py-2 rounded-full text-sm font-semibold flex items-center">
-            📅 Baja ({alertas.filter(a => a.urgencia === 'baja' && a.activa).length})
-          </div>
+          <p className="text-gray-600">Notificaciones importantes</p>
         </div>
       </div>
       
-      {/* 🆕 RESUMEN RÁPIDO */}
-      {alertas.filter(a => a.activa).length > 0 && (
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-4 mb-6">
-          <h4 className="font-semibold text-blue-800 mb-2 flex items-center">
-            <Bell className="mr-2" size={18} />
-            Resumen de Acciones Pendientes
-          </h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <span className="text-gray-600">Cobros Urgentes:</span>
-              <span className="font-bold text-red-600 ml-1">
-                {alertas.filter(a => a.activa && ['cobro_hoy', 'cobro_retrasado'].includes(a.tipo)).length}
-              </span>
-            </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <span className="text-gray-600">Deudas Venciendo:</span>
-              <span className="font-bold text-orange-600 ml-1">
-                {alertas.filter(a => a.activa && a.tipo === 'deuda_vencimiento').length}
-              </span>
-            </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <span className="text-gray-600">Total Atención:</span>
-              <span className="font-bold text-purple-600 ml-1">
-                {alertas.filter(a => a.activa && a.urgencia === 'alta').length}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-      
       <div className="grid gap-4">
-        {alertas.filter(a => a.activa).map(alerta => (
+        {alertas.map(alerta => (
           <div key={alerta.id} className={`border rounded-xl p-6 hover:shadow-lg transition-all ${
-            alerta.urgencia === 'alta' ? 'bg-red-50 border-red-200 border-l-4 border-l-red-500' : 
-            alerta.urgencia === 'media' ? 'bg-yellow-50 border-yellow-200 border-l-4 border-l-yellow-500' : 
-            'bg-blue-50 border-blue-200 border-l-4 border-l-blue-500'
+            alerta.urgencia === 'alta' ? 'bg-red-50 border-red-200' : 
+            alerta.urgencia === 'media' ? 'bg-yellow-50 border-yellow-200' : 'bg-blue-50 border-blue-200'
           }`}>
             <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-3">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                     alerta.urgencia === 'alta' ? 'bg-red-500' :
                     alerta.urgencia === 'media' ? 'bg-yellow-500' : 'bg-blue-500'
                   }`}>
-                    {alerta.urgencia === 'alta' && '🚨'}
-                    {alerta.urgencia === 'media' && '⚠️'}
-                    {alerta.urgencia === 'baja' && '📅'}
+                    <Bell className="text-white" size={20} />
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <div className="flex items-center space-x-3 mb-1">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         alerta.urgencia === 'alta' ? 'bg-red-100 text-red-800' : 
-                        alerta.urgencia === 'media' ? 'bg-yellow-100 text-yellow-800' : 
-                        'bg-blue-100 text-blue-800'
+                        alerta.urgencia === 'media' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
                       }`}>
                         {alerta.urgencia.toUpperCase()}
                       </span>
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                        {alerta.tipo.replace('_', ' ').toUpperCase()}
-                      </span>
+                      <span className="text-sm text-gray-600 font-medium">{alerta.tipo}</span>
                     </div>
-                    <h3 className="font-semibold text-lg text-gray-800 mb-2">{alerta.mensaje}</h3>
-                    
-                    {/* 🆕 INFORMACIÓN ADICIONAL CONTEXTUAL */}
-                    {alerta.clienteId && (
-                      <div className="bg-white p-3 rounded-lg shadow-sm border">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
-                          <div>
-                            <span className="text-gray-600">Cliente:</span>
-                            <span className="font-semibold text-blue-600 ml-1">
-                              {misClientes.find(c => c.id === alerta.clienteId)?.nombre || 'N/A'}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">Cuota:</span>
-                            <span className="font-semibold text-green-600 ml-1">
-                              S/ {misClientes.find(c => c.id === alerta.clienteId)?.cuotaMensual?.toLocaleString() || '0'}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">Fecha:</span>
-                            <span className="font-semibold text-purple-600 ml-1">
-                              {alerta.fechaEsperada ? new Date(alerta.fechaEsperada).toLocaleDateString() : 'Hoy'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 🆕 INFORMACIÓN PARA DEUDAS */}
-                    {alerta.tipo.includes('deuda') && (
-                      <div className="bg-white p-3 rounded-lg shadow-sm border mt-2">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <span className="text-gray-600">Acreedor:</span>
-                            <span className="font-semibold text-red-600 ml-1">
-                              {alerta.mensaje.includes('Banco Santander') ? 'Banco Santander' : 'Proveedor'}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">Urgencia:</span>
-                            <span className={`font-semibold ml-1 ${
-                              alerta.urgencia === 'alta' ? 'text-red-600' : 'text-orange-600'
-                            }`}>
-                              {alerta.urgencia === 'alta' ? 'CRÍTICA' : 'IMPORTANTE'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    <h3 className="font-semibold text-lg text-gray-800">{alerta.mensaje}</h3>
                   </div>
                 </div>
               </div>
               
               <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                {/* 🆕 BOTONES DE ACCIÓN RÁPIDA CONTEXTUALES */}
-                {alerta.clienteId && (
-                  <button 
-                    onClick={() => {
-                      const cliente = misClientes.find(c => c.id === alerta.clienteId);
-                      if (cliente) {
-                        abrirModal('pago_cliente', cliente);
-                        // Opcional: eliminar la alerta automáticamente al abrir el modal
-                      }
-                    }}
-                    className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none"
-                    title="Registrar Pago Inmediato"
-                  >
-                    <DollarSign size={18} />
-                  </button>
-                )}
-                
-                {/* Botón para ver detalles del cliente/deuda */}
-                {alerta.clienteId && (
-                  <button 
-                    onClick={() => {
-                      const cliente = misClientes.find(c => c.id === alerta.clienteId);
-                      if (cliente) abrirModal('historial', cliente);
-                    }}
-                    className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
-                    title="Ver Historial del Cliente"
-                  >
-                    <Eye size={18} />
-                  </button>
-                )}
-                
-                <button 
-                  onClick={() => {
-                    if (window.confirm('¿Desea marcar esta alerta como resuelta?')) {
-                      eliminarAlerta(alerta.id);
-                      alert('Alerta marcada como resuelta');
-                    }
-                  }}
+                <button onClick={() => eliminarAlerta(alerta.id)}
                   className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
-                  title="Marcar como Resuelta"
-                >
+                  title="Eliminar Alerta">
                   <Trash2 size={18} />
                 </button>
               </div>
@@ -2330,22 +2193,13 @@ Control Financiero Empresarial Seguro`;
         ))}
       </div>
       
-      {/* 🆕 ESTADO CUANDO NO HAY ALERTAS */}
-      {alertas.filter(a => a.activa).length === 0 && (
+      {alertas.length === 0 && (
         <div className="text-center py-12">
-          <div className="w-24 h-24 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="text-white" size={40} />
+          <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Bell className="text-gray-400" size={32} />
           </div>
-          <h3 className="text-xl font-bold text-gray-800 mb-2">¡Sistema en Perfecto Estado!</h3>
           <p className="text-gray-500 text-lg">No hay alertas activas</p>
-          <p className="text-gray-400 text-sm">Todas las operaciones financieras están al día</p>
-          <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4 max-w-md mx-auto">
-            <p className="text-green-800 text-sm font-semibold">
-              ✓ Todos los pagos monitoreados<br/>
-              ✓ Deudas bajo control<br/>
-              ✓ Sistema funcionando correctamente
-            </p>
-          </div>
+          <p className="text-gray-400 text-sm">El sistema funciona correctamente</p>
         </div>
       )}
     </div>
