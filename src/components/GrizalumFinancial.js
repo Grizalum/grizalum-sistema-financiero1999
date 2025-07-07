@@ -40,11 +40,16 @@ const watermarkStyle = {
   backgroundImage: 'url(/grizalum-logo.png.jpg)',
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'center center',
-  backgroundSize: '400px 400px',           // ← Más grande
+  backgroundSize: '300px 300px',
   backgroundAttachment: 'fixed',
-  opacity: '0.80',                        // ← MUY sutil
-  zIndex: -1,                             // ← Detrás de todo
-  pointerEvents: 'none'                   // ← No interfiere con clics
+  opacity: '0.1',
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  zIndex: 1,
+  pointerEvents: 'none'
 };
   
   // Estados de UI 
@@ -437,11 +442,6 @@ Control Financiero Empresarial Seguro`;
  return (
   <>
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative">
-  {/* Watermark separado */}
-  <div 
-    className="fixed inset-0 pointer-events-none" 
-    style={watermarkStyle}
-  />
       {modalAbierto && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
@@ -1600,7 +1600,12 @@ Control Financiero Empresarial Seguro`;
           </div>
         </div>
 
-        <div className="lg:ml-64">
+        <div className="lg:ml-64 relative">
+        
+         <div 
+         className="fixed inset-0 pointer-events-none" 
+         style={watermarkStyle}
+         />
           <div className="lg:hidden bg-white shadow-sm p-4 sticky top-0 z-30">
             <div className="flex items-center justify-between">
               <button onClick={() => setSidebarOpen(true)} className="text-gray-600 hover:text-gray-800">
