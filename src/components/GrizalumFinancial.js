@@ -42,7 +42,7 @@ const watermarkStyle = {
   backgroundPosition: 'center center',
   backgroundSize: '200px 200px',
   backgroundAttachment: 'fixed',
-  opacity: '0.05'
+  opacity: '0.01'
 };
   // Estados de UI 
   const [currentView, setCurrentView] = useState('resumen');
