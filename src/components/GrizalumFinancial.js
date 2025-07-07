@@ -37,12 +37,19 @@ export default function GrizalumFinancial() {
   } = useFinancialData();
   
 const watermarkStyle = {
-  backgroundImage: 'url(/grizalum-logo.png.jpg)', 
+  position: 'fixed',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  backgroundImage: 'url(/grizalum-logo.png.jpg)',
   backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'center center',
-  backgroundSize: '200px 200px',
-  backgroundAttachment: 'fixed',
-  opacity: '0.05'
+  backgroundPosition: 'center',
+  backgroundSize: 'contain',
+  width: '400px',
+  height: '400px',
+  opacity: '0.03',                        // ← MUY sutil
+  zIndex: -10,                           // ← Muy atrás
+  pointerEvents: 'none'                  // ← No interfiere
 };
   // Estados de UI 
   const [currentView, setCurrentView] = useState('resumen');
