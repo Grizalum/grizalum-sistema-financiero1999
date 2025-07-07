@@ -42,7 +42,7 @@ const watermarkStyle = {
   backgroundPosition: 'center center',
   backgroundSize: '250px 250px',
   backgroundAttachment: 'fixed',
-  opacity: '0.05', // ← OPACIDAD CORREGIDA
+  opacity: '0.35', // ← OPACIDAD CORREGIDA
   position: 'fixed',
   top: 0,
   left: 0,
