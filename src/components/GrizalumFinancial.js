@@ -37,7 +37,7 @@ export default function GrizalumFinancial() {
   } = useFinancialData();
   
 const watermarkStyle = {
-  backgroundImage: 'url(/grizalum-logo.png.jpg)', 
+  backgroundImage: 'url(/grizalum-logo.jpg)', 
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'center center',
   backgroundSize: '200px 200px',
