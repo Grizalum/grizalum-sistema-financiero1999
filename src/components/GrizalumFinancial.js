@@ -12,6 +12,7 @@ export default function GrizalumFinancial() {
     misClientes,
     misDeudas,
     misInversiones,
+    agregarInversion,
     alertas,
     firebaseConectado,
     totalPorCobrar,
