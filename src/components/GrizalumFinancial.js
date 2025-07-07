@@ -37,7 +37,7 @@ export default function GrizalumFinancial() {
   } = useFinancialData();
   
 const watermarkStyle = {
-  backgroundImage: 'url(/grizalum-logo.png.jpg)', // ← RUTA CORREGIDA
+ backgroundImage: 'url(/assets/grizalum-logo.png.jpg)',
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'center center',
   backgroundSize: '250px 250px',
