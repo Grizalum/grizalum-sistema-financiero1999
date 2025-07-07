@@ -42,7 +42,7 @@ const watermarkStyle = {
   backgroundPosition: 'center center',
   backgroundSize: '400px 400px',           // ← Más grande
   backgroundAttachment: 'fixed',
-  opacity: '0.015',                        // ← MUY sutil
+  opacity: '0.15',                        // ← MUY sutil
   zIndex: -1,                             // ← Detrás de todo
   pointerEvents: 'none'                   // ← No interfiere con clics
 };
