@@ -63,6 +63,14 @@ const [formDeuda, setFormDeuda] = useState({
   fechaInicio: new Date().toISOString().split('T')[0],
   proximoVencimiento: ''
 });
+  const [formInversion, setFormInversion] = useState({
+  nombre: '',
+  descripcion: '',
+  tipo: 'Maquinaria',
+  inversion: '',
+  gananciaEsperada: '',
+  fechaInicio: new Date().toISOString().split('T')[0]
+});
   
   const proximasFechas = obtenerProximasFechasCobro();
 
@@ -146,6 +154,16 @@ if (tipo === 'nueva_deuda') {
       fechaInicio: new Date().toISOString().split('T')[0]
     });
   }
+   if (tipo === 'nueva_inversion') {
+  setFormInversion({
+    nombre: '',
+    descripcion: '',
+    tipo: 'Maquinaria',
+    inversion: '',
+    gananciaEsperada: '',
+    fechaInicio: new Date().toISOString().split('T')[0]
+  });
+}
   
   // Cargar datos para edición
  if (tipo === 'editar_cliente' && item) {
@@ -391,6 +409,7 @@ Control Financiero Empresarial Seguro`;
   {tipoModal === 'nueva_deuda' && 'Nueva Deuda'}
   {tipoModal === 'editar_cliente' && 'Editar Cliente'}
   {tipoModal === 'editar_deuda' && 'Editar Deuda'}
+  {tipoModal === 'nueva_inversion' && 'Nueva Inversión'}
 </h3>
                 <button onClick={cerrarModal} className="text-gray-400 hover:text-gray-600">
                   <X size={24} />
@@ -516,6 +535,155 @@ Control Financiero Empresarial Seguro`;
         className="flex-1 bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition-all font-semibold"
       >
         Agregar Deuda
+      </button>
+    </div>
+  </div>
+)}
+{tipoModal === 'nueva_inversion' && (
+  <div className="space-y-4">
+    <div className="bg-purple-50 p-4 rounded-lg">
+      <h4 className="font-semibold text-purple-800">Agregar Nueva Inversión</h4>
+      <p className="text-sm text-purple-600">Complete la información del activo o proyecto</p>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Nombre de la Inversión <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          value={formInversion.nombre}
+          onChange={(e) => setFormInversion(prev => ({...prev, nombre: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          placeholder="Ej: Maquina Cortadora CNC"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Tipo de Inversión <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={formInversion.tipo}
+          onChange={(e) => setFormInversion(prev => ({...prev, tipo: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+        >
+          <option value="Maquinaria">Maquinaria</option>
+          <option value="Inmueble">Inmueble</option>
+          <option value="Vehículo">Vehículo</option>
+          <option value="Herramientas">Herramientas</option>
+          <option value="Tecnología">Tecnología</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Monto de Inversión (S/) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          value={formInversion.inversion}
+          onChange={(e) => setFormInversion(prev => ({...prev, inversion: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          placeholder="25000"
+          step="100"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Ganancia Esperada (S/) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          value={formInversion.gananciaEsperada}
+          onChange={(e) => setFormInversion(prev => ({...prev, gananciaEsperada: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          placeholder="5000"
+          step="100"
+        />
+      </div>
+
+      <div className="md:col-span-2">
+        <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>
+        <input
+          type="date"
+          value={formInversion.fechaInicio}
+          onChange={(e) => setFormInversion(prev => ({...prev, fechaInicio: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Descripción <span className="text-red-500">*</span>
+      </label>
+      <textarea
+        value={formInversion.descripcion}
+        onChange={(e) => setFormInversion(prev => ({...prev, descripcion: e.target.value}))}
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+        placeholder="Descripción detallada de la inversión y sus beneficios esperados"
+        rows="3"
+      />
+    </div>
+
+    {/* Vista previa de ROI esperado */}
+    {formInversion.inversion && formInversion.gananciaEsperada && (
+      <div className="bg-blue-50 p-4 rounded-lg">
+        <h5 className="font-semibold text-blue-800 mb-2">Vista Previa de ROI:</h5>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-gray-600">ROI Esperado:</span>
+            <span className="font-bold text-blue-600 ml-1">
+              {((parseFloat(formInversion.gananciaEsperada) / parseFloat(formInversion.inversion)) * 100).toFixed(1)}%
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600">Retorno Total:</span>
+            <span className="font-bold text-green-600 ml-1">
+              S/ {(parseFloat(formInversion.inversion || 0) + parseFloat(formInversion.gananciaEsperada || 0)).toLocaleString()}
+            </span>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <div className="flex space-x-3 mt-6">
+      <button
+        onClick={cerrarModal}
+        className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
+      >
+        Cancelar
+      </button>
+      <button
+        onClick={() => {
+          // Validar campos obligatorios
+          if (!formInversion.nombre || !formInversion.descripcion || !formInversion.inversion || !formInversion.gananciaEsperada) {
+            alert('Por favor complete todos los campos obligatorios');
+            return;
+          }
+          
+          // Validar que los números sean válidos
+          if (parseFloat(formInversion.inversion) <= 0 || parseFloat(formInversion.gananciaEsperada) <= 0) {
+            alert('Los valores deben ser mayores a 0');
+            return;
+          }
+          
+          try {
+            agregarInversion(formInversion);
+            alert(`Inversión "${formInversion.nombre}" agregada exitosamente`);
+            cerrarModal();
+          } catch (error) {
+            console.error('Error al agregar inversión:', error);
+            alert('Error al agregar la inversión. Revise los datos ingresados.');
+          }
+        }}
+        className="flex-1 bg-purple-500 text-white py-3 rounded-lg hover:bg-purple-600 transition-all font-semibold"
+      >
+        💰 Agregar Inversión
       </button>
     </div>
   </div>
@@ -1584,7 +1752,7 @@ Control Financiero Empresarial Seguro`;
                       <h2 className="text-2xl font-bold text-gray-800">Portfolio de Inversiones</h2>
                       <p className="text-gray-600">Gestión de activos y ROI</p>
                     </div>
-                    <button onClick={() => alert('Funcionalidad disponible próximamente')}
+                    <button onClick={() => abrirModal('nueva_inversion')}
                       className="bg-purple-500 text-white px-6 py-3 rounded-xl hover:bg-purple-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
                       <Plus className="mr-2" size={18} />
                       Nueva Inversión
