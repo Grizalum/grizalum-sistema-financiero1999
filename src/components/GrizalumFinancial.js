@@ -40,9 +40,11 @@ const watermarkStyle = {
   backgroundImage: 'url(/grizalum-logo.png.jpg)',
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'center center',
-  backgroundSize: '200px 200px',
+  backgroundSize: '400px 400px',           // ← Más grande
   backgroundAttachment: 'fixed',
-  opacity: '0.025'  
+  opacity: '0.015',                        // ← MUY sutil
+  zIndex: -1,                             // ← Detrás de todo
+  pointerEvents: 'none'                   // ← No interfiere con clics
 };
   // Estados de UI 
   const [currentView, setCurrentView] = useState('resumen');
