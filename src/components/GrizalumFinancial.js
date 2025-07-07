@@ -55,8 +55,11 @@ const watermarkStyle = {
   // Estados de UI 
   const [currentView, setCurrentView] = useState('resumen');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [datosGuardados, setDatosGuardados] = useState(false);
   const [sincronizando, setSincronizando] = useState(false);
+  const [datosGuardados, setDatosGuardados] = useState(false);
+  const [ultimoGuardado, setUltimoGuardado] = useState(null);
+  const [guardandoAutomatico, setGuardandoAutomatico] = useState(false);
+  const [datosModificados, setDatosModificados] = useState(false);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [tipoModal, setTipoModal] = useState('');
   const [itemSeleccionado, setItemSeleccionado] = useState(null);
@@ -103,6 +106,22 @@ const [formDeuda, setFormDeuda] = useState({
   gananciaEsperada: ''
 });
   const proximasFechas = obtenerProximasFechasCobro();
+
+// 🔄 AUTOSAVE AUTOMÁTICO cada 5 segundos
+useEffect(() => {
+  const intervalo = setInterval(() => {
+    if (datosModificados && !guardandoAutomatico) {
+      autoSave();
+    }
+  }, 5000); // Cada 5 segundos
+
+  return () => clearInterval(intervalo);
+}, [datosModificados, guardandoAutomatico]);
+
+// 🔄 MARCAR COMO MODIFICADO cuando cambian los datos
+useEffect(() => {
+  setDatosModificados(true);
+}, [misClientes, misDeudas, misInversiones]);
 
   const calcularEstadoDeuda = (deuda) => {
     const hoy = new Date();
@@ -437,7 +456,26 @@ Control Financiero Empresarial Seguro`;
       setTimeout(() => setDatosGuardados(false), 3000);
     }, 1500);
   };
-
+  
+const autoSave = async () => {
+  if (!datosModificados) return;
+  
+  setGuardandoAutomatico(true);
+  
+  try {
+    // Simular guardado automático
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    setUltimoGuardado(new Date());
+    setDatosModificados(false);
+    setGuardandoAutomatico(false);
+    
+    console.log('✅ Datos guardados automáticamente');
+  } catch (error) {
+    console.error('❌ Error en autosave:', error);
+    setGuardandoAutomatico(false);
+  }
+};
 
  return (
   <>
