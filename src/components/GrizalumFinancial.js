@@ -43,7 +43,7 @@ const watermarkStyle = {
   backgroundSize: '300px 300px',
   backgroundAttachment: 'fixed',
   opacity: '0.3',
-  position: 'absolute',
+  position: 'fixed',
   top: 0,
   left: 0,
   right: 0,
