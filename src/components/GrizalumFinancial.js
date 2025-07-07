@@ -35,8 +35,9 @@ export default function GrizalumFinancial() {
     setMisClientes,
     setMisDeudas
   } = useFinancialData();
+  
 const watermarkStyle = {
-  backgroundImage: 'url(/grizalum-logo.png)',
+  backgroundImage: 'url(/grizalum-logo.png.jpg)', 
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'center center',
   backgroundSize: '200px 200px',
