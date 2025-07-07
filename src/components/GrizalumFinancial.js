@@ -35,7 +35,14 @@ export default function GrizalumFinancial() {
     setMisClientes,
     setMisDeudas
   } = useFinancialData();
-
+const watermarkStyle = {
+  backgroundImage: 'url(/grizalum-logo.png)',
+  backgroundRepeat: 'no-repeat',
+  backgroundPosition: 'center center',
+  backgroundSize: '200px 200px',
+  backgroundAttachment: 'fixed',
+  opacity: '0.05'
+};
   // Estados de UI 
   const [currentView, setCurrentView] = useState('resumen');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -425,7 +432,9 @@ Control Financiero Empresarial Seguro`;
 
  return (
   <>
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative">
+    className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative"
+     style={watermarkStyle}
+  >
       {modalAbierto && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
@@ -1521,8 +1530,12 @@ Control Financiero Empresarial Seguro`;
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between p-6 border-b border-slate-700">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">G</span>
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
+                 <img 
+                  src="/grizalum-logo.png" 
+                  alt="GRIZALUM"
+                  className="w-full h-full object-contain"
+                  />
                 </div>
                 <div>
                   <h1 className="text-xl font-bold">GRIZALUM</h1>
@@ -1602,8 +1615,12 @@ Control Financiero Empresarial Seguro`;
             <div className="mb-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl shadow-2xl p-6 lg:p-8">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
-                    <span className="text-white font-bold text-2xl">G</span>
+                  <div className="w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden">
+                   <img 
+                    src="/grizalum-logo.png"
+                    alt="GRIZALUM Logo"
+                    className="w-full h-full object-contain"
+                    />
                   </div>
                   <div>
                     <h1 className="text-2xl lg:text-3xl font-bold">GRIZALUM</h1>
