@@ -2142,74 +2142,92 @@ Control Financiero Empresarial Seguro`;
             )}
 
             {currentView === 'alertas' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-xl p-6">
-                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800">Centro de Alertas</h2>
-                      <p className="text-gray-600">Notificaciones importantes</p>
-                    </div>
+  <div className="space-y-6">
+    <div className="bg-white rounded-2xl shadow-xl p-6">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Centro de Alertas</h2>
+          <p className="text-gray-600">
+            {alertas.filter(a => a.activa).length} notificaciones activas • Sistema de monitoreo automático
+          </p>
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          <div className="bg-red-100 text-red-800 px-3 py-2 rounded-full text-sm font-semibold flex items-center">
+            🚨 Alta ({alertas.filter(a => a.urgencia === 'alta' && a.activa).length})
+          </div>
+          <div className="bg-yellow-100 text-yellow-800 px-3 py-2 rounded-full text-sm font-semibold flex items-center">
+            ⚠️ Media ({alertas.filter(a => a.urgencia === 'media' && a.activa).length})
+          </div>
+          <div className="bg-blue-100 text-blue-800 px-3 py-2 rounded-full text-sm font-semibold flex items-center">
+            📅 Baja ({alertas.filter(a => a.urgencia === 'baja' && a.activa).length})
+          </div>
+        </div>
+      </div>
+      
+      <div className="grid gap-4">
+        {alertas.map(alerta => (
+          <div key={alerta.id} className={`border rounded-xl p-6 hover:shadow-lg transition-all ${
+            alerta.urgencia === 'alta' ? 'bg-red-50 border-red-200 border-l-4 border-l-red-500' : 
+            alerta.urgencia === 'media' ? 'bg-yellow-50 border-yellow-200 border-l-4 border-l-yellow-500' : 
+            'bg-blue-50 border-blue-200 border-l-4 border-l-blue-500'
+          }`}>
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+              <div className="flex-1">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ${
+                    alerta.urgencia === 'alta' ? 'bg-red-500' :
+                    alerta.urgencia === 'media' ? 'bg-yellow-500' : 'bg-blue-500'
+                  }`}>
+                    {alerta.urgencia === 'alta' && '🚨'}
+                    {alerta.urgencia === 'media' && '⚠️'}
+                    {alerta.urgencia === 'baja' && '📅'}
                   </div>
-                  
-                  <div className="grid gap-4">
-                    {alertas.map(alerta => (
-                      <div key={alerta.id} className={`border rounded-xl p-6 hover:shadow-lg transition-all ${
-                        alerta.urgencia === 'alta' ? 'bg-red-50 border-red-200' : 
-                        alerta.urgencia === 'media' ? 'bg-yellow-50 border-yellow-200' : 'bg-blue-50 border-blue-200'
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        alerta.urgencia === 'alta' ? 'bg-red-100 text-red-800' : 
+                        alerta.urgencia === 'media' ? 'bg-yellow-100 text-yellow-800' : 
+                        'bg-blue-100 text-blue-800'
                       }`}>
-                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-3">
-                              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                                alerta.urgencia === 'alta' ? 'bg-red-500' :
-                                alerta.urgencia === 'media' ? 'bg-yellow-500' : 'bg-blue-500'
-                              }`}>
-                                <Bell className="text-white" size={20} />
-                              </div>
-                              <div>
-                                <div className="flex items-center space-x-3 mb-1">
-                                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                    alerta.urgencia === 'alta' ? 'bg-red-100 text-red-800' : 
-                                    alerta.urgencia === 'media' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
-                                  }`}>
-                                    {alerta.urgencia.toUpperCase()}
-                                  </span>
-                                  <span className="text-sm text-gray-600 font-medium">{alerta.tipo}</span>
-                                </div>
-                                <h3 className="font-semibold text-lg text-gray-800">{alerta.mensaje}</h3>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
-                              className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Editar Alerta">
-                              <Edit size={18} />
-                            </button>
-                            <button onClick={() => eliminarAlerta(alerta.id)}
-                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Eliminar Alerta">
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {alertas.length === 0 && (
-                    <div className="text-center py-12">
-                      <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Bell className="text-gray-400" size={32} />
-                      </div>
-                      <p className="text-gray-500 text-lg">No hay alertas activas</p>
-                      <p className="text-gray-400 text-sm">El sistema funciona correctamente</p>
+                        {alerta.urgencia.toUpperCase()}
+                      </span>
+                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                        {alerta.tipo.replace('_', ' ').toUpperCase()}
+                      </span>
                     </div>
-                  )}
+                    <h3 className="font-semibold text-lg text-gray-800 mb-2">{alerta.mensaje}</h3>
+                  </div>
                 </div>
               </div>
-            )}
+              
+              <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                <button 
+                  onClick={() => eliminarAlerta(alerta.id)}
+                  className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
+                  title="Eliminar Alerta"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {alertas.length === 0 && (
+        <div className="text-center py-12">
+          <div className="w-24 h-24 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="text-white" size={40} />
+           </div>
+               <h3 className="text-xl font-bold text-gray-800 mb-2">¡Sistema en Perfecto Estado!</h3>
+               <p className="text-gray-500 text-lg">No hay alertas activas</p>
+               <p className="text-gray-400 text-sm">Todas las operaciones financieras están al día</p>
+                 </div>
+                 )}
+                </div>
+               </div>
+              )}
            </div>
         </div>
       </div>
