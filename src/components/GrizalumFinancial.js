@@ -1539,7 +1539,7 @@ Control Financiero Empresarial Seguro`;
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
                  <img 
-                  src="/grizalum-logo.png" 
+                  src="/grizalum-logo.png.jpg" 
                   alt="GRIZALUM"
                   className="w-full h-full object-contain"
                   />
@@ -1627,12 +1627,18 @@ Control Financiero Empresarial Seguro`;
             <div className="mb-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl shadow-2xl p-6 lg:p-8">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div className="flex items-center space-x-4">
-                  <div className="w-16 h-16 rounded-xl flex items-center justify-center overflow-hidden">
+                  <div className="w-20 h-20 rounded-xl flex items-center justify-center overflow-hidden bg-white p-2 shadow-lg">
                    <img 
-                    src="/grizalum-logo.png"
+                    src="/grizalum-logo.png.jpg"
                     alt="GRIZALUM Logo"
                     className="w-full h-full object-contain"
-                    />
+                      onError={(e) => {
+                     e.target.style.display = 'none';
+                     e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                     <div className="hidden w-full h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white font-bold text-xs">
+                    GRIZ
                   </div>
                   <div>
                     <h1 className="text-2xl lg:text-3xl font-bold">GRIZALUM</h1>
