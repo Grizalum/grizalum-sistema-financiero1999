@@ -2141,7 +2141,7 @@ Control Financiero Empresarial Seguro`;
               </div>
             )}
 
-           {currentView === 'alertas' && (
+          {currentView === 'alertas' && (
   <div className="space-y-6">
     <div className="bg-white rounded-2xl shadow-xl p-6">
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
@@ -2344,15 +2344,10 @@ Control Financiero Empresarial Seguro`;
               ✓ Todos los pagos monitoreados<br/>
               ✓ Deudas bajo control<br/>
               ✓ Sistema funcionando correctamente
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-           </div>
+            </p>
+          </div>
         </div>
-      </div>
+      )}
     </div>
-    </>
-   );
-}
+  </div>
+)}
