@@ -14,6 +14,7 @@ export default function GrizalumFinancial() {
     misInversiones,
     agregarInversion,
     actualizarGanancias,
+    editarInversion,
     alertas,
     firebaseConectado,
     totalPorCobrar,
@@ -77,6 +78,13 @@ const [formDeuda, setFormDeuda] = useState({
   gananciaActual: '',
   fecha: new Date().toISOString().split('T')[0],
   notas: ''
+});
+  const [formEditarInversion, setFormEditarInversion] = useState({
+  nombre: '',
+  descripcion: '',
+  tipo: '',
+  inversion: '',
+  gananciaEsperada: ''
 });
   const proximasFechas = obtenerProximasFechasCobro();
 
@@ -175,6 +183,15 @@ if (tipo === 'nueva_deuda') {
     gananciaActual: item.gananciaActual.toString(),
     fecha: new Date().toISOString().split('T')[0],
     notas: ''
+  });
+}
+   if (tipo === 'editar_inversion') {
+  setFormEditarInversion({
+    nombre: item.nombre,
+    descripcion: item.descripcion,
+    tipo: item.tipo,
+    inversion: item.inversion.toString(),
+    gananciaEsperada: item.gananciaEsperada.toString()
   });
 }
   
@@ -424,6 +441,7 @@ Control Financiero Empresarial Seguro`;
   {tipoModal === 'editar_deuda' && 'Editar Deuda'}
   {tipoModal === 'nueva_inversion' && 'Nueva Inversión'}
   {tipoModal === 'actualizar_ganancias' && 'Actualizar Ganancias'}
+  {tipoModal === 'editar_inversion' && 'Editar Inversión'}
 </h3>
                 <button onClick={cerrarModal} className="text-gray-400 hover:text-gray-600">
                   <X size={24} />
@@ -821,6 +839,151 @@ Control Financiero Empresarial Seguro`;
         className="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all font-semibold"
       >
         💰 Actualizar Ganancias
+      </button>
+    </div>
+  </div>
+)}
+{tipoModal === 'editar_inversion' && (
+  <div className="space-y-4">
+    <div className="bg-blue-50 p-4 rounded-lg">
+      <h4 className="font-semibold text-blue-800">Editar Información de la Inversión</h4>
+      <p className="text-sm text-blue-600">Modifique los datos de la inversión</p>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Nombre de la Inversión <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          value={formEditarInversion.nombre}
+          onChange={(e) => setFormEditarInversion(prev => ({...prev, nombre: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="Ej: Maquina Cortadora CNC"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Tipo de Inversión <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={formEditarInversion.tipo}
+          onChange={(e) => setFormEditarInversion(prev => ({...prev, tipo: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="Maquinaria">Maquinaria</option>
+          <option value="Inmueble">Inmueble</option>
+          <option value="Vehículo">Vehículo</option>
+          <option value="Herramientas">Herramientas</option>
+          <option value="Tecnología">Tecnología</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Monto de Inversión (S/) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          value={formEditarInversion.inversion}
+          onChange={(e) => setFormEditarInversion(prev => ({...prev, inversion: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="25000"
+          step="100"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Ganancia Esperada (S/) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          value={formEditarInversion.gananciaEsperada}
+          onChange={(e) => setFormEditarInversion(prev => ({...prev, gananciaEsperada: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="5000"
+          step="100"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Descripción <span className="text-red-500">*</span>
+      </label>
+      <textarea
+        value={formEditarInversion.descripcion}
+        onChange={(e) => setFormEditarInversion(prev => ({...prev, descripcion: e.target.value}))}
+        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder="Descripción detallada de la inversión"
+        rows="3"
+      />
+    </div>
+
+    {/* Vista previa de nuevos cálculos */}
+    {formEditarInversion.inversion && formEditarInversion.gananciaEsperada && (
+      <div className="bg-green-50 p-4 rounded-lg">
+        <h5 className="font-semibold text-green-800 mb-2">Vista Previa de Nuevos Cálculos:</h5>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-gray-600">Nuevo ROI Esperado:</span>
+            <span className="font-bold text-blue-600 ml-1">
+              {((parseFloat(formEditarInversion.gananciaEsperada) / parseFloat(formEditarInversion.inversion)) * 100).toFixed(1)}%
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600">Nuevo Retorno Total:</span>
+            <span className="font-bold text-green-600 ml-1">
+              S/ {(parseFloat(formEditarInversion.inversion || 0) + parseFloat(formEditarInversion.gananciaEsperada || 0)).toLocaleString()}
+            </span>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <div className="bg-yellow-50 p-3 rounded-lg">
+      <p className="text-sm text-yellow-800">
+        <strong>⚠️ Importante:</strong> Al modificar los valores, se recalculará automáticamente el ROI y progreso basado en las ganancias actuales.
+      </p>
+    </div>
+
+    <div className="flex space-x-3 mt-6">
+      <button
+        onClick={cerrarModal}
+        className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
+      >
+        Cancelar
+      </button>
+      <button
+        onClick={() => {
+          // Validar campos obligatorios
+          if (!formEditarInversion.nombre || !formEditarInversion.descripcion || !formEditarInversion.inversion || !formEditarInversion.gananciaEsperada) {
+            alert('Por favor complete todos los campos obligatorios');
+            return;
+          }
+          
+          // Validar que los números sean válidos
+          if (parseFloat(formEditarInversion.inversion) <= 0 || parseFloat(formEditarInversion.gananciaEsperada) <= 0) {
+            alert('Los valores deben ser mayores a 0');
+            return;
+          }
+          
+          try {
+            editarInversion(itemSeleccionado.id, formEditarInversion);
+            alert(`Inversión "${formEditarInversion.nombre}" actualizada exitosamente`);
+            cerrarModal();
+          } catch (error) {
+            console.error('Error al editar inversión:', error);
+            alert('Error al editar la inversión. Revise los datos ingresados.');
+          }
+        }}
+        className="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all font-semibold"
+      >
+        💾 Guardar Cambios
       </button>
     </div>
   </div>
@@ -1959,7 +2122,7 @@ Control Financiero Empresarial Seguro`;
                               title="Actualizar Ganancias">
                               <TrendingUp size={18} />
                             </button>
-                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
+                            <button onClick={() => abrirModal('editar_inversion', inversion)}
                               className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Editar Inversión">
                               <Edit size={18} />
