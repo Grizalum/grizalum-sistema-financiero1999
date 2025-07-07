@@ -1695,48 +1695,78 @@ const autoSave = async () => {
                   <p className="text-slate-300 text-sm">
                     {new Date().toLocaleDateString()} | {new Date().toLocaleTimeString()}
                   </p>
-                  <div className="flex items-center space-x-2 mt-3">
-                    <button 
-                      onClick={exportarExcel}
-                      disabled={sincronizando}
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-all flex items-center text-sm"
-                      title="Exportar a Excel"
-                    >
-                      {sincronizando ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                      ) : (
-                        <FileSpreadsheet size={16} className="mr-2" />
-                      )}
-                      Excel
-                    </button>
-                    <button 
-                      onClick={copiarLink}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-all flex items-center text-sm"
-                      title="Copiar Link"
-                    >
-                      <Link size={16} className="mr-2" />
-                      Link
-                    </button>
-                    <button 
-                      onClick={guardarEnNube}
-                      disabled={sincronizando || !firebaseConectado}
-                      className={`px-3 py-2 rounded-lg transition-all flex items-center text-sm ${
-                        datosGuardados ? 'bg-green-600 text-white' : 
-                        firebaseConectado ? 'bg-orange-600 hover:bg-orange-700 text-white' : 
-                        'bg-gray-400 text-gray-200 cursor-not-allowed'
-                      }`}
-                      title="Guardar en la Nube"
-                    >
-                      {sincronizando ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                      ) : datosGuardados ? (
-                        <CheckCircle size={16} className="mr-2" />
-                      ) : (
-                        <Save size={16} className="mr-2" />
-                      )}
-                      {datosGuardados ? 'Guardado' : 'Guardar'}
-                    </button>
-                  </div>
+                 <div className="flex items-center space-x-2 mt-3">
+  {/* Indicador de estado de autosave */}
+  <div className="flex items-center space-x-2 text-xs">
+    {guardandoAutomatico ? (
+      <div className="flex items-center text-yellow-400">
+        <div className="animate-spin rounded-full h-3 w-3 border border-yellow-400 border-t-transparent mr-1"></div>
+        Guardando...
+      </div>
+    ) : ultimoGuardado ? (
+      <div className="flex items-center text-green-400">
+        <CheckCircle size={12} className="mr-1" />
+        Guardado {new Date(ultimoGuardado).toLocaleTimeString()}
+      </div>
+    ) : datosModificados ? (
+      <div className="flex items-center text-orange-400">
+        <div className="w-2 h-2 bg-orange-400 rounded-full mr-1"></div>
+        Cambios sin guardar
+      </div>
+    ) : (
+      <div className="flex items-center text-green-400">
+        <CheckCircle size={12} className="mr-1" />
+        Todo guardado
+      </div>
+    )}
+  </div>
+
+  <button 
+    onClick={exportarExcel}
+    disabled={sincronizando}
+    className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-all flex items-center text-sm"
+    title="Exportar a Excel"
+  >
+    {sincronizando ? (
+      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+    ) : (
+      <FileSpreadsheet size={16} className="mr-2" />
+    )}
+    Excel
+  </button>
+  
+  <button 
+    onClick={copiarLink}
+    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-all flex items-center text-sm"
+    title="Copiar Link"
+  >
+    <Link size={16} className="mr-2" />
+    Link
+  </button>
+  
+  <button 
+    onClick={() => {
+      setDatosModificados(true);
+      autoSave();
+    }}
+    disabled={guardandoAutomatico || !firebaseConectado}
+    className={`px-3 py-2 rounded-lg transition-all flex items-center text-sm ${
+      !datosModificados ? 'bg-green-600 text-white' : 
+      firebaseConectado ? 'bg-orange-600 hover:bg-orange-700 text-white' : 
+      'bg-gray-400 text-gray-200 cursor-not-allowed'
+    }`}
+    title="Guardar manualmente"
+  >
+    {guardandoAutomatico ? (
+      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+    ) : !datosModificados ? (
+      <CheckCircle size={16} className="mr-2" />
+    ) : (
+      <Save size={16} className="mr-2" />
+    )}
+    {!datosModificados ? 'Guardado' : 'Guardar'}
+  </button>
+</div>
                 </div>
               </div>
             </div>
