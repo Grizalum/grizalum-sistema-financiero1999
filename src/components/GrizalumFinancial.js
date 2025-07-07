@@ -37,12 +37,12 @@ export default function GrizalumFinancial() {
   } = useFinancialData();
   
 const watermarkStyle = {
-  backgroundImage: 'url(/grizalum-logo.jpg)', 
+  backgroundImage: 'url(/grizalum-logo.png.jpg)', 
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'center center',
   backgroundSize: '200px 200px',
   backgroundAttachment: 'fixed',
-  opacity: '0.03'
+  opacity: '0.05'
 };
   // Estados de UI 
   const [currentView, setCurrentView] = useState('resumen');
