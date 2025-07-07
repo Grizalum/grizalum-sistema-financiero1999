@@ -13,6 +13,7 @@ export default function GrizalumFinancial() {
     misDeudas,
     misInversiones,
     agregarInversion,
+    actualizarGanancias,
     alertas,
     firebaseConectado,
     totalPorCobrar,
@@ -72,7 +73,11 @@ const [formDeuda, setFormDeuda] = useState({
   gananciaEsperada: '',
   fechaInicio: new Date().toISOString().split('T')[0]
 });
-  
+  const [formActualizarGanancias, setFormActualizarGanancias] = useState({
+  gananciaActual: '',
+  fecha: new Date().toISOString().split('T')[0],
+  notas: ''
+});
   const proximasFechas = obtenerProximasFechasCobro();
 
   const calcularEstadoDeuda = (deuda) => {
@@ -163,6 +168,13 @@ if (tipo === 'nueva_deuda') {
     inversion: '',
     gananciaEsperada: '',
     fechaInicio: new Date().toISOString().split('T')[0]
+  });
+}
+   if (tipo === 'actualizar_ganancias') {
+  setFormActualizarGanancias({
+    gananciaActual: item.gananciaActual.toString(),
+    fecha: new Date().toISOString().split('T')[0],
+    notas: ''
   });
 }
   
@@ -411,6 +423,7 @@ Control Financiero Empresarial Seguro`;
   {tipoModal === 'editar_cliente' && 'Editar Cliente'}
   {tipoModal === 'editar_deuda' && 'Editar Deuda'}
   {tipoModal === 'nueva_inversion' && 'Nueva Inversión'}
+  {tipoModal === 'actualizar_ganancias' && 'Actualizar Ganancias'}
 </h3>
                 <button onClick={cerrarModal} className="text-gray-400 hover:text-gray-600">
                   <X size={24} />
@@ -685,6 +698,129 @@ Control Financiero Empresarial Seguro`;
         className="flex-1 bg-purple-500 text-white py-3 rounded-lg hover:bg-purple-600 transition-all font-semibold"
       >
         💰 Agregar Inversión
+      </button>
+    </div>
+  </div>
+)}
+{tipoModal === 'actualizar_ganancias' && (
+  <div className="space-y-4">
+    <div className="bg-green-50 p-4 rounded-lg">
+      <h4 className="font-semibold text-green-800">Actualizar Ganancias de Inversión</h4>
+      <p className="text-sm text-green-600">Registre las ganancias actuales del proyecto</p>
+    </div>
+
+    {/* Información de la inversión */}
+    <div className="bg-gray-50 p-4 rounded-lg">
+      <h5 className="font-semibold text-gray-800">{itemSeleccionado?.nombre}</h5>
+      <p className="text-sm text-gray-600">{itemSeleccionado?.descripcion}</p>
+      <div className="grid grid-cols-3 gap-4 mt-3 text-sm">
+        <div>
+          <span className="text-gray-600">Inversión:</span>
+          <span className="font-semibold text-blue-600 ml-1">S/ {itemSeleccionado?.inversion?.toLocaleString()}</span>
+        </div>
+        <div>
+          <span className="text-gray-600">Esperada:</span>
+          <span className="font-semibold text-green-600 ml-1">S/ {itemSeleccionado?.gananciaEsperada?.toLocaleString()}</span>
+        </div>
+        <div>
+          <span className="text-gray-600">Actual:</span>
+          <span className="font-semibold text-purple-600 ml-1">S/ {itemSeleccionado?.gananciaActual?.toLocaleString()}</span>
+        </div>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-1 gap-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Nueva Ganancia Actual (S/) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          value={formActualizarGanancias.gananciaActual}
+          onChange={(e) => setFormActualizarGanancias(prev => ({...prev, gananciaActual: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          placeholder="2500"
+          step="100"
+          min="0"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Actualización</label>
+        <input
+          type="date"
+          value={formActualizarGanancias.fecha}
+          onChange={(e) => setFormActualizarGanancias(prev => ({...prev, fecha: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Notas (Opcional)</label>
+        <textarea
+          value={formActualizarGanancias.notas}
+          onChange={(e) => setFormActualizarGanancias(prev => ({...prev, notas: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          placeholder="Descripción de los logros o avances..."
+          rows="3"
+        />
+      </div>
+    </div>
+
+    {/* Vista previa de cálculos */}
+    {formActualizarGanancias.gananciaActual && (
+      <div className="bg-blue-50 p-4 rounded-lg">
+        <h5 className="font-semibold text-blue-800 mb-2">Vista Previa de Resultados:</h5>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-gray-600">Nuevo ROI:</span>
+            <span className="font-bold text-blue-600 ml-1">
+              {((parseFloat(formActualizarGanancias.gananciaActual) / itemSeleccionado?.inversion) * 100).toFixed(1)}%
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600">Nuevo Progreso:</span>
+            <span className="font-bold text-green-600 ml-1">
+              {Math.min((parseFloat(formActualizarGanancias.gananciaActual) / itemSeleccionado?.gananciaEsperada) * 100, 100).toFixed(0)}%
+            </span>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <div className="flex space-x-3 mt-6">
+      <button
+        onClick={cerrarModal}
+        className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition-all font-semibold"
+      >
+        Cancelar
+      </button>
+      <button
+        onClick={() => {
+          // Validar campos obligatorios
+          if (!formActualizarGanancias.gananciaActual) {
+            alert('Por favor ingrese la ganancia actual');
+            return;
+          }
+          
+          // Validar que el valor sea válido
+          if (parseFloat(formActualizarGanancias.gananciaActual) < 0) {
+            alert('La ganancia no puede ser negativa');
+            return;
+          }
+          
+          try {
+            actualizarGanancias(itemSeleccionado.id, formActualizarGanancias.gananciaActual);
+            alert(`Ganancias actualizadas exitosamente para "${itemSeleccionado.nombre}"`);
+            cerrarModal();
+          } catch (error) {
+            console.error('Error al actualizar ganancias:', error);
+            alert('Error al actualizar las ganancias. Intente nuevamente.');
+          }
+        }}
+        className="flex-1 bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition-all font-semibold"
+      >
+        💰 Actualizar Ganancias
       </button>
     </div>
   </div>
@@ -1144,6 +1280,7 @@ Control Financiero Empresarial Seguro`;
                 if (isNaN(capital) || isNaN(tasa) || isNaN(meses) || 
                  capital <= 0 || meses <= 0 || tasa < 0) {
                   return "0";
+                  
                  }
   
                if (tasa > 0) {
@@ -1817,7 +1954,7 @@ Control Financiero Empresarial Seguro`;
                           </div>
                           
                           <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
+                           <button onClick={() => abrirModal('actualizar_ganancias', inversion)}
                               className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Actualizar Ganancias">
                               <TrendingUp size={18} />
