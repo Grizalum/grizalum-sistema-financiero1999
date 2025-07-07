@@ -440,7 +440,8 @@ Control Financiero Empresarial Seguro`;
 
  return (
   <>
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative" style={watermarkStyle}>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative">
+       style={watermarkStyle}>
       {modalAbierto && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
