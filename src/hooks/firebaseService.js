@@ -12,13 +12,13 @@ import {
 
 // 🔧 CONFIGURACIÓN ACTUALIZADA DE FIREBASE
 const firebaseConfig = {
-  apiKey: "AIzaSyDy86uTbqCPMfto45NJu7FVG9O5NE-qD0",
+  apiKey: "AIzaSyDUy86uIbqCPMfto45Nju7FV6906NE-qD0",
   authDomain: "grizalum-9b670.firebaseapp.com",
   projectId: "grizalum-9b670",
   storageBucket: "grizalum-9b670.firebasestorage.app",
-  messagingSenderId: "526692565959",
-  appId: "1:526692565959:web:16c2ff1278b12a1498cfe2",
-  measurementId: "G-00M8SVLKX4"
+  messagingSenderId: "52669256959",
+  appId: "1:52669256959:web:16c2ff1278b12a1498cfe2",
+  measurementId: "G-80M8SVLKX4"
 };
 
 // Inicializar Firebase
