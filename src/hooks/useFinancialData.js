@@ -543,15 +543,7 @@ const generarAlertasVencimiento = useCallback(() => {
 
 // ✅ AGREGA esto DESPUÉS de la función anterior
 // Ejecutar alertas cada vez que cambien las deudas Y clientes
-  // Simulación de conexión
-  const [firebaseConectado, setFirebaseConectado] = useState(true);
-  
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFirebaseConectado(Math.random() > 0.1);
-    }, 8000);
-    return () => clearInterval(interval);
-  }, []);
+
   // 🔥 FUNCIÓN PARA CALCULAR PRÓXIMA FECHA DE COBRO
 const calcularProximaFechaCobro = (fechaInicio, numerosPagosRealizados) => {
   const fecha = new Date(fechaInicio);
