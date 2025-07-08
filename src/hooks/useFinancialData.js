@@ -120,6 +120,7 @@ const useFinancialData = () => {
   const [guardandoEnNube, setGuardandoEnNube] = useState(false);
   const [errorConexion, setErrorConexion] = useState(null);
   const [ultimoGuardadoNube, setUltimoGuardadoNube] = useState(null);
+  const [firebaseConectado, setFirebaseConectado] = useState(true);
   
   const agregarInversion = useCallback((nuevaInversion) => {
     const inversion = {
@@ -185,6 +186,42 @@ const useFinancialData = () => {
   const eliminarInversion = useCallback((id) => {
     setMisInversiones(prev => prev.filter(inv => inv.id !== id));
   }, []);
+
+// 📥 FUNCIÓN PARA CARGAR DATOS INICIALES
+const cargarDatosIniciales = useCallback(async () => {
+  setCargandoDatos(true);
+  
+  try {
+    const resultado = await firebaseService.cargarDatos();
+    
+    if (resultado.success && resultado.datos) {
+      // Cargar datos desde Firebase
+      if (resultado.datos.clientes?.length > 0) {
+        setMisClientes(resultado.datos.clientes);
+      }
+      if (resultado.datos.deudas?.length > 0) {
+        setMisDeudas(resultado.datos.deudas);
+      }
+      if (resultado.datos.inversiones?.length > 0) {
+        setMisInversiones(resultado.datos.inversiones);
+      }
+      
+      setFirebaseConectado(true);
+      console.log('✅ Datos cargados desde Firebase');
+    } else {
+      console.log('📝 Usando datos por defecto (primera vez)');
+      setFirebaseConectado(false);
+    }
+    
+  } catch (error) {
+    console.error('❌ Error al cargar:', error);
+    setErrorConexion('Error al cargar datos');
+    setFirebaseConectado(false);
+  } finally {
+    setCargandoDatos(false);
+  }
+}, []);
+  
 const guardarEnFirebase = useCallback(async (clientes = misClientes, deudas = misDeudas, inversiones = misInversiones) => {
   setGuardandoEnNube(true);
   setErrorConexion(null);
@@ -241,42 +278,6 @@ useEffect(() => {
   const interval = setInterval(verificarConexion, 30000);
   
   return () => clearInterval(interval);
-}, []);
-}, [misClientes, misDeudas, misInversiones]);
-
-// 📥 FUNCIÓN PARA CARGAR DATOS INICIALES
-const cargarDatosIniciales = useCallback(async () => {
-  setCargandoDatos(true);
-  
-  try {
-    const resultado = await firebaseService.cargarDatos();
-    
-    if (resultado.success && resultado.datos) {
-      // Cargar datos desde Firebase
-      if (resultado.datos.clientes?.length > 0) {
-        setMisClientes(resultado.datos.clientes);
-      }
-      if (resultado.datos.deudas?.length > 0) {
-        setMisDeudas(resultado.datos.deudas);
-      }
-      if (resultado.datos.inversiones?.length > 0) {
-        setMisInversiones(resultado.datos.inversiones);
-      }
-      
-      setFirebaseConectado(true);
-      console.log('✅ Datos cargados desde Firebase');
-    } else {
-      console.log('📝 Usando datos por defecto (primera vez)');
-      setFirebaseConectado(false);
-    }
-    
-  } catch (error) {
-    console.error('❌ Error al cargar:', error);
-    setErrorConexion('Error al cargar datos');
-    setFirebaseConectado(false);
-  } finally {
-    setCargandoDatos(false);
-  }
 }, []);
   
   const [alertas, setAlertas] = useState([
