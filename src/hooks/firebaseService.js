@@ -1,103 +1,141 @@
-// 🔥 AGREGAR ESTAS LÍNEAS EN useFinancialData.js
+// firebaseService.js - Servicio para guardar en Firebase
+import { initializeApp } from 'firebase/app';
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  collection, 
+  onSnapshot,
+  serverTimestamp 
+} from 'firebase/firestore';
 
-// 📍 UBICACIÓN: Después de los estados principales (misClientes, misDeudas, misInversiones)
+// 🔧 CONFIGURACIÓN ACTUALIZADA DE FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyDy86uTbqCPMfto45NJu7FVG9O5NE-qD0",
+  authDomain: "grizalum-9b670.firebaseapp.com",
+  projectId: "grizalum-9b670",
+  storageBucket: "grizalum-9b670.firebasestorage.app",
+  messagingSenderId: "526692565959",
+  appId: "1:526692565959:web:16c2ff1278b12a1498cfe2",
+  measurementId: "G-00M8SVLKX4"
+};
 
-// 🔄 ESTADOS PARA FIREBASE
-const [cargandoDatos, setCargandoDatos] = useState(true);
-const [guardandoEnNube, setGuardandoEnNube] = useState(false);
-const [errorConexion, setErrorConexion] = useState(null);
-const [ultimoGuardadoNube, setUltimoGuardadoNube] = useState(null);
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-// 💾 FUNCIÓN PARA GUARDAR EN FIREBASE
-const guardarEnFirebase = useCallback(async (clientes = misClientes, deudas = misDeudas, inversiones = misInversiones) => {
-  setGuardandoEnNube(true);
-  setErrorConexion(null);
+// 🏢 ID único para la empresa (GRIZALUM)
+const EMPRESA_ID = 'grizalum_metalurgica';
+
+class FirebaseService {
   
-  try {
-    const resultado = await firebaseService.guardarDatos(clientes, deudas, inversiones);
-    
-    if (resultado.success) {
-      setUltimoGuardadoNube(new Date());
-      setFirebaseConectado(true);
-      console.log('✅ Guardado en Firebase exitoso');
-    } else {
-      setErrorConexion(resultado.message);
-      setFirebaseConectado(false);
+  // 💾 GUARDAR TODOS LOS DATOS
+  async guardarDatos(clientes, deudas, inversiones) {
+    try {
+      console.log('🔄 Guardando datos en Firebase...');
+      
+      const datosCompletos = {
+        clientes: clientes,
+        deudas: deudas,
+        inversiones: inversiones,
+        ultimaActualizacion: serverTimestamp(),
+        version: '1.0'
+      };
+
+      // Guardar en Firestore
+      await setDoc(doc(db, 'empresas', EMPRESA_ID), datosCompletos);
+      
+      console.log('✅ Datos guardados exitosamente en Firebase');
+      return { success: true, message: 'Datos guardados en la nube' };
+      
+    } catch (error) {
+      console.error('❌ Error al guardar en Firebase:', error);
+      return { 
+        success: false, 
+        message: 'Error al guardar: ' + error.message 
+      };
     }
-    
-    return resultado;
-    
-  } catch (error) {
-    console.error('❌ Error al guardar:', error);
-    setErrorConexion('Error de conexión');
-    setFirebaseConectado(false);
-    return { success: false, message: error.message };
-  } finally {
-    setGuardandoEnNube(false);
   }
-}, [misClientes, misDeudas, misInversiones]);
 
-// 📥 FUNCIÓN PARA CARGAR DATOS INICIALES
-const cargarDatosIniciales = useCallback(async () => {
-  setCargandoDatos(true);
-  
-  try {
-    const resultado = await firebaseService.cargarDatos();
-    
-    if (resultado.success && resultado.datos) {
-      // Cargar datos desde Firebase
-      if (resultado.datos.clientes?.length > 0) {
-        setMisClientes(resultado.datos.clientes);
-      }
-      if (resultado.datos.deudas?.length > 0) {
-        setMisDeudas(resultado.datos.deudas);
-      }
-      if (resultado.datos.inversiones?.length > 0) {
-        setMisInversiones(resultado.datos.inversiones);
+  // 📥 CARGAR DATOS AL INICIAR
+  async cargarDatos() {
+    try {
+      console.log('🔄 Cargando datos desde Firebase...');
+      
+      const docRef = doc(db, 'empresas', EMPRESA_ID);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const datos = docSnap.data();
+        console.log('✅ Datos cargados desde Firebase');
+        
+        return {
+          success: true,
+          datos: {
+            clientes: datos.clientes || [],
+            deudas: datos.deudas || [],
+            inversiones: datos.inversiones || [],
+            ultimaActualizacion: datos.ultimaActualizacion
+          }
+        };
+      } else {
+        console.log('📝 No hay datos previos, usando datos por defecto');
+        return { success: false, message: 'No hay datos guardados' };
       }
       
-      setFirebaseConectado(true);
-      console.log('✅ Datos cargados desde Firebase');
-    } else {
-      console.log('📝 Usando datos por defecto (primera vez)');
-      setFirebaseConectado(false);
+    } catch (error) {
+      console.error('❌ Error al cargar desde Firebase:', error);
+      return { 
+        success: false, 
+        message: 'Error al cargar: ' + error.message 
+      };
     }
-    
-  } catch (error) {
-    console.error('❌ Error al cargar:', error);
-    setErrorConexion('Error al cargar datos');
-    setFirebaseConectado(false);
-  } finally {
-    setCargandoDatos(false);
   }
-}, []);
 
-// 🚀 CARGAR DATOS AL INICIAR
-useEffect(() => {
-  cargarDatosIniciales();
-}, [cargarDatosIniciales]);
+  // 🔄 ESCUCHAR CAMBIOS EN TIEMPO REAL
+  escucharCambios(callback) {
+    try {
+      const docRef = doc(db, 'empresas', EMPRESA_ID);
+      
+      const unsubscribe = onSnapshot(docRef, (doc) => {
+        if (doc.exists()) {
+          const datos = doc.data();
+          console.log('🔄 Datos actualizados en tiempo real');
+          callback({
+            success: true,
+            datos: {
+              clientes: datos.clientes || [],
+              deudas: datos.deudas || [],
+              inversiones: datos.inversiones || [],
+              ultimaActualizacion: datos.ultimaActualizacion
+            }
+          });
+        }
+      });
 
-// 🔄 GUARDAR AUTOMÁTICAMENTE CUANDO CAMBIAN LOS DATOS
-useEffect(() => {
-  // Solo guardar si ya terminó de cargar y no estamos guardando
-  if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0)) {
-    const timeout = setTimeout(() => {
-      guardarEnFirebase();
-    }, 2000); // Esperar 2 segundos después del último cambio
-    
-    return () => clearTimeout(timeout);
+      return unsubscribe; // Para poder cancelar la escucha
+      
+    } catch (error) {
+      console.error('❌ Error en tiempo real:', error);
+      callback({ success: false, message: error.message });
+      return null;
+    }
   }
-}, [misClientes, misDeudas, misInversiones, cargandoDatos, guardandoEnNube, guardarEnFirebase]);
 
-// 🔄 VERIFICAR CONEXIÓN PERIÓDICAMENTE
-useEffect(() => {
-  const verificarConexion = async () => {
-    const conectado = await firebaseService.verificarConexion();
-    setFirebaseConectado(conectado);
-  };
-  
-  // Verificar cada 30 segundos
-  const interval = setInterval(verificarConexion, 30000);
-  
-  return () => clearInterval(interval);
-}, []);
+  // ✅ VERIFICAR CONEXIÓN
+  async verificarConexion() {
+    try {
+      const docRef = doc(db, 'empresas', 'test_conexion');
+      await setDoc(docRef, { timestamp: serverTimestamp() });
+      return true;
+    } catch (error) {
+      console.error('❌ Sin conexión a Firebase:', error);
+      return false;
+    }
+  }
+}
+
+// Exportar instancia única
+export const firebaseService = new FirebaseService();
+export default firebaseService;
