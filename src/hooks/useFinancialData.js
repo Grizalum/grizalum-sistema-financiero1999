@@ -323,9 +323,6 @@ useEffect(() => {
         tipo: monto >= cliente.cuotaMensual ? 'Cuota Regular' : 'Pago Parcial'
       };
 
-      // 🆕 LIMPIAR ALERTAS DEL CLIENTE AL REGISTRAR PAGO
-      limpiarAlertasClientePagado(clienteId);
-
       return {
         ...cliente,
         saldoPendiente: Math.round(nuevoSaldo * 100) / 100,
