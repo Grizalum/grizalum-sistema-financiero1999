@@ -3,7 +3,7 @@ import firebaseService from './firebaseService';
 const useFinancialData = () => {
 // Hook personalizado para manejar toda la lógica financiera
   // Estados principales
-  const [misClientes, setMisClientes] = useState([
+  const [misClientes, setMisClientes] = useState([]);
     {
       id: 1,
       nombre: 'Antonio Rodriguez',
@@ -46,7 +46,7 @@ const useFinancialData = () => {
     }
   ]);
 
-  const [misDeudas, setMisDeudas] = useState([
+  const [misDeudas, setMisDeudas] = useState([]);
   {
     id: 1,
     acreedor: 'Banco Santander',
@@ -87,7 +87,7 @@ const useFinancialData = () => {
     ]
   }
 ]);
-  const [misInversiones, setMisInversiones] = useState([
+  const [misInversiones, setMisInversiones] = useState([]);
     
     {
       id: 1,
@@ -198,16 +198,34 @@ const cargarDatosIniciales = useCallback(async () => {
     
     if (resultado.success && resultado.datos) {
       console.log('✅ Cargando datos REALES desde Firebase');
-      
-      // CARGAR DATOS REALES DESDE FIREBASE
       setMisClientes(resultado.datos.clientes);
       setMisDeudas(resultado.datos.deudas);
       setMisInversiones(resultado.datos.inversiones);
       setFirebaseConectado(true);
     } else {
-      console.log('📝 No hay datos en Firebase - usando datos por defecto SOLO UNA VEZ');
-      // Mantener los datos por defecto solo si es primera vez
-      setFirebaseConectado(false);
+      console.log('📝 Primera vez - creando datos iniciales');
+      const datosIniciales = [
+        {
+          id: 1,
+          nombre: 'Antonio Rodriguez',
+          email: 'antonio@example.com',
+          telefono: '+51 999 123 456',
+          capital: 10000,
+          tasaInteres: 14,
+          plazoMeses: 18,
+          cuotaMensual: 633.30,
+          totalCobrar: 11399.40,
+          saldoPendiente: 8000.00,
+          pagosRecibidos: 3399.40,
+          estado: 'En Proceso',
+          fechaInicio: '2024-06-01',
+          historialPagos: []
+        }
+      ];
+      
+      setMisClientes(datosIniciales);
+      await firebaseService.guardarDatos(datosIniciales, [], []);
+      setFirebaseConectado(true);
     }
     
   } catch (error) {
