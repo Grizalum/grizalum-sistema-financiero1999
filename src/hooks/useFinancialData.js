@@ -323,7 +323,8 @@ useEffect(() => {
   
   // ✅ ACTIVAR LISTENER INMEDIATAMENTE DESPUÉS DE CARGAR
   if (!cargandoDatos) {
-    setupRealtimeListener();
+  const cleanup = setupRealtimeListener();
+  return cleanup;
   }
 }, [cargandoDatos]);
   
