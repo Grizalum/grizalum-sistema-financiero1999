@@ -24,7 +24,7 @@ const useFinancialData = () => {
       ]
     },
     {
-      id: 2,
+      
       nombre: 'Maria Gonzalez',
       email: 'maria@example.com',
       telefono: '+51 987 654 321',
@@ -65,7 +65,7 @@ const useFinancialData = () => {
     ]
   },
   {
-    id: 2,
+    
     acreedor: 'Proveedor Textil SAC',
     descripcion: 'Compra de mercaderia a credito',
     capital: 8000,
@@ -98,7 +98,7 @@ const useFinancialData = () => {
       progreso: 65
     },
     {
-      id: 2,
+      
       nombre: 'Local Comercial Centro',
       descripcion: 'Alquiler de local estrategico',
       tipo: 'Inmueble',
