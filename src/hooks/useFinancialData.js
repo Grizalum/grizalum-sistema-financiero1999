@@ -119,7 +119,7 @@ const cargarDatosIniciales = useCallback(async () => {
   datosInicializados.current = true;
   
   // Si no hay clientes, crear datos iniciales
-  if (!resultado.datos.clientes || resultado.datos.clientes.length === 0) {
+  if (false && (!resultado.datos.clientes || resultado.datos.clientes.length === 0)) {
     console.log('📝 No hay clientes, creando datos iniciales');
     const datosIniciales = [
       {
@@ -145,33 +145,33 @@ const cargarDatosIniciales = useCallback(async () => {
   }
   return;
 } else {
-  console.log('📝 Error al cargar, creando datos iniciales');
-  // Crear datos iniciales por error
-  const datosIniciales = [
-    {
-      id: 1,
-      nombre: 'Antonio Rodriguez',
-      email: 'antonio@example.com',
-      telefono: '+51 999 123 456',
-      capital: 10000,
-      tasaInteres: 14,
-      plazoMeses: 18,
-      cuotaMensual: 633.30,
-      totalCobrar: 11399.40,
-      saldoPendiente: 8000.00,
-      pagosRecibidos: 3399.40,
-      estado: 'En Proceso',
-      fechaInicio: '2024-06-01',
-      historialPagos: []
-    }
-  ];
+  console.log('📝 Error al cargar - NO creando datos iniciales');
+  //// Crear datos iniciales por error
+ // const datosIniciales = [
+  //  {
+ //      id: 1,
+  //    nombre: 'Antonio Rodriguez',
+  //    email: 'antonio@example.com',
+  //    telefono: '+51 999 123 456',
+   //   capital: 10000,
+   //   tasaInteres: 14,
+   //   plazoMeses: 18,
+   //   cuotaMensual: 633.30,
+   //   totalCobrar: 11399.40,
+  //    saldoPendiente: 8000.00,
+  //    pagosRecibidos: 3399.40,
+ //     estado: 'En Proceso',
+   //   fechaInicio: '2024-06-01',
+   //   historialPagos: []
+ //   }
+//  ];
   
-  setMisClientes(datosIniciales);
-  setMisDeudas([]);
-  setMisInversiones([]);
-  setFirebaseConectado(true);
-  datosInicializados.current = true;
-  await firebaseService.guardarDatos(datosIniciales, [], []);
+//  setMisClientes(datosIniciales);
+//  setMisDeudas([]);
+//  setMisInversiones([]);
+//  setFirebaseConectado(true);
+//  datosInicializados.current = true;
+//  await firebaseService.guardarDatos(datosIniciales, [], []);
 }
     
   } catch (error) {
