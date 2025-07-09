@@ -4,7 +4,7 @@ const useFinancialData = () => {
 // Hook personalizado para manejar toda la lógica financiera
   // Estados principales
   const [misClientes, setMisClientes] = useState([]);
-    {
+    
       id: 1,
       nombre: 'Antonio Rodriguez',
       email: 'antonio@example.com',
@@ -44,10 +44,9 @@ const useFinancialData = () => {
         { id: 3, fecha: '2024-08-15', monto: 500.00, tipo: 'Pago Parcial' }
       ]
     }
-  ]);
 
   const [misDeudas, setMisDeudas] = useState([]);
-  {
+  
     id: 1,
     acreedor: 'Banco Santander',
     descripcion: 'Prestamo comercial para capital de trabajo',
@@ -86,10 +85,10 @@ const useFinancialData = () => {
       { id: 2, fecha: '2024-10-01', monto: 800.00, tipo: 'Cuota Regular' }
     ]
   }
-]);
+    
   const [misInversiones, setMisInversiones] = useState([]);
     
-    {
+    
       id: 1,
       nombre: 'Maquina Soldadora Industrial',
       descripcion: 'Maquina profesional para metalurgia',
@@ -113,7 +112,6 @@ const useFinancialData = () => {
       roi: 15.0,
       progreso: 75
     }
-  ]);
 
    // 🔄 ESTADOS PARA FIREBASE
   const [cargandoDatos, setCargandoDatos] = useState(true);
