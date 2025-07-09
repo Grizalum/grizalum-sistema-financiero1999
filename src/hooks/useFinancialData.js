@@ -104,69 +104,48 @@ const cargarDatosIniciales = useCallback(async () => {
     // ✅ VERIFICACIÓN MÁS ROBUSTA
     const tieneClientes = resultado.success && 
                      resultado.datos && 
+                     resultado.datos.clientes && 
+                     Array.isArray(resultado.datos.clientes);
                      
     console.log('🔍 DEBUG - tieneClientes:', tieneClientes);
     
-    if (tieneClientes) {
-      console.log('✅ Cargando datos REALES desde Firebase');
-      setMisClientes(resultado.datos.clientes);
-      setMisDeudas(resultado.datos.deudas || []);
-      setMisInversiones(resultado.datos.inversiones || []);
-      setFirebaseConectado(true);
-    } else {
-      console.log('📝 Primera vez - creando datos iniciales');
-      const datosIniciales = [
-        {
-          id: 1,
-          nombre: 'Antonio Rodriguez',
-          email: 'antonio@example.com',
-          telefono: '+51 999 123 456',
-          capital: 10000,
-          tasaInteres: 14,
-          plazoMeses: 18,
-          cuotaMensual: 633.30,
-          totalCobrar: 11399.40,
-          saldoPendiente: 8000.00,
-          pagosRecibidos: 3399.40,
-          estado: 'En Proceso',
-          fechaInicio: '2024-06-01',
-          historialPagos: []
-        }
-      ];
-      
-      const deudasIniciales = [
-        {
-          id: 1,
-          acreedor: 'Banco Santander',
-          descripcion: 'Prestamo comercial para capital de trabajo',
-          capital: 50000,
-          tasaInteres: 18,
-          plazoMeses: 24,
-          cuotaMensual: 2500.00,
-          saldoPendiente: 42500.00,
-          totalPagado: 7500.00,
-          estado: 'Activo',
-          fechaInicio: '2024-01-01',
-          proximoVencimiento: '2025-01-01',
-          historialPagos: []
-        }
-      ];
-      
-      setMisClientes(datosIniciales);
-      setMisDeudas(deudasIniciales);
-      setMisInversiones([]);
-      await firebaseService.guardarDatos(datosIniciales, deudasIniciales, []);
-      setFirebaseConectado(true);
-    }
+    if (resultado.success && resultado.datos) {
+  console.log('✅ Cargando datos desde Firebase');
+  setMisClientes(resultado.datos.clientes || []);
+  setMisDeudas(resultado.datos.deudas || []);
+  setMisInversiones(resultado.datos.inversiones || []);
+  setFirebaseConectado(true);
+  datosInicializados.current = true;
+  
+  // Si no hay clientes, crear datos iniciales
+  if (!resultado.datos.clientes || resultado.datos.clientes.length === 0) {
+    console.log('📝 No hay clientes, creando datos iniciales');
+    const datosIniciales = [
+      {
+        id: 1,
+        nombre: 'Antonio Rodriguez',
+        email: 'antonio@example.com',
+        telefono: '+51 999 123 456',
+        capital: 10000,
+        tasaInteres: 14,
+        plazoMeses: 18,
+        cuotaMensual: 633.30,
+        totalCobrar: 11399.40,
+        saldoPendiente: 8000.00,
+        pagosRecibidos: 3399.40,
+        estado: 'En Proceso',
+        fechaInicio: '2024-06-01',
+        historialPagos: []
+      }
+    ];
     
-  } catch (error) {
-    console.error('❌ Error al cargar:', error);
-    setErrorConexion('Error al cargar datos');
-    setFirebaseConectado(false);
-  } finally {
-    setCargandoDatos(false);
+    setMisClientes(datosIniciales);
+    await firebaseService.guardarDatos(datosIniciales, [], []);
   }
-}, []);
+  return;
+} else {
+  console.log('📝 Error al cargar, creando datos iniciales');
+}
   
 const guardarEnFirebase = useCallback(async (clientes = misClientes, deudas = misDeudas, inversiones = misInversiones) => {
   setGuardandoEnNube(true);
