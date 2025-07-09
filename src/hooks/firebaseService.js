@@ -39,7 +39,10 @@ const firebaseService = {
       console.log('🔍 DEBUG GUARDADO - datosParaGuardar:', datosParaGuardar);
       
       await setDoc(docRef, datosParaGuardar);
+      console.log('💾 Ejecutando setDoc con:', datosParaGuardar);
+      await setDoc(docRef, datosParaGuardar);
       
+      console.log('✅ setDoc completado exitosamente');
       console.log('✅ Datos guardados exitosamente');
       return { success: true, message: 'Guardado exitoso' };
       
