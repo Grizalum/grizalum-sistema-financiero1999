@@ -256,62 +256,48 @@ useEffect(() => {
   cargarDatosIniciales();
 }, [cargarDatosIniciales]);
 
-// 🔥 NUEVO: LISTENER EN TIEMPO REAL PARA FIREBASE
+// 🔥 LISTENER EN TIEMPO REAL CORREGIDO
 useEffect(() => {
   const setupRealtimeListener = async () => {
     try {
-      // Importar onSnapshot para tiempo real
+      // ✅ IMPORTACIÓN CORREGIDA
       const { onSnapshot, doc } = await import('firebase/firestore');
       const { db } = await import('../config/firebase');
+      
+      console.log('🔄 Configurando listener en tiempo real...');
       
       const docRef = doc(db, 'grizalum_metalurgica', 'datos-financieros');
       
       // 🎯 ESCUCHAR CAMBIOS EN TIEMPO REAL
       const unsubscribe = onSnapshot(docRef, (docSnap) => {
+        console.log('🔔 Snapshot recibido:', docSnap.exists());
+        
         if (docSnap.exists()) {
           const datosNuevos = docSnap.data();
           
-          console.log('🔄 CAMBIOS DETECTADOS EN TIEMPO REAL:', {
-            timestamp: new Date().toISOString(),
-            datosRecibidos: {
-              clientes: datosNuevos.clientes?.length || 0,
-              deudas: datosNuevos.deudas?.length || 0,
-              inversiones: datosNuevos.inversiones?.length || 0
-            }
+          console.log('🔄 DATOS RECIBIDOS EN TIEMPO REAL:', {
+            clientes: datosNuevos.clientes?.length || 0,
+            deudas: datosNuevos.deudas?.length || 0,
+            inversiones: datosNuevos.inversiones?.length || 0,
+            timestamp: datosNuevos.ultimaActualizacion
           });
           
-          // ✅ ACTUALIZAR ESTADOS SOLO SI HAY CAMBIOS REALES
+          // ✅ ACTUALIZAR CLIENTES
           if (datosNuevos.clientes && Array.isArray(datosNuevos.clientes)) {
-            setMisClientes(prev => {
-              const sonIguales = JSON.stringify(prev) === JSON.stringify(datosNuevos.clientes);
-              if (!sonIguales) {
-                console.log('📱 Actualizando clientes desde otro usuario');
-                return datosNuevos.clientes;
-              }
-              return prev;
-            });
+            setMisClientes(datosNuevos.clientes);
+            console.log('📱 Clientes actualizados desde Firebase');
           }
           
+          // ✅ ACTUALIZAR DEUDAS  
           if (datosNuevos.deudas && Array.isArray(datosNuevos.deudas)) {
-            setMisDeudas(prev => {
-              const sonIguales = JSON.stringify(prev) === JSON.stringify(datosNuevos.deudas);
-              if (!sonIguales) {
-                console.log('💳 Actualizando deudas desde otro usuario');
-                return datosNuevos.deudas;
-              }
-              return prev;
-            });
+            setMisDeudas(datosNuevos.deudas);
+            console.log('💳 Deudas actualizadas desde Firebase');
           }
           
+          // ✅ ACTUALIZAR INVERSIONES
           if (datosNuevos.inversiones && Array.isArray(datosNuevos.inversiones)) {
-            setMisInversiones(prev => {
-              const sonIguales = JSON.stringify(prev) === JSON.stringify(datosNuevos.inversiones);
-              if (!sonIguales) {
-                console.log('💰 Actualizando inversiones desde otro usuario');
-                return datosNuevos.inversiones;
-              }
-              return prev;
-            });
+            setMisInversiones(datosNuevos.inversiones);
+            console.log('💰 Inversiones actualizadas desde Firebase');
           }
           
           setFirebaseConectado(true);
@@ -320,6 +306,8 @@ useEffect(() => {
         console.error('❌ Error en listener tiempo real:', error);
         setFirebaseConectado(false);
       });
+      
+      console.log('✅ Listener configurado exitosamente');
       
       // 🔄 LIMPIAR LISTENER AL DESMONTAR
       return () => {
@@ -333,25 +321,12 @@ useEffect(() => {
     }
   };
   
-  // Solo configurar listener después de cargar datos iniciales
+  // ✅ ACTIVAR LISTENER INMEDIATAMENTE DESPUÉS DE CARGAR
   if (!cargandoDatos) {
-    const cleanup = setupRealtimeListener();
-    return cleanup;
+    setupRealtimeListener();
   }
 }, [cargandoDatos]);
-
-// 🔄 AUTOSAVE MEJORADO - DESPUÉS DEL LISTENER
-useEffect(() => {
-  // Solo guardar si ya terminó de cargar y no estamos guardando
-  if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0)) {
-    const timeout = setTimeout(() => {
-      guardarEnFirebase();
-    }, 3000); // 3 segundos en lugar de 2
-    
-    return () => clearTimeout(timeout);
-  }
-}, [misClientes, misDeudas, misInversiones, cargandoDatos, guardandoEnNube, guardarEnFirebase]);
-
+  
 // 🔄 VERIFICAR CONEXIÓN PERIÓDICAMENTE
 useEffect(() => {
   const verificarConexion = async () => {
