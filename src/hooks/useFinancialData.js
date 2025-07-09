@@ -89,7 +89,7 @@ const cargarDatosIniciales = useCallback(async () => {
     const resultado = await firebaseService.cargarDatos();
     
     // 🔍 DEBUG: Ver exactamente qué devuelve Firebase
-    console.log('🔍 DEBUG - Resultado completo:', resultado);
+    console.log('🔍 RESULTADO COMPLETO DE CARGA:', resultado);
     console.log('🔍 DEBUG - resultado.success:', resultado.success);
     console.log('🔍 DEBUG - resultado.datos:', resultado.datos);
     if (resultado.datos) {
@@ -103,11 +103,10 @@ const cargarDatosIniciales = useCallback(async () => {
     
     // ✅ VERIFICACIÓN MÁS ROBUSTA
     const tieneClientes = resultado.success && 
-                         resultado.datos && 
-                         resultado.datos.clientes && 
-                         Array.isArray(resultado.datos.clientes) && 
-                         resultado.datos.clientes.length > 0;
-    
+                     resultado.datos && 
+                     resultado.datos.clientes && 
+                     Array.isArray(resultado.datos.clientes) && 
+                     resultado.datos.clientes.length > 0;
     console.log('🔍 DEBUG - tieneClientes:', tieneClientes);
     
     if (tieneClientes) {
