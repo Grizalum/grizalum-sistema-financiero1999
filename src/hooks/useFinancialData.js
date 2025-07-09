@@ -88,11 +88,13 @@ const cargarDatosIniciales = useCallback(async () => {
     console.log('🚀 Iniciando carga de datos...');
     const resultado = await firebaseService.cargarDatos();
     
-    if (resultado.success && resultado.datos) {
+    // ✅ VERIFICAR QUE LOS DATOS NO ESTÉN VACÍOS
+    if (resultado.success && resultado.datos && 
+        resultado.datos.clientes && resultado.datos.clientes.length > 0) {
       console.log('✅ Cargando datos REALES desde Firebase');
       setMisClientes(resultado.datos.clientes);
-      setMisDeudas(resultado.datos.deudas);
-      setMisInversiones(resultado.datos.inversiones);
+      setMisDeudas(resultado.datos.deudas || []);
+      setMisInversiones(resultado.datos.inversiones || []);
       setFirebaseConectado(true);
     } else {
       console.log('📝 Primera vez - creando datos iniciales');
@@ -115,8 +117,28 @@ const cargarDatosIniciales = useCallback(async () => {
         }
       ];
       
+      const deudasIniciales = [
+        {
+          id: 1,
+          acreedor: 'Banco Santander',
+          descripcion: 'Prestamo comercial para capital de trabajo',
+          capital: 50000,
+          tasaInteres: 18,
+          plazoMeses: 24,
+          cuotaMensual: 2500.00,
+          saldoPendiente: 42500.00,
+          totalPagado: 7500.00,
+          estado: 'Activo',
+          fechaInicio: '2024-01-01',
+          proximoVencimiento: '2025-01-01',
+          historialPagos: []
+        }
+      ];
+      
       setMisClientes(datosIniciales);
-      await firebaseService.guardarDatos(datosIniciales, [], []);
+      setMisDeudas(deudasIniciales);
+      setMisInversiones([]);
+      await firebaseService.guardarDatos(datosIniciales, deudasIniciales, []);
       setFirebaseConectado(true);
     }
     
