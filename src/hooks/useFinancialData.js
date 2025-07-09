@@ -105,8 +105,6 @@ const cargarDatosIniciales = useCallback(async () => {
     const tieneClientes = resultado.success && 
                      resultado.datos && 
                      resultado.datos.clientes && 
-                     Array.isArray(resultado.datos.clientes) && 
-                     resultado.datos.clientes.length > 0;
     console.log('🔍 DEBUG - tieneClientes:', tieneClientes);
     
     if (tieneClientes) {
