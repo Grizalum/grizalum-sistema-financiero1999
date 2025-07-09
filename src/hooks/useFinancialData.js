@@ -104,7 +104,7 @@ const cargarDatosIniciales = useCallback(async () => {
     // ✅ VERIFICACIÓN MÁS ROBUSTA
     const tieneClientes = resultado.success && 
                      resultado.datos && 
-                     resultado.datos.clientes && 
+                     
     console.log('🔍 DEBUG - tieneClientes:', tieneClientes);
     
     if (tieneClientes) {
