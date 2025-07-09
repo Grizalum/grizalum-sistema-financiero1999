@@ -108,16 +108,16 @@ const [formDeuda, setFormDeuda] = useState({
 });
   const proximasFechas = obtenerProximasFechasCobro();
 
-// 🔄 AUTOSAVE AUTOMÁTICO cada 5 segundos
-useEffect(() => {
-  const intervalo = setInterval(() => {
-    if (datosModificados && !guardandoAutomatico) {
-      autoSave();
-    }
-  }, 5000); // Cada 5 segundos
+// // 🔄 AUTOSAVE AUTOMÁTICO cada 5 segundos
+// useEffect(() => {
+//  const intervalo = setInterval(() => {
+//    if (datosModificados && !guardandoAutomatico) {
+//      autoSave();
+//    }
+//  }, 5000); // Cada 5 segundos
 
-  return () => clearInterval(intervalo);
-}, [datosModificados, guardandoAutomatico]);
+// return () => clearInterval(intervalo);
+// }, [datosModificados, guardandoAutomatico]);
 
 // 🔄 MARCAR COMO MODIFICADO cuando cambian los datos
 useEffect(() => {
