@@ -5,7 +5,6 @@ const useFinancialData = () => {
   // Estados principales
   const [misClientes, setMisClientes] = useState([]);
     
-      id: 1,
       nombre: 'Antonio Rodriguez',
       email: 'antonio@example.com',
       telefono: '+51 999 123 456',
@@ -47,7 +46,6 @@ const useFinancialData = () => {
 
   const [misDeudas, setMisDeudas] = useState([]);
   
-    id: 1,
     acreedor: 'Banco Santander',
     descripcion: 'Prestamo comercial para capital de trabajo',
     capital: 50000,
@@ -89,7 +87,6 @@ const useFinancialData = () => {
   const [misInversiones, setMisInversiones] = useState([]);
     
     
-      id: 1,
       nombre: 'Maquina Soldadora Industrial',
       descripcion: 'Maquina profesional para metalurgia',
       tipo: 'Maquinaria',
