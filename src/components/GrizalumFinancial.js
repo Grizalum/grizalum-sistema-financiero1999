@@ -1660,18 +1660,25 @@ const autoSave = async () => {
                 </button>
               <button 
                   onClick={async () => {
-               console.log('🧪 TEST GUARDADO MANUAL');
-               console.log('🧪 misClientes actuales:', misClientes);
-               console.log('🧪 misDeudas actuales:', misDeudas);
+  console.log('🧪 TEST GUARDADO MANUAL INICIADO');
+  console.log('🧪 misClientes actuales:', misClientes);
+  console.log('🧪 misDeudas actuales:', misDeudas);
+  console.log('🧪 misInversiones actuales:', misInversiones);
   
-               const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
-  
-                 if (resultado.success) {
-                alert('✅ Guardado exitoso!');
-                 } else {
-                  alert('❌ Error: ' + resultado.message);
-                 }
-                 }}
+  try {
+    const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
+    console.log('🧪 Resultado del guardado:', resultado);
+    
+    if (resultado.success) {
+      alert('✅ ¡Guardado exitoso en Firebase!');
+    } else {
+      alert('❌ Error al guardar: ' + resultado.message);
+    }
+  } catch (error) {
+    console.error('🧪 Error en TEST SAVE:', error);
+    alert('❌ Error: ' + error.message);
+  }
+}}
                   className="bg-red-500 text-white px-3 py-2 rounded-lg text-sm ml-2"
                 >
                   🧪 TEST SAVE
