@@ -255,13 +255,97 @@ useEffect(() => {
   cargarDatosIniciales();
 }, [cargarDatosIniciales]);
 
-// 🔄 GUARDAR AUTOMÁTICAMENTE CUANDO CAMBIAN LOS DATOS
+// 🔥 NUEVO: LISTENER EN TIEMPO REAL PARA FIREBASE
+useEffect(() => {
+  const setupRealtimeListener = async () => {
+    try {
+      // Importar onSnapshot para tiempo real
+      const { onSnapshot, doc } = await import('firebase/firestore');
+      const { db } = await import('../config/firebase');
+      
+      const docRef = doc(db, 'grizalum_metalurgica', 'datos-financieros');
+      
+      // 🎯 ESCUCHAR CAMBIOS EN TIEMPO REAL
+      const unsubscribe = onSnapshot(docRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const datosNuevos = docSnap.data();
+          
+          console.log('🔄 CAMBIOS DETECTADOS EN TIEMPO REAL:', {
+            timestamp: new Date().toISOString(),
+            datosRecibidos: {
+              clientes: datosNuevos.clientes?.length || 0,
+              deudas: datosNuevos.deudas?.length || 0,
+              inversiones: datosNuevos.inversiones?.length || 0
+            }
+          });
+          
+          // ✅ ACTUALIZAR ESTADOS SOLO SI HAY CAMBIOS REALES
+          if (datosNuevos.clientes && Array.isArray(datosNuevos.clientes)) {
+            setMisClientes(prev => {
+              const sonIguales = JSON.stringify(prev) === JSON.stringify(datosNuevos.clientes);
+              if (!sonIguales) {
+                console.log('📱 Actualizando clientes desde otro usuario');
+                return datosNuevos.clientes;
+              }
+              return prev;
+            });
+          }
+          
+          if (datosNuevos.deudas && Array.isArray(datosNuevos.deudas)) {
+            setMisDeudas(prev => {
+              const sonIguales = JSON.stringify(prev) === JSON.stringify(datosNuevos.deudas);
+              if (!sonIguales) {
+                console.log('💳 Actualizando deudas desde otro usuario');
+                return datosNuevos.deudas;
+              }
+              return prev;
+            });
+          }
+          
+          if (datosNuevos.inversiones && Array.isArray(datosNuevos.inversiones)) {
+            setMisInversiones(prev => {
+              const sonIguales = JSON.stringify(prev) === JSON.stringify(datosNuevos.inversiones);
+              if (!sonIguales) {
+                console.log('💰 Actualizando inversiones desde otro usuario');
+                return datosNuevos.inversiones;
+              }
+              return prev;
+            });
+          }
+          
+          setFirebaseConectado(true);
+        }
+      }, (error) => {
+        console.error('❌ Error en listener tiempo real:', error);
+        setFirebaseConectado(false);
+      });
+      
+      // 🔄 LIMPIAR LISTENER AL DESMONTAR
+      return () => {
+        console.log('🔌 Desconectando listener tiempo real');
+        unsubscribe();
+      };
+      
+    } catch (error) {
+      console.error('❌ Error configurando listener:', error);
+      setFirebaseConectado(false);
+    }
+  };
+  
+  // Solo configurar listener después de cargar datos iniciales
+  if (!cargandoDatos) {
+    const cleanup = setupRealtimeListener();
+    return cleanup;
+  }
+}, [cargandoDatos]);
+
+// 🔄 AUTOSAVE MEJORADO - DESPUÉS DEL LISTENER
 useEffect(() => {
   // Solo guardar si ya terminó de cargar y no estamos guardando
   if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0)) {
     const timeout = setTimeout(() => {
       guardarEnFirebase();
-    }, 2000); // Esperar 2 segundos después del último cambio
+    }, 3000); // 3 segundos en lugar de 2
     
     return () => clearTimeout(timeout);
   }
