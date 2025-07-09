@@ -33,7 +33,8 @@ export default function GrizalumFinancial() {
     obtenerProximasFechasCobro,    
     limpiarAlertasClientePagado,
     setMisClientes,
-    setMisDeudas
+    setMisDeudas,
+    guardarEnFirebase
   } = useFinancialData();
   
 const watermarkStyle = {
