@@ -1659,12 +1659,19 @@ const autoSave = async () => {
                   <Share2 size={20} />
                 </button>
               <button 
-                  onClick={() => {
-                    console.log('🧪 TEST GUARDADO MANUAL');
-                    console.log('🧪 misClientes actuales:', misClientes);
-                    console.log('🧪 misDeudas actuales:', misDeudas);
-                    guardarEnFirebase(misClientes, misDeudas, misInversiones);
-                  }}
+                  onClick={async () => {
+               console.log('🧪 TEST GUARDADO MANUAL');
+               console.log('🧪 misClientes actuales:', misClientes);
+               console.log('🧪 misDeudas actuales:', misDeudas);
+  
+               const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
+  
+                 if (resultado.success) {
+                alert('✅ Guardado exitoso!');
+                 } else {
+                  alert('❌ Error: ' + resultado.message);
+                 }
+                 }}
                   className="bg-red-500 text-white px-3 py-2 rounded-lg text-sm ml-2"
                 >
                   🧪 TEST SAVE
