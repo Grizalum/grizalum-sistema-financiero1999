@@ -7,6 +7,10 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
+ // 🔍 DEBUG: Verificar que Firebase esté importado correctamente
+11 console.log('🔥 Firebase DB:', db);
+12 console.log('🔥 DB exists:', !!db);
+
 const COLLECTION_NAME = 'grizalum_metalurgica';
 const DOCUMENT_ID = 'datos-financieros';
 
