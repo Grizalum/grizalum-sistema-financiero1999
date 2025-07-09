@@ -11,29 +11,39 @@ const COLLECTION_NAME = 'grizalum_metalurgica';
 const DOCUMENT_ID = 'datos-financieros';
 
 const firebaseService = {
-  async guardarDatos(clientes, deudas, inversiones) {
-    try {
-      console.log('🔄 Guardando en Firebase...');
-      
-      const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
-      const datosParaGuardar = {
-        clientes: clientes || [],
-        deudas: deudas || [],
-        inversiones: inversiones || [],
-        ultimaActualizacion: serverTimestamp(),
-        version: '2.1'
-      };
-      
-      await setDoc(docRef, datosParaGuardar);
-      
-      console.log('✅ Datos guardados exitosamente');
-      return { success: true, message: 'Guardado exitoso' };
-      
-    } catch (error) {
-      console.error('❌ Error al guardar:', error);
-      return { success: false, message: error.message };
-    }
-  },
+async guardarDatos(clientes, deudas, inversiones) {
+  try {
+    console.log('🔄 Guardando en Firebase...');
+    
+    // 🔍 DEBUG: Ver exactamente qué se está guardando
+    console.log('🔍 DEBUG GUARDADO - clientes:', clientes);
+    console.log('🔍 DEBUG GUARDADO - clientes.length:', clientes?.length);
+    console.log('🔍 DEBUG GUARDADO - deudas:', deudas);
+    console.log('🔍 DEBUG GUARDADO - deudas.length:', deudas?.length);
+    console.log('🔍 DEBUG GUARDADO - inversiones:', inversiones);
+    console.log('🔍 DEBUG GUARDADO - inversiones.length:', inversiones?.length);
+    
+    const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
+    const datosParaGuardar = {
+      clientes: clientes || [],
+      deudas: deudas || [],
+      inversiones: inversiones || [],
+      ultimaActualizacion: serverTimestamp(),
+      version: '2.1'
+    };
+    
+    console.log('🔍 DEBUG GUARDADO - datosParaGuardar:', datosParaGuardar);
+    
+    await setDoc(docRef, datosParaGuardar);
+    
+    console.log('✅ Datos guardados exitosamente');
+    return { success: true, message: 'Guardado exitoso' };
+    
+  } catch (error) {
+    console.error('❌ Error al guardar:', error);
+    return { success: false, message: error.message };
+  }
+},
 
   async cargarDatos() {
     try {
