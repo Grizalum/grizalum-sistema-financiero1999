@@ -251,49 +251,79 @@ const guardarEnFirebase = useCallback(async (clientes = misClientes, deudas = mi
    }
   }, []);
   
- // 🚀 CARGAR DATOS AL INICIAR
+// 🚀 CARGAR DATOS AL INICIAR
 useEffect(() => {
   cargarDatosIniciales();
 }, [cargarDatosIniciales]);
 
-// 🔄 AUTOSAVE SIMPLE 
+// 🔄 AUTOSAVE RÁPIDO - 1 SEGUNDO
 useEffect(() => {
   if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0)) {
     const timeout = setTimeout(async () => {
       console.log('💾 Guardando automáticamente...');
-      await guardarEnFirebase();
-    }, 3000);
+      const resultado = await guardarEnFirebase();
+      if (resultado.success) {
+        console.log('✅ Guardado exitoso');
+      }
+    }, 1000); // ← 1 segundo para guardar
     
     return () => clearTimeout(timeout);
   }
 }, [misClientes, misDeudas, misInversiones, cargandoDatos, guardandoEnNube, guardarEnFirebase]);
 
-// 🔄 SINCRONIZACIÓN SIMPLE - RECARGAR CADA 3 SEGUNDOS
+// 🔄 SINCRONIZACIÓN MÁS LENTA - 5 SEGUNDOS
 useEffect(() => {
   if (!cargandoDatos) {
     const interval = setInterval(async () => {
-      console.log('🔄 Verificando cambios cada 3 segundos...');
-      
-      try {
-        const resultado = await firebaseService.cargarDatos();
+      // ⚠️ NO RECARGAR SI ESTAMOS GUARDANDO
+      if (!guardandoEnNube) {
+        console.log('🔄 Verificando cambios remotos...');
         
-        if (resultado.success && resultado.datos) {
-          // Forzar actualización directa sin comparaciones
-          console.log('📥 Aplicando datos desde Firebase');
-          setMisClientes(resultado.datos.clientes || []);
-          setMisDeudas(resultado.datos.deudas || []);
-          setMisInversiones(resultado.datos.inversiones || []);
-          setFirebaseConectado(true);
+        try {
+          const resultado = await firebaseService.cargarDatos();
+          
+          if (resultado.success && resultado.datos) {
+            console.log('📥 Datos desde Firebase verificados');
+            
+            // ✅ SOLO ACTUALIZAR SI HAY DIFERENCIAS REALES
+            const clientesFirebase = JSON.stringify(resultado.datos.clientes || []);
+            const clientesLocales = JSON.stringify(misClientes);
+            
+            if (clientesFirebase !== clientesLocales) {
+              console.log('📱 Actualizando clientes desde otro usuario');
+              setMisClientes(resultado.datos.clientes || []);
+            }
+            
+            const deudasFirebase = JSON.stringify(resultado.datos.deudas || []);
+            const deudasLocales = JSON.stringify(misDeudas);
+            
+            if (deudasFirebase !== deudasLocales) {
+              console.log('💳 Actualizando deudas desde otro usuario');
+              setMisDeudas(resultado.datos.deudas || []);
+            }
+            
+            const inversionesFirebase = JSON.stringify(resultado.datos.inversiones || []);
+            const inversionesLocales = JSON.stringify(misInversiones);
+            
+            if (inversionesFirebase !== inversionesLocales) {
+              console.log('💰 Actualizando inversiones desde otro usuario');
+              setMisInversiones(resultado.datos.inversiones || []);
+            }
+            
+            setFirebaseConectado(true);
+          }
+        } catch (error) {
+          console.error('❌ Error:', error);
+          setFirebaseConectado(false);
         }
-      } catch (error) {
-        console.error('❌ Error:', error);
-        setFirebaseConectado(false);
+      } else {
+        console.log('⏳ Esperando... guardado en progreso');
       }
-    }, 3000); // Cada 3 segundos
+    }, 5000); // ← 5 segundos para verificar cambios
     
     return () => clearInterval(interval);
   }
-}, [cargandoDatos]);
+}, [cargandoDatos, guardandoEnNube, misClientes, misDeudas, misInversiones]);
 
 // 🔄 VERIFICAR CONEXIÓN
 useEffect(() => {
@@ -303,19 +333,6 @@ useEffect(() => {
   };
   
   const interval = setInterval(verificarConexion, 30000);
-  return () => clearInterval(interval);
-}, []);
-  
-// 🔄 VERIFICAR CONEXIÓN PERIÓDICAMENTE
-useEffect(() => {
-  const verificarConexion = async () => {
-    const conectado = await firebaseService.verificarConexion();
-    setFirebaseConectado(conectado);
-  };
-  
-  // Verificar cada 30 segundos
-  const interval = setInterval(verificarConexion, 30000);
-  
   return () => clearInterval(interval);
 }, []);
   
