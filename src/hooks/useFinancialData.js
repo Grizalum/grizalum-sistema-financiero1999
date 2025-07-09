@@ -121,6 +121,7 @@ const useFinancialData = () => {
   const [errorConexion, setErrorConexion] = useState(null);
   const [ultimoGuardadoNube, setUltimoGuardadoNube] = useState(null);
   const [firebaseConectado, setFirebaseConectado] = useState(true);
+  const [cambiosRemotos, setCambiosRemotos] = useState(false);
   
   const agregarInversion = useCallback((nuevaInversion) => {
     const inversion = {
@@ -776,6 +777,7 @@ const limpiarAlertasClientePagado = useCallback((clienteId) => {
     eliminarInversion,
     alertas,
     firebaseConectado,
+    cambiosRemotos,
     
     // Cálculos
     totalPorCobrar,
