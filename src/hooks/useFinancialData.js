@@ -173,6 +173,12 @@ const cargarDatosIniciales = useCallback(async () => {
   
 const guardarEnFirebase = useCallback(async (clientes = misClientes, deudas = misDeudas, inversiones = misInversiones) => {
   setGuardandoEnNube(true);
+  console.log('🚀 guardarEnFirebase iniciado');
+  console.log('📊 Datos recibidos:', {
+  clientes: clientes?.length,
+  deudas: deudas?.length, 
+  inversiones: inversiones?.length
+  });
   setErrorConexion(null);
   
   try {
@@ -204,21 +210,27 @@ useEffect(() => {
   cargarDatosIniciales();
 }, [cargarDatosIniciales]);
 
-// 🔄 AUTOSAVE RÁPIDO - 1 SEGUNDO
+// 🔄 AUTOSAVE MEJORADO - 3 SEGUNDOS
 useEffect(() => {
-  if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0)) {
+  if (!cargandoDatos && !guardandoEnNube && misClientes.length > 0) {
     const timeout = setTimeout(async () => {
       console.log('💾 Guardando automáticamente...');
-      const resultado = await guardarEnFirebase();
-      if (resultado.success) {
-        console.log('✅ Guardado exitoso');
+      try {
+        const resultado = await guardarEnFirebase();
+        if (resultado.success) {
+          console.log('✅ Autosave exitoso');
+        } else {
+          console.log('❌ Autosave falló:', resultado.message);
+        }
+      } catch (error) {
+        console.error('❌ Error en autosave:', error);
       }
-    }, 1000); // ← 1 segundo para guardar
+    }, 3000); // ← Cambiar a 3 segundos
     
     return () => clearTimeout(timeout);
   }
 }, [misClientes, misDeudas, misInversiones, cargandoDatos, guardandoEnNube, guardarEnFirebase]);
-
+  
 // 🔄 SINCRONIZACIÓN MÁS LENTA - 5 SEGUNDOS
 useEffect(() => {
   if (!cargandoDatos) {
