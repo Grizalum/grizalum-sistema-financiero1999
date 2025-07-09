@@ -1657,6 +1657,17 @@ const autoSave = async () => {
                 <button onClick={copiarReporte} className="text-blue-600 hover:text-blue-800">
                   <Share2 size={20} />
                 </button>
+              <button 
+                  onClick={() => {
+                    console.log('🧪 TEST GUARDADO MANUAL');
+                    console.log('🧪 misClientes actuales:', misClientes);
+                    console.log('🧪 misDeudas actuales:', misDeudas);
+                    guardarEnFirebase(misClientes, misDeudas, misInversiones);
+                  }}
+                  className="bg-red-500 text-white px-3 py-2 rounded-lg text-sm ml-2"
+                >
+                  🧪 TEST SAVE
+                </button>
               </div>
             </div>
           </div>
