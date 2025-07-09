@@ -193,24 +193,20 @@ const cargarDatosIniciales = useCallback(async () => {
   setCargandoDatos(true);
   
   try {
+    console.log('🚀 Iniciando carga de datos...');
     const resultado = await firebaseService.cargarDatos();
     
     if (resultado.success && resultado.datos) {
-      // Cargar datos desde Firebase
-      if (resultado.datos.clientes?.length > 0) {
-        setMisClientes(resultado.datos.clientes);
-      }
-      if (resultado.datos.deudas?.length > 0) {
-        setMisDeudas(resultado.datos.deudas);
-      }
-      if (resultado.datos.inversiones?.length > 0) {
-        setMisInversiones(resultado.datos.inversiones);
-      }
+      console.log('✅ Cargando datos REALES desde Firebase');
       
+      // CARGAR DATOS REALES DESDE FIREBASE
+      setMisClientes(resultado.datos.clientes);
+      setMisDeudas(resultado.datos.deudas);
+      setMisInversiones(resultado.datos.inversiones);
       setFirebaseConectado(true);
-      console.log('✅ Datos cargados desde Firebase');
     } else {
-      console.log('📝 Usando datos por defecto (primera vez)');
+      console.log('📝 No hay datos en Firebase - usando datos por defecto SOLO UNA VEZ');
+      // Mantener los datos por defecto solo si es primera vez
       setFirebaseConectado(false);
     }
     
