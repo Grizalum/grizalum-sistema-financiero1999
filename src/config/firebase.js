@@ -4,20 +4,20 @@ import { getFirestore } from 'firebase/firestore';
 import { getAnalytics } from 'firebase/analytics';
 
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
+  apiKey: "AIzaSyDy86ufbqGPMftQ45NJu7FV690SNE-qDQ",
+  authDomain: "grizalum-9b670.firebaseapp.com",
+  projectId: "grizalum-9b670",
+  storageBucket: "grizalum-9b670.firebasestorage.app",
+  messagingSenderId: "526092565959",
+  appId: "1:526092565959:web:16c2ff1278b12a1498cfe2",
+  measurementId: "G-QQM8SVLKX4"
 };
 
-// Verificar que las variables estén cargadas
+// Verificar configuración
 console.log('🔥 Firebase Config Check:', {
-  apiKey: firebaseConfig.apiKey ? '✅ Loaded' : '❌ Missing',
-  projectId: firebaseConfig.projectId ? '✅ Loaded' : '❌ Missing',
-  authDomain: firebaseConfig.authDomain ? '✅ Loaded' : '❌ Missing'
+  apiKey: '✅ Loaded',
+  projectId: '✅ Loaded - grizalum-9b670',
+  authDomain: '✅ Loaded'
 });
 
 // Inicializar Firebase
