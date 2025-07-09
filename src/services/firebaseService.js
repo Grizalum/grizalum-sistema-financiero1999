@@ -82,6 +82,3 @@ const firebaseService = {
 };
 
 export default firebaseService;
-};
-
-export default firebaseService;
