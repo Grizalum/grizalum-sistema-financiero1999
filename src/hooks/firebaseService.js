@@ -59,8 +59,11 @@ const firebaseService = {
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
-        const datos = docSnap.data();
-        console.log('✅ Datos encontrados en Firebase:', {
+      const datos = docSnap.data();
+      console.log('✅ DATOS RAW DE FIREBASE:', datos);
+      console.log('✅ datos.clientes RAW:', datos.clientes);
+      console.log('✅ datos.deudas RAW:', datos.deudas);
+      console.log('✅ Datos encontrados en Firebase:', {
           clientes: datos.clientes?.length || 0,
           deudas: datos.deudas?.length || 0,
           inversiones: datos.inversiones?.length || 0
