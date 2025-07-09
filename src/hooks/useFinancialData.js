@@ -88,9 +88,29 @@ const cargarDatosIniciales = useCallback(async () => {
     console.log('🚀 Iniciando carga de datos...');
     const resultado = await firebaseService.cargarDatos();
     
-    // ✅ VERIFICAR QUE LOS DATOS NO ESTÉN VACÍOS
-    if (resultado.success && resultado.datos && 
-        resultado.datos.clientes && resultado.datos.clientes.length > 0) {
+    // 🔍 DEBUG: Ver exactamente qué devuelve Firebase
+    console.log('🔍 DEBUG - Resultado completo:', resultado);
+    console.log('🔍 DEBUG - resultado.success:', resultado.success);
+    console.log('🔍 DEBUG - resultado.datos:', resultado.datos);
+    if (resultado.datos) {
+      console.log('🔍 DEBUG - resultado.datos.clientes:', resultado.datos.clientes);
+      console.log('🔍 DEBUG - tipo de clientes:', typeof resultado.datos.clientes);
+      console.log('🔍 DEBUG - es array:', Array.isArray(resultado.datos.clientes));
+      if (resultado.datos.clientes) {
+        console.log('🔍 DEBUG - longitud clientes:', resultado.datos.clientes.length);
+      }
+    }
+    
+    // ✅ VERIFICACIÓN MÁS ROBUSTA
+    const tieneClientes = resultado.success && 
+                         resultado.datos && 
+                         resultado.datos.clientes && 
+                         Array.isArray(resultado.datos.clientes) && 
+                         resultado.datos.clientes.length > 0;
+    
+    console.log('🔍 DEBUG - tieneClientes:', tieneClientes);
+    
+    if (tieneClientes) {
       console.log('✅ Cargando datos REALES desde Firebase');
       setMisClientes(resultado.datos.clientes);
       setMisDeudas(resultado.datos.deudas || []);
