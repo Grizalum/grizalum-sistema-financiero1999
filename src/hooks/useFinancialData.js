@@ -14,6 +14,7 @@ const useFinancialData = () => {
   const [ultimoGuardadoNube, setUltimoGuardadoNube] = useState(null);
   const [firebaseConectado, setFirebaseConectado] = useState(true);
   const [cambiosRemotos, setCambiosRemotos] = useState(false);
+  const datosInicializados = useRef(false);
   
   const agregarInversion = useCallback((nuevaInversion) => {
     const inversion = {
@@ -109,7 +110,7 @@ const cargarDatosIniciales = useCallback(async () => {
                      
     console.log('🔍 DEBUG - tieneClientes:', tieneClientes);
     
-    if (resultado.success && resultado.datos) {
+   if (resultado.success && resultado.datos) {
   console.log('✅ Cargando datos desde Firebase');
   setMisClientes(resultado.datos.clientes || []);
   setMisDeudas(resultado.datos.deudas || []);
@@ -145,7 +146,42 @@ const cargarDatosIniciales = useCallback(async () => {
   return;
 } else {
   console.log('📝 Error al cargar, creando datos iniciales');
+  // Crear datos iniciales por error
+  const datosIniciales = [
+    {
+      id: 1,
+      nombre: 'Antonio Rodriguez',
+      email: 'antonio@example.com',
+      telefono: '+51 999 123 456',
+      capital: 10000,
+      tasaInteres: 14,
+      plazoMeses: 18,
+      cuotaMensual: 633.30,
+      totalCobrar: 11399.40,
+      saldoPendiente: 8000.00,
+      pagosRecibidos: 3399.40,
+      estado: 'En Proceso',
+      fechaInicio: '2024-06-01',
+      historialPagos: []
+    }
+  ];
+  
+  setMisClientes(datosIniciales);
+  setMisDeudas([]);
+  setMisInversiones([]);
+  setFirebaseConectado(true);
+  datosInicializados.current = true;
+  await firebaseService.guardarDatos(datosIniciales, [], []);
 }
+    
+  } catch (error) {
+    console.error('❌ Error al cargar datos iniciales:', error);
+    setErrorConexion('Error al cargar datos: ' + error.message);
+    setFirebaseConectado(false);
+  } finally {
+    setCargandoDatos(false);
+  }
+}, []);
   
 const guardarEnFirebase = useCallback(async (clientes = misClientes, deudas = misDeudas, inversiones = misInversiones) => {
   setGuardandoEnNube(true);
