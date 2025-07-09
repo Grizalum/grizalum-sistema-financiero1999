@@ -251,82 +251,60 @@ const guardarEnFirebase = useCallback(async (clientes = misClientes, deudas = mi
    }
   }, []);
   
-  // 🚀 CARGAR DATOS AL INICIAR
+ // 🚀 CARGAR DATOS AL INICIAR
 useEffect(() => {
   cargarDatosIniciales();
 }, [cargarDatosIniciales]);
 
-// 🔥 LISTENER EN TIEMPO REAL CORREGIDO
+// 🔄 AUTOSAVE SIMPLE 
 useEffect(() => {
-  const setupRealtimeListener = async () => {
-    try {
-      // ✅ IMPORTACIÓN CORREGIDA
-      const { onSnapshot, doc } = await import('firebase/firestore');
-      const { db } = await import('../config/firebase');
+  if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0)) {
+    const timeout = setTimeout(async () => {
+      console.log('💾 Guardando automáticamente...');
+      await guardarEnFirebase();
+    }, 3000);
+    
+    return () => clearTimeout(timeout);
+  }
+}, [misClientes, misDeudas, misInversiones, cargandoDatos, guardandoEnNube, guardarEnFirebase]);
+
+// 🔄 SINCRONIZACIÓN SIMPLE - RECARGAR CADA 3 SEGUNDOS
+useEffect(() => {
+  if (!cargandoDatos) {
+    const interval = setInterval(async () => {
+      console.log('🔄 Verificando cambios cada 3 segundos...');
       
-      console.log('🔄 Configurando listener en tiempo real...');
-      
-      const docRef = doc(db, 'grizalum_metalurgica', 'datos-financieros');
-      
-      // 🎯 ESCUCHAR CAMBIOS EN TIEMPO REAL
-      const unsubscribe = onSnapshot(docRef, (docSnap) => {
-        console.log('🔔 Snapshot recibido:', docSnap.exists());
+      try {
+        const resultado = await firebaseService.cargarDatos();
         
-        if (docSnap.exists()) {
-          const datosNuevos = docSnap.data();
-          
-          console.log('🔄 DATOS RECIBIDOS EN TIEMPO REAL:', {
-            clientes: datosNuevos.clientes?.length || 0,
-            deudas: datosNuevos.deudas?.length || 0,
-            inversiones: datosNuevos.inversiones?.length || 0,
-            timestamp: datosNuevos.ultimaActualizacion
-          });
-          
-          // ✅ ACTUALIZAR CLIENTES
-          if (datosNuevos.clientes && Array.isArray(datosNuevos.clientes)) {
-            setMisClientes(datosNuevos.clientes);
-            console.log('📱 Clientes actualizados desde Firebase');
-          }
-          
-          // ✅ ACTUALIZAR DEUDAS  
-          if (datosNuevos.deudas && Array.isArray(datosNuevos.deudas)) {
-            setMisDeudas(datosNuevos.deudas);
-            console.log('💳 Deudas actualizadas desde Firebase');
-          }
-          
-          // ✅ ACTUALIZAR INVERSIONES
-          if (datosNuevos.inversiones && Array.isArray(datosNuevos.inversiones)) {
-            setMisInversiones(datosNuevos.inversiones);
-            console.log('💰 Inversiones actualizadas desde Firebase');
-          }
-          
+        if (resultado.success && resultado.datos) {
+          // Forzar actualización directa sin comparaciones
+          console.log('📥 Aplicando datos desde Firebase');
+          setMisClientes(resultado.datos.clientes || []);
+          setMisDeudas(resultado.datos.deudas || []);
+          setMisInversiones(resultado.datos.inversiones || []);
           setFirebaseConectado(true);
         }
-      }, (error) => {
-        console.error('❌ Error en listener tiempo real:', error);
+      } catch (error) {
+        console.error('❌ Error:', error);
         setFirebaseConectado(false);
-      });
-      
-      console.log('✅ Listener configurado exitosamente');
-      
-      // 🔄 LIMPIAR LISTENER AL DESMONTAR
-      return () => {
-        console.log('🔌 Desconectando listener tiempo real');
-        unsubscribe();
-      };
-      
-    } catch (error) {
-      console.error('❌ Error configurando listener:', error);
-      setFirebaseConectado(false);
-    }
-  };
-  
-  // ✅ ACTIVAR LISTENER INMEDIATAMENTE DESPUÉS DE CARGAR
-  if (!cargandoDatos) {
-  const cleanup = setupRealtimeListener();
-  return cleanup;
+      }
+    }, 3000); // Cada 3 segundos
+    
+    return () => clearInterval(interval);
   }
 }, [cargandoDatos]);
+
+// 🔄 VERIFICAR CONEXIÓN
+useEffect(() => {
+  const verificarConexion = async () => {
+    const conectado = await firebaseService.verificarConexion();
+    setFirebaseConectado(conectado);
+  };
+  
+  const interval = setInterval(verificarConexion, 30000);
+  return () => clearInterval(interval);
+}, []);
   
 // 🔄 VERIFICAR CONEXIÓN PERIÓDICAMENTE
 useEffect(() => {
