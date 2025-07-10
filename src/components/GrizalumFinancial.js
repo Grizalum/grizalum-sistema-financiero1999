@@ -448,15 +448,27 @@ Control Financiero Empresarial Seguro`;
     }, 2000);
   };
 
-  const guardarEnNube = () => {
-    setSincronizando(true);
-    setTimeout(() => {
-      setSincronizando(false);
+  const guardarEnNube = async () => {
+  console.log('🔥 GUARDADO DESDE BOTÓN NARANJA INICIADO');
+  setSincronizando(true);
+  
+  try {
+    const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
+    
+    if (resultado.success) {
       setDatosGuardados(true);
-      alert('Datos guardados en la nube exitosamente');
+      alert('✅ ¡Datos guardados en Firebase exitosamente!');
       setTimeout(() => setDatosGuardados(false), 3000);
-    }, 1500);
-  };
+    } else {
+      alert('❌ Error al guardar: ' + resultado.message);
+    }
+  } catch (error) {
+    console.error('❌ Error:', error);
+    alert('❌ Error: ' + error.message);
+  } finally {
+    setSincronizando(false);
+  }
+};
   
 const autoSave = async () => {
   if (!datosModificados) return;
