@@ -1785,6 +1785,32 @@ const autoSave = async () => {
     )}
     {!datosModificados ? 'Guardado' : 'Guardar'}
   </button>
+      <button 
+    onClick={async () => {
+      const fecha = new Date().toISOString().split('T')[0];
+      const backup = {
+        fecha: fecha,
+        clientes: misClientes,
+        deudas: misDeudas,
+        inversiones: misInversiones
+      };
+      
+      const dataStr = JSON.stringify(backup, null, 2);
+      const dataBlob = new Blob([dataStr], {type: 'application/json'});
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `grizalum-backup-${fecha}.json`;
+      link.click();
+      
+      alert('✅ Backup descargado exitosamente');
+    }}
+    className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg transition-all flex items-center text-sm"
+    title="Descargar Backup"
+  >
+    <Download size={16} className="mr-2" />
+    Backup
+  </button>
 </div>
                 </div>
               </div>
