@@ -119,10 +119,10 @@ const [formDeuda, setFormDeuda] = useState({
 // return () => clearInterval(intervalo);
 // }, [datosModificados, guardandoAutomatico]);
 
-// 🔄 MARCAR COMO MODIFICADO cuando cambian los datos
-useEffect(() => {
-  setDatosModificados(true);
-}, [misClientes, misDeudas, misInversiones]);
+//// 🔄 MARCAR COMO MODIFICADO cuando cambian los datos
+//useEffect(() => {
+ // setDatosModificados(true);
+//}, [misClientes, misDeudas, misInversiones]);
 
   const calcularEstadoDeuda = (deuda) => {
     const hoy = new Date();
