@@ -52,41 +52,45 @@ const firebaseService = {
   },
 
   async cargarDatos() {
-    try {
-      console.log('🔄 Cargando desde Firebase...');
-      
-      const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
-      const docSnap = await getDoc(docRef);
-      
-      if (docSnap.exists()) {
+  try {
+    console.log('🔄 Cargando desde Firebase...');
+    
+    const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
+    
+    // ✅ FORZAR DATOS DEL SERVIDOR (no caché)
+    const docSnap = await getDoc(docRef, { source: 'server' });
+    
+    if (docSnap.exists()) {
       const datos = docSnap.data();
-      console.log('✅ DATOS RAW DE FIREBASE:', datos);
-      console.log('✅ datos.clientes RAW:', datos.clientes);
-      console.log('✅ datos.deudas RAW:', datos.deudas);
       console.log('✅ Datos encontrados en Firebase:', {
-          clientes: datos.clientes?.length || 0,
-          deudas: datos.deudas?.length || 0,
-          inversiones: datos.inversiones?.length || 0
-        });
-        
-        return { 
-          success: true, 
-          datos: {
-            clientes: datos.clientes || [],
-            deudas: datos.deudas || [],
-            inversiones: datos.inversiones || []
-          }
-        };
-      } else {
-        console.log('📝 No hay datos en Firebase - primera vez');
-        return { success: false, message: 'No hay datos' };
-      }
+        clientes: datos.clientes?.length || 0,
+        deudas: datos.deudas?.length || 0,
+        inversiones: datos.inversiones?.length || 0
+      });
       
-    } catch (error) {
-      console.error('❌ Error al cargar:', error);
-      return { success: false, message: error.message };
+      // ✅ VALIDAR QUE NO SEAN ARRAYS VACÍOS
+      const clientesValidos = datos.clientes && datos.clientes.length > 0 ? datos.clientes : [];
+      const deudasValidas = datos.deudas && datos.deudas.length > 0 ? datos.deudas : [];
+      const inversionesValidas = datos.inversiones && datos.inversiones.length > 0 ? datos.inversiones : [];
+      
+      return { 
+        success: true, 
+        datos: {
+          clientes: clientesValidos,
+          deudas: deudasValidas,
+          inversiones: inversionesValidas
+        }
+      };
+    } else {
+      console.log('📝 No hay datos en Firebase - primera vez');
+      return { success: false, message: 'No hay datos' };
     }
-  },
+    
+  } catch (error) {
+    console.error('❌ Error al cargar:', error);
+    return { success: false, message: error.message };
+  }
+}
 
   async verificarConexion() {
     try {
