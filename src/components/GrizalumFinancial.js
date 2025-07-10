@@ -1783,10 +1783,11 @@ const autoSave = async () => {
   </button>
   
   <button 
-    onClick={() => {
-      setDatosModificados(true);
-      autoSave();
-    }}
+  onClick={() => {
+    console.log('🚀 GUARDADO MANUAL - clientes:', misClientes);
+    console.log('🚀 GUARDADO MANUAL - deudas:', misDeudas);
+    guardarEnFirebase(misClientes, misDeudas, misInversiones);
+  }}
     disabled={guardandoAutomatico || !firebaseConectado}
     className={`px-3 py-2 rounded-lg transition-all flex items-center text-sm ${
       !datosModificados ? 'bg-green-600 text-white' : 
