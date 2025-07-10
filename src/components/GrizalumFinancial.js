@@ -1788,28 +1788,145 @@ const autoSave = async () => {
       <button 
     onClick={async () => {
       const fecha = new Date().toISOString().split('T')[0];
-      const backup = {
-        fecha: fecha,
+      const hora = new Date().toLocaleTimeString();
+      
+      // Crear reporte HTML
+      const reporteHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>GRIZALUM - Backup ${fecha}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { text-align: center; color: #1e40af; margin-bottom: 30px; }
+        .section { margin: 20px 0; page-break-inside: avoid; }
+        .section h2 { color: #dc2626; border-bottom: 2px solid #dc2626; padding-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f3f4f6; font-weight: bold; }
+        .balance { background-color: #ecfdf5; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .client { background-color: #dbeafe; }
+        .debt { background-color: #fee2e2; }
+        .investment { background-color: #f3e8ff; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏭 GRIZALUM COMPAÑÍA METÁLURGICA</h1>
+        <h2>Control Financiero Profesional</h2>
+        <p><strong>Backup generado:</strong> ${fecha} a las ${hora}</p>
+    </div>
+
+    <div class="balance">
+        <h2>💰 RESUMEN FINANCIERO</h2>
+        <p><strong>Por Cobrar:</strong> S/ ${totalPorCobrar.toLocaleString()}</p>
+        <p><strong>Por Pagar:</strong> S/ ${totalPorPagar.toLocaleString()}</p>
+        <p><strong>Balance Neto:</strong> S/ ${balanceNeto.toLocaleString()}</p>
+        <p><strong>Cobertura:</strong> ${Math.round(cobertura)}%</p>
+    </div>
+
+    <div class="section">
+        <h2>👥 CARTERA DE CLIENTES (${misClientes.length})</h2>
+        <table>
+            <tr>
+                <th>Cliente</th>
+                <th>Capital</th>
+                <th>Pendiente</th>
+                <th>Cuota</th>
+                <th>Pagado</th>
+                <th>Estado</th>
+            </tr>
+            ${misClientes.map(c => `
+            <tr class="client">
+                <td><strong>${c.nombre}</strong><br>${c.email}<br>${c.telefono}</td>
+                <td>S/ ${c.capital.toLocaleString()}</td>
+                <td>S/ ${c.saldoPendiente.toLocaleString()}</td>
+                <td>S/ ${c.cuotaMensual.toLocaleString()}</td>
+                <td>S/ ${c.pagosRecibidos.toLocaleString()}</td>
+                <td>${c.estado}</td>
+            </tr>
+            `).join('')}
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>💳 GESTIÓN DE DEUDAS (${misDeudas.length})</h2>
+        <table>
+            <tr>
+                <th>Acreedor</th>
+                <th>Capital</th>
+                <th>Pendiente</th>
+                <th>Cuota</th>
+                <th>Pagado</th>
+                <th>Estado</th>
+            </tr>
+            ${misDeudas.map(d => `
+            <tr class="debt">
+                <td><strong>${d.acreedor}</strong><br>${d.descripcion}</td>
+                <td>S/ ${d.capital.toLocaleString()}</td>
+                <td>S/ ${d.saldoPendiente.toLocaleString()}</td>
+                <td>S/ ${d.cuotaMensual.toLocaleString()}</td>
+                <td>S/ ${(d.totalPagado || 0).toLocaleString()}</td>
+                <td>${d.estado}</td>
+            </tr>
+            `).join('')}
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>📈 INVERSIONES (${misInversiones.length})</h2>
+        <table>
+            <tr>
+                <th>Proyecto</th>
+                <th>Inversión</th>
+                <th>Esperada</th>
+                <th>Actual</th>
+                <th>ROI</th>
+                <th>Estado</th>
+            </tr>
+            ${misInversiones.map(i => `
+            <tr class="investment">
+                <td><strong>${i.nombre}</strong><br>${i.descripcion}</td>
+                <td>S/ ${i.inversion.toLocaleString()}</td>
+                <td>S/ ${i.gananciaEsperada.toLocaleString()}</td>
+                <td>S/ ${i.gananciaActual.toLocaleString()}</td>
+                <td>${i.roi.toFixed(1)}%</td>
+                <td>${i.estado}</td>
+            </tr>
+            `).join('')}
+        </table>
+    </div>
+
+    <div style="margin-top: 30px; text-align: center; color: #666;">
+        <p>📄 Documento generado automáticamente por el Sistema Financiero GRIZALUM</p>
+        <p>🔒 Información confidencial - Solo para uso interno</p>
+    </div>
+</body>
+</html>`;
+
+      // Crear y descargar archivo HTML
+      const blob = new Blob([reporteHTML], {type: 'text/html'});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `GRIZALUM-Backup-${fecha}.html`;
+      link.click();
+      
+      // También guardar en localStorage como respaldo
+      localStorage.setItem('grizalum-backup', JSON.stringify({
         clientes: misClientes,
         deudas: misDeudas,
         inversiones: misInversiones
-      };
+      }));
       
-      const dataStr = JSON.stringify(backup, null, 2);
-      const dataBlob = new Blob([dataStr], {type: 'application/json'});
-      const url = URL.createObjectURL(dataBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `grizalum-backup-${fecha}.json`;
-      link.click();
-      
-      alert('✅ Backup descargado exitosamente');
+      alert('✅ Backup HTML descargado + Guardado localmente');
     }}
     className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-lg transition-all flex items-center text-sm"
-    title="Descargar Backup"
+    title="Descargar Backup HTML"
   >
     <Download size={16} className="mr-2" />
-    Backup
+    Backup HTML
   </button>
 </div>
                 </div>
