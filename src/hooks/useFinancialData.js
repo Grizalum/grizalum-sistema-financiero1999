@@ -216,6 +216,27 @@ const guardarEnFirebase = useCallback(async (clientes = misClientes, deudas = mi
     setGuardandoEnNube(false);
    }
   }, []);
+  // 💾 BACKUP AUTOMÁTICO para proteger datos reales
+const crearBackup = useCallback(async () => {
+  const fecha = new Date().toISOString().split('T')[0];
+  const backup = {
+    fecha: fecha,
+    clientes: misClientes,
+    deudas: misDeudas,
+    inversiones: misInversiones,
+    version: '2.1'
+  };
+  
+  try {
+    // Guardar backup con fecha en Firebase
+    const resultado = await firebaseService.guardarDatos(backup.clientes, backup.deudas, backup.inversiones, `backup-${fecha}`);
+    if (resultado.success) {
+      console.log('💾 Backup creado exitosamente:', fecha);
+    }
+  } catch (error) {
+    console.error('❌ Error creando backup:', error);
+  }
+}, [misClientes, misDeudas, misInversiones]);
   
 // 🚀 CARGAR DATOS AL INICIAR
 useEffect(() => {
@@ -307,6 +328,20 @@ useEffect(() => {
   const interval = setInterval(verificarConexion, 30000);
   return () => clearInterval(interval);
 }, []);
+  
+  // 🕐 Crear backup automático cada 24 horas
+useEffect(() => {
+  if (misClientes.length > 0) {
+    const ultimoBackup = localStorage.getItem('ultimoBackup');
+    const hoy = new Date().toISOString().split('T')[0];
+    
+    if (ultimoBackup !== hoy) {
+      console.log('🕐 Ejecutando backup diario...');
+      crearBackup();
+      localStorage.setItem('ultimoBackup', hoy);
+    }
+  }
+}, [misClientes, misDeudas, misInversiones, crearBackup]);
   
   const [alertas, setAlertas] = useState([
     {
