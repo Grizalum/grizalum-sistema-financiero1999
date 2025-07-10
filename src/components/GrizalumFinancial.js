@@ -108,21 +108,26 @@ const [formDeuda, setFormDeuda] = useState({
 });
   const proximasFechas = obtenerProximasFechasCobro();
 
-// // 🔄 AUTOSAVE AUTOMÁTICO cada 5 segundos
-// useEffect(() => {
-//  const intervalo = setInterval(() => {
-//    if (datosModificados && !guardandoAutomatico) {
-//      autoSave();
-//    }
-//  }, 5000); // Cada 5 segundos
+// 🔄 AUTOSAVE INTELIGENTE - Solo después de cargar datos
+useEffect(() => {
+  // ✅ NO GUARDAR si los datos están vacíos (aún cargando)
+  if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
+    console.log('⏳ Datos vacíos, no guardar aún...');
+    return;
+  }
 
-// return () => clearInterval(intervalo);
-// }, [datosModificados, guardandoAutomatico]);
+  // ✅ DELAY de 3 segundos para evitar guardados excesivos
+  const timer = setTimeout(() => {
+    console.log('💾 AUTOSAVE - Guardando cambios automáticamente...');
+    console.log('💾 AUTOSAVE - clientes:', misClientes.length);
+    console.log('💾 AUTOSAVE - deudas:', misDeudas.length);
+    console.log('💾 AUTOSAVE - inversiones:', misInversiones.length);
+    guardarEnFirebase(misClientes, misDeudas, misInversiones);
+  }, 3000); // 3 segundos de delay
 
-//// 🔄 MARCAR COMO MODIFICADO cuando cambian los datos
-//useEffect(() => {
- // setDatosModificados(true);
-//}, [misClientes, misDeudas, misInversiones]);
+  // ✅ CLEANUP: Cancelar timer si cambian los datos antes
+  return () => clearTimeout(timer);
+}, [misClientes, misDeudas, misInversiones]); // 
 
   const calcularEstadoDeuda = (deuda) => {
     const hoy = new Date();
@@ -1669,31 +1674,6 @@ const autoSave = async () => {
               <div className="flex items-center space-x-2">
                 <button onClick={copiarReporte} className="text-blue-600 hover:text-blue-800">
                   <Share2 size={20} />
-                </button>
-              <button 
-                  onClick={async () => {
-  console.log('🧪 TEST GUARDADO MANUAL INICIADO');
-  console.log('🧪 misClientes actuales:', misClientes);
-  console.log('🧪 misDeudas actuales:', misDeudas);
-  console.log('🧪 misInversiones actuales:', misInversiones);
-  
-  try {
-    const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
-    console.log('🧪 Resultado del guardado:', resultado);
-    
-    if (resultado.success) {
-      alert('✅ ¡Guardado exitoso en Firebase!');
-    } else {
-      alert('❌ Error al guardar: ' + resultado.message);
-    }
-  } catch (error) {
-    console.error('🧪 Error en TEST SAVE:', error);
-    alert('❌ Error: ' + error.message);
-  }
-}}
-                  className="bg-red-500 text-white px-3 py-2 rounded-lg text-sm ml-2"
-                >
-                  🧪 TEST SAVE
                 </button>
               </div>
             </div>
