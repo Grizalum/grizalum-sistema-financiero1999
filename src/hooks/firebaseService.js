@@ -56,9 +56,7 @@ const firebaseService = {
     console.log('🔄 Cargando desde Firebase...');
     
     const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
-    
-    // ✅ FORZAR DATOS DEL SERVIDOR (no caché)
-    const docSnap = await getDoc(docRef, { source: 'server' });
+    const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
       const datos = docSnap.data();
@@ -68,17 +66,12 @@ const firebaseService = {
         inversiones: datos.inversiones?.length || 0
       });
       
-      // ✅ VALIDAR QUE NO SEAN ARRAYS VACÍOS
-      const clientesValidos = datos.clientes && datos.clientes.length > 0 ? datos.clientes : [];
-      const deudasValidas = datos.deudas && datos.deudas.length > 0 ? datos.deudas : [];
-      const inversionesValidas = datos.inversiones && datos.inversiones.length > 0 ? datos.inversiones : [];
-      
       return { 
         success: true, 
         datos: {
-          clientes: clientesValidos,
-          deudas: deudasValidas,
-          inversiones: inversionesValidas
+          clientes: datos.clientes || [],
+          deudas: datos.deudas || [],
+          inversiones: datos.inversiones || []
         }
       };
     } else {
@@ -88,6 +81,19 @@ const firebaseService = {
     
   } catch (error) {
     console.error('❌ Error al cargar:', error);
+    
+    // ✅ FALLBACK: Intentar cargar desde localStorage si Firebase falla
+    try {
+      const backupLocal = localStorage.getItem('grizalum-backup');
+      if (backupLocal) {
+        const datos = JSON.parse(backupLocal);
+        console.log('🔄 Cargando desde backup local');
+        return { success: true, datos };
+      }
+    } catch (e) {
+      console.error('❌ Error backup local:', e);
+    }
+    
     return { success: false, message: error.message };
   }
 },
