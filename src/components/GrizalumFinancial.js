@@ -108,7 +108,7 @@ const [formDeuda, setFormDeuda] = useState({
 });
   const proximasFechas = obtenerProximasFechasCobro();
 
-// 🔄 AUTOSAVE INTELIGENTE - Solo después de cargar datos
+// 🚀 GUARDADO SÚPER RÁPIDO + BACKUP LOCAL INMEDIATO
 useEffect(() => {
   // ✅ NO GUARDAR si los datos están vacíos (aún cargando)
   if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
@@ -116,18 +116,38 @@ useEffect(() => {
     return;
   }
 
-  // ✅ DELAY de 3 segundos para evitar guardados excesivos
-  const timer = setTimeout(() => {
-    console.log('💾 AUTOSAVE - Guardando cambios automáticamente...');
-    console.log('💾 AUTOSAVE - clientes:', misClientes.length);
-    console.log('💾 AUTOSAVE - deudas:', misDeudas.length);
-    console.log('💾 AUTOSAVE - inversiones:', misInversiones.length);
-    guardarEnFirebase(misClientes, misDeudas, misInversiones);
-  }, 3000); // 3 segundos de delay
+  // 🏃‍♂️ GUARDADO INMEDIATO EN LOCALSTORAGE (0 delay)
+  const datosParaGuardar = {
+    clientes: misClientes,
+    deudas: misDeudas,
+    inversiones: misInversiones,
+    timestamp: Date.now()
+  };
+  
+  try {
+    localStorage.setItem('grizalum-backup-seguro', JSON.stringify(datosParaGuardar));
+    console.log('🏃‍♂️ BACKUP LOCAL INMEDIATO - ¡Datos seguros!');
+  } catch (error) {
+    console.error('❌ Error backup local:', error);
+  }
 
-  // ✅ CLEANUP: Cancelar timer si cambian los datos antes
+  // 🔥 GUARDADO EN FIREBASE MÁS RÁPIDO (1 segundo)
+  const timer = setTimeout(async () => {
+    console.log('💾 AUTOSAVE FIREBASE - Guardando...');
+    try {
+      const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
+      if (resultado.success) {
+        console.log('✅ FIREBASE GUARDADO - ¡Todo seguro!');
+      } else {
+        console.log('⚠️ Firebase falló, pero tienes backup local');
+      }
+    } catch (error) {
+      console.error('❌ Error Firebase, pero datos están en local:', error);
+    }
+  }, 1000); // ¡Solo 1 segundo!
+
   return () => clearTimeout(timer);
-}, [misClientes, misDeudas, misInversiones]); // 
+}, [misClientes, misDeudas, misInversiones]);
 
   const calcularEstadoDeuda = (deuda) => {
     const hoy = new Date();
