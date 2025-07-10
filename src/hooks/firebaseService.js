@@ -90,7 +90,7 @@ const firebaseService = {
     console.error('❌ Error al cargar:', error);
     return { success: false, message: error.message };
   }
-}
+},
 
   async verificarConexion() {
     try {
