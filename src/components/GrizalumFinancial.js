@@ -456,14 +456,39 @@ Control Financiero Empresarial Seguro`;
     });
   };
 
-  const copiarLink = () => {
-    const link = `${window.location.origin}${window.location.pathname}?empresa=grizalum&view=${currentView}`;
-    navigator.clipboard.writeText(link).then(() => {
-      alert('Link copiado al portapapeles exitosamente');
-    }).catch(() => {
-      alert('Link preparado para copiar');
-    });
-  };
+  const copiarLink = async () => {
+  try {
+    const link = window.location.href;
+    
+    // Método 1: Clipboard API moderno
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(link);
+      alert('✅ Link copiado al portapapeles exitosamente');
+    } else {
+      // Método 2: Fallback para móviles
+      const textArea = document.createElement('textarea');
+      textArea.value = link;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        document.execCommand('copy');
+        alert('✅ Link copiado al portapapeles');
+      } catch (err) {
+        alert(`📋 Copia este link: ${link}`);
+      } finally {
+        document.body.removeChild(textArea);
+      }
+    }
+  } catch (error) {
+    console.error('Error copiando link:', error);
+    alert(`📋 Copia manualmente: ${window.location.href}`);
+  }
+};
 
   const exportarExcel = () => {
     setSincronizando(true);
