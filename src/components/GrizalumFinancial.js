@@ -116,35 +116,46 @@ useEffect(() => {
     return;
   }
 
-  // 🏃‍♂️ GUARDADO INMEDIATO EN LOCALSTORAGE (0 delay)
+  console.log('🚀 INICIANDO GUARDADO INMEDIATO...');
+  console.log('📊 Clientes a guardar:', misClientes.length);
+  console.log('📊 Deudas a guardar:', misDeudas.length);
+  console.log('📊 Inversiones a guardar:', misInversiones.length);
+
+  // 🏃‍♂️ GUARDADO INMEDIATO EN MÚLTIPLES LUGARES
   const datosParaGuardar = {
     clientes: misClientes,
     deudas: misDeudas,
     inversiones: misInversiones,
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    fechaGuardado: new Date().toISOString()
   };
   
   try {
+    // ✅ GUARDAR EN MÚLTIPLES LUGARES PARA MÁXIMA SEGURIDAD
+    localStorage.setItem('grizalum-datos-principales', JSON.stringify(datosParaGuardar));
+    localStorage.setItem('grizalum-backup-1', JSON.stringify(datosParaGuardar));
+    localStorage.setItem('grizalum-backup-2', JSON.stringify(datosParaGuardar));
     localStorage.setItem('grizalum-backup-seguro', JSON.stringify(datosParaGuardar));
-    console.log('🏃‍♂️ BACKUP LOCAL INMEDIATO - ¡Datos seguros!');
+    
+    // También en sessionStorage
+    sessionStorage.setItem('grizalum-session', JSON.stringify(datosParaGuardar));
+    
+    console.log('🏃‍♂️ BACKUP LOCAL INMEDIATO COMPLETADO - ¡Datos súper seguros!');
   } catch (error) {
     console.error('❌ Error backup local:', error);
   }
 
-  // 🔥 GUARDADO EN FIREBASE MÁS RÁPIDO (1 segundo)
+  // 🔥 GUARDADO EN FIREBASE (500ms después)
   const timer = setTimeout(async () => {
-    console.log('💾 AUTOSAVE FIREBASE - Guardando...');
     try {
       const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
       if (resultado.success) {
-        console.log('✅ FIREBASE GUARDADO - ¡Todo seguro!');
-      } else {
-        console.log('⚠️ Firebase falló, pero tienes backup local');
+        console.log('✅ FIREBASE GUARDADO - ¡Todo súper seguro!');
       }
     } catch (error) {
-      console.error('❌ Error Firebase, pero datos están en local:', error);
+      console.error('❌ Error Firebase, pero datos están seguros en local:', error);
     }
-  }, 1000); // ¡Solo 1 segundo!
+  }, 500);
 
   return () => clearTimeout(timer);
 }, [misClientes, misDeudas, misInversiones]);
