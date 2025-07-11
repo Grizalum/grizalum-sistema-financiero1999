@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import firebaseService from './firebaseService';
+import firebaseService from './hooks/firebaseService';
 const useFinancialData = () => {
 // Hook personalizado para manejar toda la lógica financiera
   // Estados principales
