@@ -121,17 +121,29 @@ useEffect(() => {
   console.log('📊 Deudas a guardar:', misDeudas.length);
   console.log('📊 Inversiones a guardar:', misInversiones.length);
 
+  / 🚀 GUARDADO INMEDIATO MEJORADO
+useEffect(() => {
+  // ✅ SOLO NO GUARDAR si REALMENTE no hay nada importante
+  if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
+    console.log('⏳ Sin datos para guardar aún...');
+    return;
+  }
+
+  console.log('🚀 GUARDADO AUTOMÁTICO INICIADO');
+  console.log('📊 Datos detectados - Clientes:', misClientes.length, 'Deudas:', misDeudas.length, 'Inversiones:', misInversiones.length);
+
   // 🏃‍♂️ GUARDADO INMEDIATO EN MÚLTIPLES LUGARES
   const datosParaGuardar = {
     clientes: misClientes,
     deudas: misDeudas,
     inversiones: misInversiones,
     timestamp: Date.now(),
-    fechaGuardado: new Date().toISOString()
+    fechaGuardado: new Date().toISOString(),
+    source: 'auto-save'
   };
   
   try {
-    // ✅ GUARDAR EN MÚLTIPLES LUGARES PARA MÁXIMA SEGURIDAD
+    // ✅ GUARDAR EN MÚLTIPLES LUGARES INMEDIATAMENTE
     localStorage.setItem('grizalum-datos-principales', JSON.stringify(datosParaGuardar));
     localStorage.setItem('grizalum-backup-1', JSON.stringify(datosParaGuardar));
     localStorage.setItem('grizalum-backup-2', JSON.stringify(datosParaGuardar));
@@ -140,26 +152,29 @@ useEffect(() => {
     // También en sessionStorage
     sessionStorage.setItem('grizalum-session', JSON.stringify(datosParaGuardar));
     
-    console.log('🏃‍♂️ BACKUP LOCAL INMEDIATO COMPLETADO - ¡Datos súper seguros!');
+    console.log('🏃‍♂️ GUARDADO LOCAL INMEDIATO COMPLETADO');
+    console.log('💾 Datos guardados en 5 ubicaciones diferentes');
   } catch (error) {
     console.error('❌ Error backup local:', error);
   }
 
-  // 🔥 GUARDADO EN FIREBASE (500ms después)
+  // 🔥 GUARDADO EN FIREBASE DESPUÉS (sin bloquear)
   const timer = setTimeout(async () => {
     try {
+      console.log('🌐 Iniciando guardado en Firebase...');
       const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
       if (resultado.success) {
-        console.log('✅ FIREBASE GUARDADO - ¡Todo súper seguro!');
+        console.log('✅ FIREBASE GUARDADO EXITOSO');
+      } else {
+        console.log('⚠️ Firebase falló, pero datos están seguros en local');
       }
     } catch (error) {
-      console.error('❌ Error Firebase, pero datos están seguros en local:', error);
+      console.error('❌ Error Firebase (datos seguros en local):', error);
     }
-  }, 500);
+  }, 1000); // 1 segundo después
 
   return () => clearTimeout(timer);
-}, [misClientes, misDeudas, misInversiones]);
-
+}, [misClientes, misDeudas, misInversiones, guardarEnFirebase]);
   const calcularEstadoDeuda = (deuda) => {
     const hoy = new Date();
     const fechaVencimiento = new Date(deuda.proximoVencimiento);
