@@ -743,6 +743,92 @@ const limpiarAlertasClientePagado = useCallback((clienteId) => {
   generarAlertasVencimiento();
   generarAlertasCobranza();    
 }, [misDeudas, misClientes]); 
+  
+  // 📱 DETECCIÓN Y MANEJO ESPECIAL PARA MÓVILES
+useEffect(() => {
+  const esMobil = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  if (esMobil) {
+    console.log('📱 Dispositivo móvil detectado - Guardado extra seguro');
+    
+    // 🛡️ GUARDADO MÚLTIPLE para móviles
+    const guardarEnTodosLados = () => {
+      const datosCompletos = {
+        clientes: misClientes,
+        deudas: misDeudas,
+        inversiones: misInversiones,
+        timestamp: Date.now(),
+        dispositivo: 'movil'
+      };
+      
+      try {
+        // Método 1: localStorage
+        localStorage.setItem('grizalum-movil', JSON.stringify(datosCompletos));
+        
+        // Método 2: sessionStorage  
+        sessionStorage.setItem('grizalum-session', JSON.stringify(datosCompletos));
+        
+        // Método 3: IndexedDB (para casos extremos)
+        if (window.indexedDB) {
+          const request = indexedDB.open('GrizalumDB', 1);
+          request.onsuccess = function(event) {
+            const db = event.target.result;
+            if (db.objectStoreNames.contains('datos')) {
+              const transaction = db.transaction(['datos'], 'readwrite');
+              const store = transaction.objectStore('datos');
+              store.put(datosCompletos, 'backup-movil');
+            }
+          };
+          request.onupgradeneeded = function(event) {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains('datos')) {
+              db.createObjectStore('datos');
+            }
+          };
+        }
+        
+        console.log('📱 Datos guardados en modo móvil seguro');
+      } catch (error) {
+        console.error('❌ Error guardado móvil:', error);
+      }
+    };
+    
+    // Guardar cada vez que cambien los datos
+    if (misClientes.length > 0 || misDeudas.length > 0 || misInversiones.length > 0) {
+      guardarEnTodosLados();
+    }
+  }
+}, [misClientes, misDeudas, misInversiones]);
+
+// 📱 CARGA ESPECIAL PARA MÓVILES en cargarDatosIniciales
+  const esMobil = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+if (esMobil) {
+  console.log('📱 Carga móvil especial iniciada');
+  
+  // Intentar cargar desde múltiples fuentes
+  const metodos = ['grizalum-movil', 'grizalum-backup-seguro', 'grizalum-session'];
+  
+  for (const metodo of metodos) {
+    try {
+      const datos = localStorage.getItem(metodo) || sessionStorage.getItem(metodo);
+      if (datos) {
+        const datosParseados = JSON.parse(datos);
+        if (datosParseados.clientes && datosParseados.clientes.length > 0) {
+          console.log(`📱 Datos encontrados en ${metodo}`);
+          setMisClientes(datosParseados.clientes || []);
+          setMisDeudas(datosParseados.deudas || []);
+          setMisInversiones(datosParseados.inversiones || []);
+          setCargandoDatos(false);
+          return;
+        }
+      }
+    } catch (error) {
+      console.log(`⚠️ Error en ${metodo}:`, error);
+    }
+  }
+},
+  
 
   return {
     // Estados
