@@ -827,7 +827,7 @@ if (esMobil) {
       console.log(`⚠️ Error en ${metodo}:`, error);
     }
   }
-},
+}
   
 
   return {
