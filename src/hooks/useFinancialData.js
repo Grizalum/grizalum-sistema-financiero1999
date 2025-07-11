@@ -86,96 +86,114 @@ const cargarDatosIniciales = useCallback(async () => {
   setCargandoDatos(true);
   
   try {
-    console.log('🚀 Iniciando carga de datos...');
-    const resultado = await firebaseService.cargarDatos();
+    console.log('🚀 Iniciando carga inteligente...');
     
-    // 🔍 DEBUG: Ver exactamente qué devuelve Firebase
-    console.log('🔍 RESULTADO COMPLETO DE CARGA:', resultado);
-    console.log('🔍 DEBUG - resultado.success:', resultado.success);
-    console.log('🔍 DEBUG - resultado.datos:', resultado.datos);
-    if (resultado.datos) {
-      console.log('🔍 DEBUG - resultado.datos.clientes:', resultado.datos.clientes);
-      console.log('🔍 DEBUG - tipo de clientes:', typeof resultado.datos.clientes);
-      console.log('🔍 DEBUG - es array:', Array.isArray(resultado.datos.clientes));
-      if (resultado.datos.clientes) {
-        console.log('🔍 DEBUG - longitud clientes:', resultado.datos.clientes.length);
+    // 🔍 INTENTAR CARGAR DESDE MÚLTIPLES FUENTES DE BACKUP PRIMERO
+    console.log('🔍 Intentando cargar desde TODOS los métodos de backup...');
+    
+    const metodosBackup = [
+      'grizalum-datos-principales',
+      'grizalum-backup-1', 
+      'grizalum-backup-2',
+      'grizalum-movil',
+      'grizalum-backup-seguro',
+      'grizalum-session'
+    ];
+    
+    for (const metodo of metodosBackup) {
+      try {
+        console.log(`🔍 Buscando en: ${metodo}`);
+        const datos = localStorage.getItem(metodo) || sessionStorage.getItem(metodo);
+        
+        if (datos) {
+          console.log(`📦 Datos encontrados en: ${metodo}`);
+          const datosParseados = JSON.parse(datos);
+          
+          // ✅ VERIFICAR QUE LOS DATOS SEAN VÁLIDOS
+          if (datosParseados && 
+              (datosParseados.clientes || datosParseados.deudas || datosParseados.inversiones)) {
+            
+            console.log(`✅ Cargando datos válidos desde: ${metodo}`);
+            console.log('📊 Clientes encontrados:', datosParseados.clientes?.length || 0);
+            console.log('📊 Deudas encontradas:', datosParseados.deudas?.length || 0);
+            console.log('📊 Inversiones encontradas:', datosParseados.inversiones?.length || 0);
+            
+            setMisClientes(datosParseados.clientes || []);
+            setMisDeudas(datosParseados.deudas || []);
+            setMisInversiones(datosParseados.inversiones || []);
+            setFirebaseConectado(true);
+            datosInicializados.current = true;
+            setCargandoDatos(false);
+            
+            console.log('🎉 DATOS CARGADOS EXITOSAMENTE DESDE BACKUP LOCAL');
+            return; // ✅ SALIR SI ENCONTRÓ DATOS
+          }
+        }
+      } catch (error) {
+        console.log(`⚠️ Error en ${metodo}:`, error);
       }
     }
     
-    // ✅ VERIFICACIÓN MÁS ROBUSTA
-    const tieneClientes = resultado.success && 
-                     resultado.datos && 
-                     resultado.datos.clientes && 
-                     Array.isArray(resultado.datos.clientes);
-                     
-    console.log('🔍 DEBUG - tieneClientes:', tieneClientes);
+    console.log('📝 No se encontraron datos en ningún backup local');
     
-   if (resultado.success && resultado.datos) {
-  console.log('✅ Cargando datos desde Firebase');
-  setMisClientes(resultado.datos.clientes || []);
-  setMisDeudas(resultado.datos.deudas || []);
-  setMisInversiones(resultado.datos.inversiones || []);
-  setFirebaseConectado(true);
-  datosInicializados.current = true;
-  
-  // Si no hay clientes, crear datos iniciales
-  if (false && (!resultado.datos.clientes || resultado.datos.clientes.length === 0)) {
-    console.log('📝 No hay clientes, creando datos iniciales');
-    const datosIniciales = [
-      {
+    // 🌐 INTENTAR FIREBASE SI NO HAY BACKUP LOCAL
+    const resultado = await firebaseService.cargarDatos();
+    
+    if (resultado.success && resultado.datos) {
+      console.log('✅ Cargando datos desde Firebase');
+      setMisClientes(resultado.datos.clientes || []);
+      setMisDeudas(resultado.datos.deudas || []);
+      setMisInversiones(resultado.datos.inversiones || []);
+      setFirebaseConectado(true);
+      datosInicializados.current = true;
+    } else {
+      console.log('📝 No hay datos - Creando datos de ejemplo');
+      
+      // 🎯 DATOS DE EJEMPLO AUTOMÁTICOS
+      const clienteEjemplo = {
         id: 1,
-        nombre: 'Antonio Rodriguez',
-        email: 'antonio@example.com',
+        nombre: 'Juan Pérez',
+        email: 'juan@ejemplo.com',
         telefono: '+51 999 123 456',
-        capital: 10000,
-        tasaInteres: 14,
-        plazoMeses: 18,
-        cuotaMensual: 633.30,
-        totalCobrar: 11399.40,
-        saldoPendiente: 8000.00,
-        pagosRecibidos: 3399.40,
+        capital: 50000,
+        tasaInteres: 18,
+        plazoMeses: 24,
+        cuotaMensual: 2500,
+        totalCobrar: 60000,
+        saldoPendiente: 45000,
+        pagosRecibidos: 15000,
         estado: 'En Proceso',
-        fechaInicio: '2024-06-01',
+        fechaInicio: '2024-01-01',
         historialPagos: []
-      }
-    ];
-    
-    setMisClientes(datosIniciales);
-    await firebaseService.guardarDatos(datosIniciales, [], []);
-  }
-  return;
-} else {
-  console.log('📝 Error al cargar - NO creando datos iniciales');
-  //// Crear datos iniciales por error
- // const datosIniciales = [
-  //  {
- //      id: 1,
-  //    nombre: 'Antonio Rodriguez',
-  //    email: 'antonio@example.com',
-  //    telefono: '+51 999 123 456',
-   //   capital: 10000,
-   //   tasaInteres: 14,
-   //   plazoMeses: 18,
-   //   cuotaMensual: 633.30,
-   //   totalCobrar: 11399.40,
-  //    saldoPendiente: 8000.00,
-  //    pagosRecibidos: 3399.40,
- //     estado: 'En Proceso',
-   //   fechaInicio: '2024-06-01',
-   //   historialPagos: []
- //   }
-//  ];
-  
-//  setMisClientes(datosIniciales);
-//  setMisDeudas([]);
-//  setMisInversiones([]);
-//  setFirebaseConectado(true);
-//  datosInicializados.current = true;
-//  await firebaseService.guardarDatos(datosIniciales, [], []);
-}
+      };
+
+      const deudaEjemplo = {
+        id: 1,
+        acreedor: 'Banco de Crédito',
+        descripcion: 'Préstamo para capital de trabajo',
+        capital: 30000,
+        tasaInteres: 15,
+        plazoMeses: 18,
+        cuotaMensual: 1950,
+        saldoPendiente: 22500,
+        totalPagado: 7500,
+        estado: 'Activo',
+        fechaInicio: '2024-01-01',
+        proximoVencimiento: '2024-12-01',
+        historialPagos: []
+      };
+
+      setMisClientes([clienteEjemplo]);
+      setMisDeudas([deudaEjemplo]);
+      setMisInversiones([]);
+      setFirebaseConectado(true);
+      datosInicializados.current = true;
+      
+      console.log('🎯 Datos de ejemplo creados exitosamente');
+    }
     
   } catch (error) {
-    console.error('❌ Error al cargar datos iniciales:', error);
+    console.error('❌ Error al cargar datos:', error);
     setErrorConexion('Error al cargar datos: ' + error.message);
     setFirebaseConectado(false);
   } finally {
@@ -800,35 +818,6 @@ useEffect(() => {
   }
 }, [misClientes, misDeudas, misInversiones]);
 
-// 📱 CARGA ESPECIAL PARA MÓVILES en cargarDatosIniciales
-  const esMobil = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-if (esMobil) {
-  console.log('📱 Carga móvil especial iniciada');
-  
-  // Intentar cargar desde múltiples fuentes
-  const metodos = ['grizalum-movil', 'grizalum-backup-seguro', 'grizalum-session'];
-  
-  for (const metodo of metodos) {
-    try {
-      const datos = localStorage.getItem(metodo) || sessionStorage.getItem(metodo);
-      if (datos) {
-        const datosParseados = JSON.parse(datos);
-        if (datosParseados.clientes && datosParseados.clientes.length > 0) {
-          console.log(`📱 Datos encontrados en ${metodo}`);
-          setMisClientes(datosParseados.clientes || []);
-          setMisDeudas(datosParseados.deudas || []);
-          setMisInversiones(datosParseados.inversiones || []);
-          setCargandoDatos(false);
-          return;
-        }
-      }
-    } catch (error) {
-      console.log(`⚠️ Error en ${metodo}:`, error);
-    }
-  }
-}
-  
 
   return {
     // Estados
