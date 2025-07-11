@@ -282,7 +282,7 @@ useEffect(() => {
   }
 }, [misClientes, misDeudas, misInversiones, cargandoDatos, guardandoEnNube, guardarEnFirebase]);
   
-// 🔄 SINCRONIZACIÓN MÁS LENTA - 5 SEGUNDOS
+// 🔄 SINCRONIZACIÓN INTELIGENTE - SOLO SI HAY DATOS REMOTOS VÁLIDOS
 useEffect(() => {
   if (!cargandoDatos) {
     const interval = setInterval(async () => {
@@ -296,46 +296,44 @@ useEffect(() => {
           if (resultado.success && resultado.datos) {
             console.log('📥 Datos desde Firebase verificados');
             
-            // ✅ SOLO ACTUALIZAR SI HAY DIFERENCIAS REALES
-            const clientesFirebase = JSON.stringify(resultado.datos.clientes || []);
-            const clientesLocales = JSON.stringify(misClientes);
+            // 🛡️ NO SOBRESCRIBIR DATOS LOCALES VÁLIDOS CON DATOS VACÍOS
+            const clientesFirebase = resultado.datos.clientes || [];
+            const deudasFirebase = resultado.datos.deudas || [];
+            const inversionesFirebase = resultado.datos.inversiones || [];
             
-            if (clientesFirebase !== clientesLocales) {
-              console.log('📱 Actualizando clientes desde otro usuario');
-              setMisClientes(resultado.datos.clientes || []);
+            // ✅ SOLO ACTUALIZAR SI FIREBASE TIENE DATOS VÁLIDOS
+            if (clientesFirebase.length > 0 && JSON.stringify(clientesFirebase) !== JSON.stringify(misClientes)) {
+              console.log('📱 Actualizando clientes desde Firebase (datos válidos)');
+              setMisClientes(clientesFirebase);
             }
             
-            const deudasFirebase = JSON.stringify(resultado.datos.deudas || []);
-            const deudasLocales = JSON.stringify(misDeudas);
-            
-            if (deudasFirebase !== deudasLocales) {
-              console.log('💳 Actualizando deudas desde otro usuario');
-              setMisDeudas(resultado.datos.deudas || []);
+            if (deudasFirebase.length > 0 && JSON.stringify(deudasFirebase) !== JSON.stringify(misDeudas)) {
+              console.log('💳 Actualizando deudas desde Firebase (datos válidos)');
+              setMisDeudas(deudasFirebase);
             }
             
-            const inversionesFirebase = JSON.stringify(resultado.datos.inversiones || []);
-            const inversionesLocales = JSON.stringify(misInversiones);
-            
-            if (inversionesFirebase !== inversionesLocales) {
-              console.log('💰 Actualizando inversiones desde otro usuario');
-              setMisInversiones(resultado.datos.inversiones || []);
+            if (inversionesFirebase.length > 0 && JSON.stringify(inversionesFirebase) !== JSON.stringify(misInversiones)) {
+              console.log('💰 Actualizando inversiones desde Firebase (datos válidos)');
+              setMisInversiones(inversionesFirebase);
             }
             
             setFirebaseConectado(true);
+          } else {
+            console.log('📝 Firebase sin datos válidos - Manteniendo datos locales');
           }
         } catch (error) {
-          console.error('❌ Error:', error);
+          console.error('❌ Error sincronización:', error);
           setFirebaseConectado(false);
         }
       } else {
         console.log('⏳ Esperando... guardado en progreso');
       }
-    }, 5000); // ← 5 segundos para verificar cambios
+    }, 10000); // ← Cambiado a 10 segundos para reducir verificaciones
     
     return () => clearInterval(interval);
   }
 }, [cargandoDatos, guardandoEnNube, misClientes, misDeudas, misInversiones]);
-
+  
 // 🔄 VERIFICAR CONEXIÓN
 useEffect(() => {
   const verificarConexion = async () => {
