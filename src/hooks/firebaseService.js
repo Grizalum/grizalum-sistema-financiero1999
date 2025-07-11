@@ -15,98 +15,63 @@ const COLLECTION_NAME = 'grizalum_metalurgica';
 const DOCUMENT_ID = 'datos-financieros';
 
 const firebaseService = {
-  async guardarDatos(clientes, deudas, inversiones) {
+  // ✅ MODO OFFLINE - Funciona sin Firebase
+  async cargarDatos() {
+    console.log('🔄 Modo offline - Cargando desde localStorage...');
+    
     try {
-      console.log('🔄 Guardando en Firebase...');
+      const datos = localStorage.getItem('grizalum-datos-principales');
+      if (datos) {
+        const datosParseados = JSON.parse(datos);
+        console.log('✅ Datos encontrados en modo offline');
+        return {
+          success: true,
+          datos: {
+            clientes: datosParseados.clientes || [],
+            deudas: datosParseados.deudas || [],
+            inversiones: datosParseados.inversiones || []
+          }
+        };
+      }
       
-      // 🔍 DEBUG: Ver exactamente qué se está guardando
-      console.log('🔍 DEBUG GUARDADO - clientes:', clientes);
-      console.log('🔍 DEBUG GUARDADO - clientes.length:', clientes?.length);
-      console.log('🔍 DEBUG GUARDADO - deudas:', deudas);
-      console.log('🔍 DEBUG GUARDADO - deudas.length:', deudas?.length);
-      console.log('🔍 DEBUG GUARDADO - inversiones:', inversiones);
-      console.log('🔍 DEBUG GUARDADO - inversiones.length:', inversiones?.length);
-      
-      const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
-      const datosParaGuardar = {
-        clientes: clientes || [],
-        deudas: deudas || [],
-        inversiones: inversiones || [],
-        ultimaActualizacion: serverTimestamp(),
-        version: '2.1'
-      };
-      
-      console.log('🔍 DEBUG GUARDADO - datosParaGuardar:', datosParaGuardar);
-      
-      console.log('💾 Ejecutando setDoc con:', datosParaGuardar);
-      await setDoc(docRef, datosParaGuardar);
-      
-      console.log('✅ setDoc completado exitosamente');
-      console.log('✅ Datos guardados exitosamente');
-      return { success: true, message: 'Guardado exitoso' };
+      console.log('📝 No hay datos offline - Primera vez');
+      return { success: false, message: 'Sin datos offline' };
       
     } catch (error) {
-      console.error('❌ Error al guardar:', error);
+      console.error('❌ Error modo offline:', error);
       return { success: false, message: error.message };
     }
   },
 
-  async cargarDatos() {
-  try {
-    console.log('🔄 Cargando desde Firebase...');
+  async guardarDatos(clientes, deudas, inversiones) {
+    console.log('💾 Modo offline - Guardando en localStorage...');
     
-    const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
-    const docSnap = await getDoc(docRef);
-    
-    if (docSnap.exists()) {
-      const datos = docSnap.data();
-      console.log('✅ Datos encontrados en Firebase:', {
-        clientes: datos.clientes?.length || 0,
-        deudas: datos.deudas?.length || 0,
-        inversiones: datos.inversiones?.length || 0
-      });
-      
-      return { 
-        success: true, 
-        datos: {
-          clientes: datos.clientes || [],
-          deudas: datos.deudas || [],
-          inversiones: datos.inversiones || []
-        }
-      };
-    } else {
-      console.log('📝 No hay datos en Firebase - primera vez');
-      return { success: false, message: 'No hay datos' };
-    }
-    
-  } catch (error) {
-    console.error('❌ Error al cargar:', error);
-    
-    // ✅ FALLBACK: Intentar cargar desde localStorage si Firebase falla
     try {
-      const backupLocal = localStorage.getItem('grizalum-backup');
-      if (backupLocal) {
-        const datos = JSON.parse(backupLocal);
-        console.log('🔄 Cargando desde backup local');
-        return { success: true, datos };
-      }
-    } catch (e) {
-      console.error('❌ Error backup local:', e);
+      const datosCompletos = {
+        clientes: clientes || [],
+        deudas: deudas || [],
+        inversiones: inversiones || [],
+        timestamp: Date.now(),
+        version: '2.1-offline'
+      };
+      
+      // Múltiples backups
+      localStorage.setItem('grizalum-datos-principales', JSON.stringify(datosCompletos));
+      localStorage.setItem('grizalum-backup-1', JSON.stringify(datosCompletos));
+      localStorage.setItem('grizalum-backup-2', JSON.stringify(datosCompletos));
+      
+      console.log('✅ Datos guardados en modo offline');
+      return { success: true, message: 'Guardado offline exitoso' };
+      
+    } catch (error) {
+      console.error('❌ Error guardando offline:', error);
+      return { success: false, message: error.message };
     }
-    
-    return { success: false, message: error.message };
-  }
-},
+  },
 
   async verificarConexion() {
-    try {
-      const testRef = doc(db, COLLECTION_NAME, 'test');
-      await getDoc(testRef);
-      return true;
-    } catch (error) {
-      console.error('❌ Error de conexión:', error);
-      return false;
-    }
+    console.log('🔄 Modo offline - Siempre "conectado"');
+    return true; // Siempre "conectado" en modo offline
   }
 };
 
