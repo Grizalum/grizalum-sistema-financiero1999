@@ -121,7 +121,7 @@ useEffect(() => {
   console.log('📊 Deudas a guardar:', misDeudas.length);
   console.log('📊 Inversiones a guardar:', misInversiones.length);
 
-  / 🚀 GUARDADO INMEDIATO MEJORADO
+  // 🚀 GUARDADO INMEDIATO MEJORADO
 useEffect(() => {
   // ✅ SOLO NO GUARDAR si REALMENTE no hay nada importante
   if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
