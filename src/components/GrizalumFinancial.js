@@ -109,7 +109,6 @@ const [formDeuda, setFormDeuda] = useState({
   const proximasFechas = obtenerProximasFechasCobro();
 
 // 🚀 GUARDADO SÚPER RÁPIDO + BACKUP LOCAL INMEDIATO
-useEffect(() => {
   // ✅ NO GUARDAR si los datos están vacíos (aún cargando)
   if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
     console.log('⏳ Datos vacíos, no guardar aún...');
@@ -121,7 +120,7 @@ useEffect(() => {
   console.log('📊 Deudas a guardar:', misDeudas.length);
   console.log('📊 Inversiones a guardar:', misInversiones.length);
 
-  // 🚀 GUARDADO INMEDIATO MEJORADO
+  
 useEffect(() => {
   // ✅ SOLO NO GUARDAR si REALMENTE no hay nada importante
   if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
