@@ -113,11 +113,7 @@ const useFinancialData = () => {
 }, []);
   
 const guardarEnFirebase = useCallback(async (clientes = misClientes, deudas = misDeudas, inversiones = misInversiones) => {
-  // 🛡️ SOLO PERMITIR GUARDADO MANUAL
-  if (clientes.length === 0 && deudas.length === 0 && inversiones.length === 0) {
-    console.log('🛡️ Guardado bloqueado - Arrays vacíos');
-    return { success: false, message: 'No hay datos para guardar' };
-  }
+  console.log('🚀 guardarEnFirebase iniciado');
 
   setGuardandoEnNube(true);
   console.log('🚀 guardarEnFirebase iniciado');
@@ -172,6 +168,30 @@ useEffect(() => {
   cargarDatosIniciales();
 }, [cargarDatosIniciales]);
 //console.log('🛡️ Carga automática COMPLETAMENTE deshabilitada');
+  // 🚀 GUARDADO AUTOMÁTICO - ✅ HABILITADO
+useEffect(() => {
+  if (!datosInicializados.current) return;
+  
+  if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
+    return;
+  }
+
+  console.log('🚀 GUARDADO AUTOMÁTICO');
+  
+  const timer = setTimeout(async () => {
+    try {
+      const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
+      if (resultado.success) {
+        console.log('✅ GUARDADO EXITOSO');
+        setUltimoGuardadoNube(new Date());
+      }
+    } catch (error) {
+      console.error('❌ Error:', error);
+    }
+  }, 3000);
+
+  return () => clearTimeout(timer);
+}, [misClientes, misDeudas, misInversiones, guardarEnFirebase]);
 
 // 🔄 AUTOSAVE DESHABILITADO - SOLO GUARDADO MANUAL
 // useEffect(() => {
