@@ -138,9 +138,9 @@ const cargarDatosIniciales = useCallback(async () => {
       //setMisClientes([clienteEjemplo]);
       //setMisDeudas([deudaEjemplo]);
       //setMisInversiones([]);
-      setMisClientes([]);          // ← AGREGAR ESTA LÍNEA
-      setMisDeudas([]);           // ← AGREGAR ESTA LÍNEA  
-      setMisInversiones([]);      // ← AGREGAR ESTA LÍNEA
+     // setMisClientes([]);          // ← AGREGAR ESTA LÍNEA
+      //setMisDeudas([]);           // ← AGREGAR ESTA LÍNEA  
+     // setMisInversiones([]);      // ← AGREGAR ESTA LÍNEA
       setFirebaseConectado(true);
       datosInicializados.current = true;
       
