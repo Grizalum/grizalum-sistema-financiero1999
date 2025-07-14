@@ -81,12 +81,12 @@ const useFinancialData = () => {
     setMisInversiones(prev => prev.filter(inv => inv.id !== id));
   }, []);
 
-// 📥 FUNCIÓN PARA CARGAR DATOS INICIALES
-const cargarDatosIniciales = useCallback(async () => {
-  setCargandoDatos(true);
-  
-  try {
-    console.log('🚀 Iniciando carga inteligente...');
+  // 📥 FUNCIÓN PARA CARGAR DATOS INICIALES
+  const cargarDatosIniciales = useCallback(async () => {
+  // 🛡️ FUNCIÓN COMPLETAMENTE DESHABILITADA - NO HACE NADA
+  console.log('🛡️ cargarDatosIniciales DESHABILITADA - No se ejecuta nada');
+  return;
+}, []);
     
     // 🌐 INTENTAR FIREBASE SI NO HAY BACKUP LOCAL
     const resultado = await firebaseService.cargarDatos();
@@ -157,14 +157,14 @@ const cargarDatosIniciales = useCallback(async () => {
 }, []);
   
 const guardarEnFirebase = useCallback(async (clientes = misClientes, deudas = misDeudas, inversiones = misInversiones) => {
+  // 🛡️ SOLO PERMITIR GUARDADO MANUAL
+  if (clientes.length === 0 && deudas.length === 0 && inversiones.length === 0) {
+    console.log('🛡️ Guardado bloqueado - Arrays vacíos');
+    return { success: false, message: 'No hay datos para guardar' };
+  }
+
   setGuardandoEnNube(true);
   console.log('🚀 guardarEnFirebase iniciado');
-  console.log('📊 Datos recibidos:', {
-  clientes: clientes?.length,
-  deudas: deudas?.length, 
-  inversiones: inversiones?.length
-  });
-  setErrorConexion(null);
   
   try {
     const resultado = await firebaseService.guardarDatos(clientes, deudas, inversiones);
