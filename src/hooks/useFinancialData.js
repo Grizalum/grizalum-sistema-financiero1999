@@ -82,10 +82,34 @@ const useFinancialData = () => {
   }, []);
 
   // 📥 FUNCIÓN PARA CARGAR DATOS INICIALES
-  const cargarDatosIniciales = useCallback(async () => {
-  // 🛡️ FUNCIÓN COMPLETAMENTE DESHABILITADA - NO HACE NADA
-  console.log('🛡️ cargarDatosIniciales DESHABILITADA - No se ejecuta nada');
-  return;
+ const cargarDatosIniciales = useCallback(async () => {
+  if (datosInicializados.current) return;
+  
+  console.log('🚀 CARGANDO DATOS AL INICIO');
+  setCargandoDatos(true);
+  
+  try {
+    const resultado = await firebaseService.cargarDatos();
+    if (resultado && resultado.success && resultado.datos) {
+      console.log('✅ Datos cargados:', resultado.datos);
+      
+      if (resultado.datos.clientes?.length > 0) {
+        setMisClientes(resultado.datos.clientes);
+      }
+      if (resultado.datos.deudas?.length > 0) {
+        setMisDeudas(resultado.datos.deudas);
+      }
+      if (resultado.datos.inversiones?.length > 0) {
+        setMisInversiones(resultado.datos.inversiones);
+      }
+      
+      datosInicializados.current = true;
+    }
+  } catch (error) {
+    console.error('❌ Error cargando datos:', error);
+  } finally {
+    setCargandoDatos(false);
+  }
 }, []);
   
 const guardarEnFirebase = useCallback(async (clientes = misClientes, deudas = misDeudas, inversiones = misInversiones) => {
@@ -143,10 +167,10 @@ const crearBackup = useCallback(async () => {
   }
 }, [misClientes, misDeudas, misInversiones]);
   
-// 🚀 CARGAR DATOS AL INICIAR - TEMPORALMENTE DESHABILITADO
-// useEffect(() => {
-//   cargarDatosIniciales();
-// }, [cargarDatosIniciales]);
+// 🔥 CARGAR DATOS AL INICIO - ✅ HABILITADO
+useEffect(() => {
+  cargarDatosIniciales();
+}, [cargarDatosIniciales]);
 //console.log('🛡️ Carga automática COMPLETAMENTE deshabilitada');
 
 // 🔄 AUTOSAVE DESHABILITADO - SOLO GUARDADO MANUAL
