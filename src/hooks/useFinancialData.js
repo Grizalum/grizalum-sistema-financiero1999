@@ -8,7 +8,7 @@ const useFinancialData = () => {
   const [misInversiones, setMisInversiones] = useState([]);
 
    // 🔄 ESTADOS PARA FIREBASE
-  const [cargandoDatos, setCargandoDatos] = useState(true);
+  const [cargandoDatos, setCargandoDatos] = useState(false);
   const [guardandoEnNube, setGuardandoEnNube] = useState(false);
   const [errorConexion, setErrorConexion] = useState(null);
   const [ultimoGuardadoNube, setUltimoGuardadoNube] = useState(null);
@@ -147,7 +147,7 @@ const crearBackup = useCallback(async () => {
 // useEffect(() => {
 //   cargarDatosIniciales();
 // }, [cargarDatosIniciales]);
-console.log('🛡️ Carga automática COMPLETAMENTE deshabilitada');
+//console.log('🛡️ Carga automática COMPLETAMENTE deshabilitada');
 
 // 🔄 AUTOSAVE DESHABILITADO - SOLO GUARDADO MANUAL
 // useEffect(() => {
@@ -210,7 +210,7 @@ console.log('🛡️ Carga automática COMPLETAMENTE deshabilitada');
 //     return () => clearInterval(interval);
 //   }
 // }, [cargandoDatos, guardandoEnNube, misClientes, misDeudas, misInversiones]);
-  console.log('🛡️ Sincronización automática deshabilitada');
+//   console.log('🛡️ Sincronización automática deshabilitada');
   
 // 🔄 VERIFICAR CONEXIÓN - DESHABILITADO
 // useEffect(() => {
