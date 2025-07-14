@@ -287,6 +287,7 @@ useEffect(() => {
 //     return () => clearInterval(interval);
 //   }
 // }, [cargandoDatos, guardandoEnNube, misClientes, misDeudas, misInversiones]);
+  console.log('🛡️ Sincronización automática deshabilitada');
   
 // 🔄 VERIFICAR CONEXIÓN
 useEffect(() => {
