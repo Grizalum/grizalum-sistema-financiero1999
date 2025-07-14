@@ -107,6 +107,23 @@ const [formDeuda, setFormDeuda] = useState({
   gananciaEsperada: ''
 });
   const proximasFechas = obtenerProximasFechasCobro();  
+  // 🔥 CARGAR DATOS AL INICIO
+useEffect(() => {
+  const cargarDatosAlInicio = async () => {
+    console.log('🔥 CARGANDO DATOS AL INICIO');
+    
+    try {
+      const resultado = await guardarEnFirebase();
+      if (resultado && resultado.success) {
+        console.log('✅ Datos verificados al inicio');
+      }
+    } catch (error) {
+      console.error('❌ Error verificando datos:', error);
+    }
+  };
+  
+  cargarDatosAlInicio();
+}, []); // Solo ejecutar una vez al montar el componente
   
 // 🚀 GUARDADO AUTOMÁTICO DESHABILITADO
 // useEffect(() => {
