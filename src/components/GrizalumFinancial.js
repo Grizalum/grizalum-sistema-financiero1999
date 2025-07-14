@@ -472,14 +472,6 @@ Control Financiero Empresarial Seguro`;
   }
 };
 
-  const exportarExcel = () => {
-    setSincronizando(true);
-    setTimeout(() => {
-      setSincronizando(false);
-      alert('Reporte Excel generado exitosamente');
-    }, 2000);
-  };
-
   const guardarEnNube = async () => {
   console.log('🔥 GUARDADO DESDE BOTÓN NARANJA INICIADO');
   setSincronizando(true);
@@ -1765,20 +1757,6 @@ const autoSave = async () => {
       </div>
     )}
   </div>
-
-  <button 
-    onClick={exportarExcel}
-    disabled={sincronizando}
-    className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-all flex items-center text-sm"
-    title="Exportar a Excel"
-  >
-    {sincronizando ? (
-      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-    ) : (
-      <FileSpreadsheet size={16} className="mr-2" />
-    )}
-    Excel
-  </button>
   
   <button 
     onClick={copiarLink}
