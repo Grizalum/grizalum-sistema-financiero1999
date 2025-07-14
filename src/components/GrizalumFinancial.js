@@ -108,28 +108,28 @@ const [formDeuda, setFormDeuda] = useState({
 });
   const proximasFechas = obtenerProximasFechasCobro();  
   
-// 🚀 GUARDADO AUTOMÁTICO SIMPLE
-useEffect(() => {
-  if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
-    return;
-  }
+// 🚀 GUARDADO AUTOMÁTICO DESHABILITADO
+// useEffect(() => {
+//   if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
+//     return;
+//   }
 
-  console.log('🚀 GUARDADO AUTOMÁTICO');
+//   console.log('🚀 GUARDADO AUTOMÁTICO');
   
-  const timer = setTimeout(async () => {
-    try {
-      const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
-      if (resultado.success) {
-        console.log('✅ GUARDADO EXITOSO');
-        setUltimoGuardado(new Date());
-      }
-    } catch (error) {
-      console.error('❌ Error:', error);
-    }
-  }, 1000);
+//   const timer = setTimeout(async () => {
+//     try {
+//       const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
+//       if (resultado.success) {
+//         console.log('✅ GUARDADO EXITOSO');
+//         setUltimoGuardado(new Date());
+//       }
+//     } catch (error) {
+//       console.error('❌ Error:', error);
+//     }
+//   }, 1000);
 
-  return () => clearTimeout(timer);
-}, [misClientes, misDeudas, misInversiones, guardarEnFirebase]);
+//   return () => clearTimeout(timer);
+// }, [misClientes, misDeudas, misInversiones, guardarEnFirebase]);
 
   const calcularEstadoDeuda = (deuda) => {
     const hoy = new Date();
