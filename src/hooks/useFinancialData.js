@@ -88,54 +88,6 @@ const cargarDatosIniciales = useCallback(async () => {
   try {
     console.log('🚀 Iniciando carga inteligente...');
     
-    // 🔍 INTENTAR CARGAR DESDE MÚLTIPLES FUENTES DE BACKUP PRIMERO
-    console.log('🔍 Intentando cargar desde TODOS los métodos de backup...');
-    
-    const metodosBackup = [
-      'grizalum-datos-principales',
-      'grizalum-backup-1', 
-      'grizalum-backup-2',
-      'grizalum-movil',
-      'grizalum-backup-seguro',
-      'grizalum-session'
-    ];
-    
-    for (const metodo of metodosBackup) {
-      try {
-        console.log(`🔍 Buscando en: ${metodo}`);
-        const datos = localStorage.getItem(metodo) || sessionStorage.getItem(metodo);
-        
-        if (datos) {
-          console.log(`📦 Datos encontrados en: ${metodo}`);
-          const datosParseados = JSON.parse(datos);
-          
-          // ✅ VERIFICAR QUE LOS DATOS SEAN VÁLIDOS
-          if (datosParseados && 
-              (datosParseados.clientes || datosParseados.deudas || datosParseados.inversiones)) {
-            
-            console.log(`✅ Cargando datos válidos desde: ${metodo}`);
-            console.log('📊 Clientes encontrados:', datosParseados.clientes?.length || 0);
-            console.log('📊 Deudas encontradas:', datosParseados.deudas?.length || 0);
-            console.log('📊 Inversiones encontradas:', datosParseados.inversiones?.length || 0);
-            
-            setMisClientes(datosParseados.clientes || []);
-            setMisDeudas(datosParseados.deudas || []);
-            setMisInversiones(datosParseados.inversiones || []);
-            setFirebaseConectado(true);
-            datosInicializados.current = true;
-            setCargandoDatos(false);
-            
-            console.log('🎉 DATOS CARGADOS EXITOSAMENTE DESDE BACKUP LOCAL');
-            return; // ✅ SALIR SI ENCONTRÓ DATOS
-          }
-        }
-      } catch (error) {
-        console.log(`⚠️ Error en ${metodo}:`, error);
-      }
-    }
-    
-    console.log('📝 No se encontraron datos en ningún backup local');
-    
     // 🌐 INTENTAR FIREBASE SI NO HAY BACKUP LOCAL
     const resultado = await firebaseService.cargarDatos();
     
