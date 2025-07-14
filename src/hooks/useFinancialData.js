@@ -619,10 +619,11 @@ const limpiarAlertasClientePagado = useCallback((clienteId) => {
       ['cobro_preventivo', 'cobro_proximo', 'cobro_hoy', 'cobro_retrasado'].includes(alerta.tipo))
   ));
 }, []);
-  useEffect(() => {
-  generarAlertasVencimiento();
-  generarAlertasCobranza();    
-}, [misDeudas, misClientes]); 
+  // ALERTAS DESHABILITADAS TEMPORALMENTE
+// useEffect(() => {
+//   generarAlertasVencimiento();
+//   generarAlertasCobranza();    
+// }, [misDeudas, misClientes]);
 
 
   return {
