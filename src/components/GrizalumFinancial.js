@@ -106,30 +106,30 @@ const [formDeuda, setFormDeuda] = useState({
   inversion: '',
   gananciaEsperada: ''
 });
-  const proximasFechas = obtenerProximasFechasCobro();
-
-// 🚀 GUARDADO SÚPER RÁPIDO + BACKUP LOCAL INMEDIATO
-  // ✅ NO GUARDAR si los datos están vacíos (aún cargando)
-  if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
-    console.log('⏳ Datos vacíos, no guardar aún...');
-    return;
-  }
-
-  console.log('🚀 INICIANDO GUARDADO INMEDIATO...');
-  console.log('📊 Clientes a guardar:', misClientes.length);
-  console.log('📊 Deudas a guardar:', misDeudas.length);
-  console.log('📊 Inversiones a guardar:', misInversiones.length);
-
+  const proximasFechas = obtenerProximasFechasCobro();  
   
+// 🚀 GUARDADO AUTOMÁTICO SIMPLE
 useEffect(() => {
-  // ✅ SOLO NO GUARDAR si REALMENTE no hay nada importante
   if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
-    console.log('⏳ Sin datos para guardar aún...');
     return;
   }
 
-  console.log('🚀 GUARDADO AUTOMÁTICO INICIADO');
-  console.log('📊 Datos detectados - Clientes:', misClientes.length, 'Deudas:', misDeudas.length, 'Inversiones:', misInversiones.length);
+  console.log('🚀 GUARDADO AUTOMÁTICO');
+  
+  const timer = setTimeout(async () => {
+    try {
+      const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
+      if (resultado.success) {
+        console.log('✅ GUARDADO EXITOSO');
+        setUltimoGuardado(new Date());
+      }
+    } catch (error) {
+      console.error('❌ Error:', error);
+    }
+  }, 1000);
+
+  return () => clearTimeout(timer);
+}, [misClientes, misDeudas, misInversiones, guardarEnFirebase]);
 
   // 🏃‍♂️ GUARDADO INMEDIATO EN MÚLTIPLES LUGARES
   const datosParaGuardar = {
@@ -142,15 +142,6 @@ useEffect(() => {
   };
   
   try {
-    // ✅ GUARDAR EN MÚLTIPLES LUGARES INMEDIATAMENTE
-    localStorage.setItem('grizalum-datos-principales', JSON.stringify(datosParaGuardar));
-    localStorage.setItem('grizalum-backup-1', JSON.stringify(datosParaGuardar));
-    localStorage.setItem('grizalum-backup-2', JSON.stringify(datosParaGuardar));
-    localStorage.setItem('grizalum-backup-seguro', JSON.stringify(datosParaGuardar));
-    
-    // También en sessionStorage
-    sessionStorage.setItem('grizalum-session', JSON.stringify(datosParaGuardar));
-    
     console.log('🏃‍♂️ GUARDADO LOCAL INMEDIATO COMPLETADO');
     console.log('💾 Datos guardados en 5 ubicaciones diferentes');
   } catch (error) {
