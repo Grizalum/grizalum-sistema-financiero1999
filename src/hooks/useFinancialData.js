@@ -138,6 +138,9 @@ const cargarDatosIniciales = useCallback(async () => {
       //setMisClientes([clienteEjemplo]);
       //setMisDeudas([deudaEjemplo]);
       //setMisInversiones([]);
+      setMisClientes([]);          // ← AGREGAR ESTA LÍNEA
+      setMisDeudas([]);           // ← AGREGAR ESTA LÍNEA  
+      setMisInversiones([]);      // ← AGREGAR ESTA LÍNEA
       setFirebaseConectado(true);
       datosInicializados.current = true;
       
@@ -215,7 +218,7 @@ useEffect(() => {
 
 // 🔄 AUTOSAVE MEJORADO - 3 SEGUNDOS
 useEffect(() => {
-  if (!cargandoDatos && !guardandoEnNube && misClientes.length > 0) {
+  if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0 || misInversiones.length > 0)) {
     const timeout = setTimeout(async () => {
       console.log('💾 Guardando automáticamente...');
       try {
