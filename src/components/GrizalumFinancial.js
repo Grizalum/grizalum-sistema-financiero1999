@@ -440,6 +440,14 @@ Control Financiero Empresarial Seguro`;
 
   const copiarLink = async () => {
   try {
+    // 🚀 GUARDAR PRIMERO ANTES DE COPIAR
+    console.log('💾 Guardando antes de copiar link...');
+    const resultadoGuardado = await guardarEnFirebase();
+    
+    if (resultadoGuardado.success) {
+      console.log('✅ Datos guardados antes de copiar');
+    }
+    
     const link = window.location.href;
     
     // Método 1: Clipboard API moderno
