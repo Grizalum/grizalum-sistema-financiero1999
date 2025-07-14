@@ -153,8 +153,18 @@ const crearBackup = useCallback(async () => {
 // useEffect(() => {
 //   if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0 || misInversiones.length > 0)) {
 //     const timeout = setTimeout(async () => {
-//       // ... todo el código
-//     }, 3000);
+//       console.log('💾 Guardando automáticamente...');
+//       try {
+//         const resultado = await guardarEnFirebase();
+//         if (resultado.success) {
+//           console.log('✅ Autosave exitoso');
+//         } else {
+//           console.log('❌ Autosave falló:', resultado.message);
+//         }
+//       } catch (error) {
+//         console.error('❌ Error en autosave:', error);
+//       }
+//     }, 3000); // ← Cambiar a 3 segundos
 //     
 //     return () => clearTimeout(timeout);
 //   }
