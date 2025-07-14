@@ -149,26 +149,16 @@ const crearBackup = useCallback(async () => {
 // }, [cargarDatosIniciales]);
 console.log('🛡️ Carga automática COMPLETAMENTE deshabilitada');
 
-// 🔄 AUTOSAVE MEJORADO - 3 SEGUNDOS
-useEffect(() => {
-  if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0 || misInversiones.length > 0)) {
-    const timeout = setTimeout(async () => {
-      console.log('💾 Guardando automáticamente...');
-      try {
-        const resultado = await guardarEnFirebase();
-        if (resultado.success) {
-          console.log('✅ Autosave exitoso');
-        } else {
-          console.log('❌ Autosave falló:', resultado.message);
-        }
-      } catch (error) {
-        console.error('❌ Error en autosave:', error);
-      }
-    }, 3000); // ← Cambiar a 3 segundos
-    
-    return () => clearTimeout(timeout);
-  }
-}, [misClientes, misDeudas, misInversiones, cargandoDatos, guardandoEnNube, guardarEnFirebase]);
+// 🔄 AUTOSAVE DESHABILITADO - SOLO GUARDADO MANUAL
+// useEffect(() => {
+//   if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0 || misInversiones.length > 0)) {
+//     const timeout = setTimeout(async () => {
+//       // ... todo el código
+//     }, 3000);
+//     
+//     return () => clearTimeout(timeout);
+//   }
+// }, [misClientes, misDeudas, misInversiones, cargandoDatos, guardandoEnNube, guardarEnFirebase]);
   
 // useEffect(() => {
 //   if (!cargandoDatos) {
@@ -222,16 +212,16 @@ useEffect(() => {
 // }, [cargandoDatos, guardandoEnNube, misClientes, misDeudas, misInversiones]);
   console.log('🛡️ Sincronización automática deshabilitada');
   
-// 🔄 VERIFICAR CONEXIÓN
-useEffect(() => {
-  const verificarConexion = async () => {
-    const conectado = await firebaseService.verificarConexion();
-    setFirebaseConectado(conectado);
-  };
-  
-  const interval = setInterval(verificarConexion, 30000);
-  return () => clearInterval(interval);
-}, []);
+// 🔄 VERIFICAR CONEXIÓN - DESHABILITADO
+// useEffect(() => {
+//   const verificarConexion = async () => {
+//     const conectado = await firebaseService.verificarConexion();
+//     setFirebaseConectado(conectado);
+//   };
+//   
+//   const interval = setInterval(verificarConexion, 30000);
+//   return () => clearInterval(interval);
+// }, []);
   
   const [alertas, setAlertas] = useState([
     {
