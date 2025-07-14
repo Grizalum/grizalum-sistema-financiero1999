@@ -254,20 +254,20 @@ useEffect(() => {
             const inversionesFirebase = resultado.datos.inversiones || [];
             
             // ✅ SOLO ACTUALIZAR SI FIREBASE TIENE DATOS VÁLIDOS
-            if (clientesFirebase.length > 0 && JSON.stringify(clientesFirebase) !== JSON.stringify(misClientes)) {
-              console.log('📱 Actualizando clientes desde Firebase (datos válidos)');
-              setMisClientes(clientesFirebase);
-            }
+            //if (clientesFirebase.length > 0 && JSON.stringify(clientesFirebase) !== JSON.stringify(misClientes)) {
+            //  console.log('📱 Actualizando clientes desde Firebase (datos válidos)');
+            //  setMisClientes(clientesFirebase);
+            //}
             
-            if (deudasFirebase.length > 0 && JSON.stringify(deudasFirebase) !== JSON.stringify(misDeudas)) {
-              console.log('💳 Actualizando deudas desde Firebase (datos válidos)');
-              setMisDeudas(deudasFirebase);
-            }
+            //if (deudasFirebase.length > 0 && JSON.stringify(deudasFirebase) !== JSON.stringify(misDeudas)) {
+              //console.log('💳 Actualizando deudas desde Firebase (datos válidos)');
+              //setMisDeudas(deudasFirebase);
+            //}
             
-            if (inversionesFirebase.length > 0 && JSON.stringify(inversionesFirebase) !== JSON.stringify(misInversiones)) {
-              console.log('💰 Actualizando inversiones desde Firebase (datos válidos)');
-              setMisInversiones(inversionesFirebase);
-            }
+           // if (inversionesFirebase.length > 0 && JSON.stringify(inversionesFirebase) !== JSON.stringify(misInversiones)) {
+             // console.log('💰 Actualizando inversiones desde Firebase (datos válidos)');
+              //setMisInversiones(inversionesFirebase);
+            //}
             
             setFirebaseConectado(true);
           } else {
