@@ -237,24 +237,23 @@ useEffect(() => {
   }
 }, [misClientes, misDeudas, misInversiones, cargandoDatos, guardandoEnNube, guardarEnFirebase]);
   
-// 🔄 SINCRONIZACIÓN INTELIGENTE - SOLO SI HAY DATOS REMOTOS VÁLIDOS
-useEffect(() => {
-  if (!cargandoDatos) {
-    const interval = setInterval(async () => {
-      // ⚠️ NO RECARGAR SI ESTAMOS GUARDANDO
-      if (!guardandoEnNube) {
-        console.log('🔄 Verificando cambios remotos...');
-        
-        try {
-          const resultado = await firebaseService.cargarDatos();
-          
-          if (resultado.success && resultado.datos) {
-            console.log('📥 Datos desde Firebase verificados');
-            
-            // 🛡️ NO SOBRESCRIBIR DATOS LOCALES VÁLIDOS CON DATOS VACÍOS
-            const clientesFirebase = resultado.datos.clientes || [];
-            const deudasFirebase = resultado.datos.deudas || [];
-            const inversionesFirebase = resultado.datos.inversiones || [];
+// useEffect(() => {
+//   if (!cargandoDatos) {
+//     const interval = setInterval(async () => {
+//       // ⚠️ NO RECARGAR SI ESTAMOS GUARDANDO
+//       if (!guardandoEnNube) {
+//         console.log('🔄 Verificando cambios remotos...');
+//         
+//         try {
+//           const resultado = await firebaseService.cargarDatos();
+//           
+//           if (resultado.success && resultado.datos) {
+//             console.log('📥 Datos desde Firebase verificados');
+//             
+//             // 🛡️ NO SOBRESCRIBIR DATOS LOCALES VÁLIDOS CON DATOS VACÍOS
+//             const clientesFirebase = resultado.datos.clientes || [];
+//             const deudasFirebase = resultado.datos.deudas || [];
+//             const inversionesFirebase = resultado.datos.inversiones || [];
             
             // ✅ SOLO ACTUALIZAR SI FIREBASE TIENE DATOS VÁLIDOS
             //if (clientesFirebase.length > 0 && JSON.stringify(clientesFirebase) !== JSON.stringify(misClientes)) {
@@ -271,23 +270,23 @@ useEffect(() => {
              // console.log('💰 Actualizando inversiones desde Firebase (datos válidos)');
               //setMisInversiones(inversionesFirebase);
             //}
-            
-            setFirebaseConectado(true);
-          } else {
-            console.log('📝 Firebase sin datos válidos - Manteniendo datos locales');
-          }
-        } catch (error) {
-          console.error('❌ Error sincronización:', error);
-          setFirebaseConectado(false);
-        }
-      } else {
-        console.log('⏳ Esperando... guardado en progreso');
-      }
-   }, 60000); // ← Cambiado a 1 minuto para reducir verificaciones
-    
-    return () => clearInterval(interval);
-  }
-}, [cargandoDatos, guardandoEnNube, misClientes, misDeudas, misInversiones]);
+            //
+        //             setFirebaseConectado(true);
+//           } else {
+//             console.log('📝 Firebase sin datos válidos - Manteniendo datos locales');
+//           }
+//         } catch (error) {
+//           console.error('❌ Error sincronización:', error);
+//           setFirebaseConectado(false);
+//         }
+//       } else {
+//         console.log('⏳ Esperando... guardado en progreso');
+//       }
+//     }, 60000); // ← Cambiado a 1 minuto para reducir verificaciones
+//     
+//     return () => clearInterval(interval);
+//   }
+// }, [cargandoDatos, guardandoEnNube, misClientes, misDeudas, misInversiones]);
   
 // 🔄 VERIFICAR CONEXIÓN
 useEffect(() => {
