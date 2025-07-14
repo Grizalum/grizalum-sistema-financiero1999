@@ -211,10 +211,11 @@ const crearBackup = useCallback(async () => {
   }
 }, [misClientes, misDeudas, misInversiones]);
   
-// 🚀 CARGAR DATOS AL INICIAR
-useEffect(() => {
-  cargarDatosIniciales();
-}, [cargarDatosIniciales]);
+// 🚀 CARGAR DATOS AL INICIAR - TEMPORALMENTE DESHABILITADO
+// useEffect(() => {
+//   cargarDatosIniciales();
+// }, [cargarDatosIniciales]);
+console.log('🛡️ Carga automática COMPLETAMENTE deshabilitada');
 
 // 🔄 AUTOSAVE MEJORADO - 3 SEGUNDOS
 useEffect(() => {
