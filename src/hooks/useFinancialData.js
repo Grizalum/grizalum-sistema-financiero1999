@@ -280,7 +280,7 @@ useEffect(() => {
       } else {
         console.log('⏳ Esperando... guardado en progreso');
       }
-   }, 60000); // ← Cambiado a 1 minuto para reducir verificaciones
+   }, 10000); // ← Cambiado a 10 segundos para reducir verificaciones
     
     return () => clearInterval(interval);
   }
