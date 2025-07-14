@@ -297,20 +297,6 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, []);
   
-  // 🕐 Crear backup automático cada 24 horas
-useEffect(() => {
-  if (misClientes.length > 0) {
-    const ultimoBackup = localStorage.getItem('ultimoBackup');
-    const hoy = new Date().toISOString().split('T')[0];
-    
-    if (ultimoBackup !== hoy) {
-      console.log('🕐 Ejecutando backup diario...');
-      crearBackup();
-      localStorage.setItem('ultimoBackup', hoy);
-    }
-  }
-}, [misClientes, misDeudas, misInversiones, crearBackup]);
-  
   const [alertas, setAlertas] = useState([
     {
       id: 1,
@@ -711,13 +697,6 @@ const limpiarAlertasClientePagado = useCallback((clienteId) => {
   generarAlertasVencimiento();
   generarAlertasCobranza();    
 }, [misDeudas, misClientes]); 
-  
-  // 📱 DETECCIÓN Y MANEJO ESPECIAL PARA MÓVILES
-useEffect(() => {
-  const esMobil = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  
-  if (esMobil) {
-    console.log('📱 Dispositivo móvil detectado - Guardado extra seguro');
     
     // 🛡️ GUARDADO MÚLTIPLE para móviles
     const guardarEnTodosLados = () => {
