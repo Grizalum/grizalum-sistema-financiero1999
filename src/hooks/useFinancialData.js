@@ -602,100 +602,75 @@ const generarAlertasCobranza = useCallback(() => {
   const hoy = new Date();
   const nuevasAlertas = [];
   
+  // LIMPIAR ALERTAS ANTIGUAS DE CLIENTES PRIMERO
+  setAlertas(prev => prev.filter(a => 
+    !['cobro_preventivo', 'cobro_proximo', 'cobro_hoy', 'cobro_retrasado'].includes(a.tipo)
+  ));
+  
   misClientes.forEach(cliente => {
     if (cliente.estado === 'En Proceso') {
       const numerosPagosRealizados = cliente.historialPagos?.length || 0;
       const proximaFechaCobro = calcularProximaFechaCobro(cliente.fechaInicio, numerosPagosRealizados);
       const diasRestantes = Math.ceil((proximaFechaCobro - hoy) / (1000 * 60 * 60 * 24));
       
-      // ✅ ALERTAS PREVENTIVAS (7 días antes)
+      // 📅 ALERTA 7 DÍAS ANTES
       if (diasRestantes <= 7 && diasRestantes > 3) {
-        const alertaExistente = alertas.find(a => 
-          a.tipo === 'cobro_preventivo' && 
-          a.mensaje.includes(cliente.nombre)
-        );
-        
-        if (!alertaExistente) {
-          nuevasAlertas.push({
-            id: Date.now() + Math.random(),
-            mensaje: `Recordatorio: Cobro de ${cliente.nombre} en ${diasRestantes} días - S/ ${cliente.cuotaMensual.toLocaleString()}`,
-            urgencia: 'baja',
-            tipo: 'cobro_preventivo',
-            activa: true,
-            clienteId: cliente.id,
-            fechaEsperada: proximaFechaCobro.toISOString().split('T')[0]
-          });
-        }
+        nuevasAlertas.push({
+          id: `cliente-7d-${cliente.id}`,
+          mensaje: `📋 Recordatorio: Cobro de ${cliente.nombre} en ${diasRestantes} días - S/ ${cliente.cuotaMensual.toLocaleString()}`,
+          urgencia: 'baja',
+          tipo: 'cobro_preventivo',
+          activa: true,
+          clienteId: cliente.id
+        });
       }
       
-      // ⚠️ ALERTAS CERCANAS (3 días antes)
+      // ⚠️ ALERTA 3 DÍAS ANTES
       if (diasRestantes <= 3 && diasRestantes > 0) {
-        const alertaExistente = alertas.find(a => 
-          a.tipo === 'cobro_proximo' && 
-          a.mensaje.includes(cliente.nombre)
-        );
-        
-        if (!alertaExistente) {
-          nuevasAlertas.push({
-            id: Date.now() + Math.random() + 1,
-            mensaje: `Cobro próximo: ${cliente.nombre} - ${diasRestantes} día${diasRestantes > 1 ? 's' : ''} - S/ ${cliente.cuotaMensual.toLocaleString()}`,
-            urgencia: 'media',
-            tipo: 'cobro_proximo',
-            activa: true,
-            clienteId: cliente.id,
-            fechaEsperada: proximaFechaCobro.toISOString().split('T')[0]
-          });
-        }
+        nuevasAlertas.push({
+          id: `cliente-3d-${cliente.id}`,
+          mensaje: `⚠️ Cobro próximo: ${cliente.nombre} - ${diasRestantes} días - S/ ${cliente.cuotaMensual.toLocaleString()}`,
+          urgencia: 'media',
+          tipo: 'cobro_proximo',
+          activa: true,
+          clienteId: cliente.id
+        });
       }
       
-      // 🚨 ALERTAS URGENTES (hoy es el día)
+      // 🔥 ALERTA HOY
       if (diasRestantes === 0) {
-        const alertaExistente = alertas.find(a => 
-          a.tipo === 'cobro_hoy' && 
-          a.mensaje.includes(cliente.nombre)
-        );
-        
-        if (!alertaExistente) {
-          nuevasAlertas.push({
-            id: Date.now() + Math.random() + 2,
-            mensaje: `¡HOY! Cobrar a ${cliente.nombre} - S/ ${cliente.cuotaMensual.toLocaleString()}`,
-            urgencia: 'alta',
-            tipo: 'cobro_hoy',
-            activa: true,
-            clienteId: cliente.id,
-            fechaEsperada: proximaFechaCobro.toISOString().split('T')[0]
-          });
-        }
+        nuevasAlertas.push({
+          id: `cliente-hoy-${cliente.id}`,
+          mensaje: `🔥 ¡COBRAR HOY! ${cliente.nombre} - S/ ${cliente.cuotaMensual.toLocaleString()}`,
+          urgencia: 'alta',
+          tipo: 'cobro_hoy',
+          activa: true,
+          clienteId: cliente.id
+        });
       }
       
-      // 🔴 ALERTAS DE RETRASO (después de la fecha)
+      // 🚨 ALERTA MOROSO
       if (diasRestantes < 0) {
         const diasRetraso = Math.abs(diasRestantes);
-        const alertaExistente = alertas.find(a => 
-          a.tipo === 'cobro_retrasado' && 
-          a.mensaje.includes(cliente.nombre)
-        );
-        
-        if (!alertaExistente) {
-          nuevasAlertas.push({
-            id: Date.now() + Math.random() + 3,
-            mensaje: `¡RETRASO! ${cliente.nombre} debe ${diasRetraso} día${diasRetraso > 1 ? 's' : ''} - S/ ${cliente.cuotaMensual.toLocaleString()}`,
-            urgencia: 'alta',
-            tipo: 'cobro_retrasado',
-            activa: true,
-            clienteId: cliente.id,
-            fechaEsperada: proximaFechaCobro.toISOString().split('T')[0],
-            diasRetraso: diasRetraso
-          });
-        }
+        nuevasAlertas.push({
+          id: `cliente-moroso-${cliente.id}`,
+          mensaje: `🚨 ¡MOROSO! ${cliente.nombre} debe ${diasRetraso} días - S/ ${cliente.cuotaMensual.toLocaleString()}`,
+          urgencia: 'alta',
+          tipo: 'cobro_retrasado',
+          activa: true,
+          clienteId: cliente.id,
+          diasRetraso: diasRetraso
+        });
       }
     }
   });
   
+  // AGREGAR NUEVAS ALERTAS
   if (nuevasAlertas.length > 0) {
     setAlertas(prev => [...prev, ...nuevasAlertas]);
+    console.log(`🔔 ${nuevasAlertas.length} alertas de clientes generadas`);
   }
-}, [misClientes, alertas]);
+}, [misClientes]);
   
 // 🔥 FUNCIÓN PARA MOSTRAR PRÓXIMAS FECHAS DE COBRO
 const obtenerProximasFechasCobro = useCallback(() => {
