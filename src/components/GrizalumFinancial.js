@@ -204,6 +204,8 @@ useEffect(() => {
     const fechaInicio = new Date(deuda.fechaInicio);
     const mesesTranscurridos = Math.max(0, Math.floor((hoy - fechaInicio) / (1000 * 60 * 60 * 24 * 30)));
     const cuotasEsperadas = Math.min(mesesTranscurridos + 1, deuda.plazoMeses);
+    const cuotasPagadas = Math.floor((deuda.totalPagado || 0) / deuda.cuotaMensual);
+    const cuotasAtrasadas = Math.max(0, cuotasEsperadas - cuotasPagadas);
     
     // Determinar estado y urgencia
     let estado, mensaje, urgencia;
