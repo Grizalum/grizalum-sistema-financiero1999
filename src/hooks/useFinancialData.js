@@ -166,22 +166,36 @@ useEffect(() => {
   cargarDatosIniciales();
 }, [cargarDatosIniciales]);
 //console.log('🛡️ Carga automática COMPLETAMENTE deshabilitada');
-  // 🚀 GUARDADO AUTOMÁTICO - ❌ DESHABILITADO TEMPORALMENTE
-// useEffect(() => {
-//if (!datosInicializados.current || cargandoDatos) return;
-//   
-//if (cargandoDatos || (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0)) {
- // return;
-//}
-//
-//   console.log('🚀 GUARDADO AUTOMÁTICO');
-//   
-//   const timer = setTimeout(async () => {
-//     // código del guardado automático
-//   }, 3000);
-//
-//   return () => clearTimeout(timer);
-// }, [misClientes, misDeudas, misInversiones, guardarEnFirebase]);
+  // 🚀 GUARDADO AUTOMÁTICO INTELIGENTE - ✅ COMO CANVA
+useEffect(() => {
+  // ❌ NO guardar si no están inicializados los datos
+  if (!datosInicializados.current) return;
+  
+  // ❌ NO guardar si está cargando
+  if (cargandoDatos) return;
+  
+  // ❌ NO guardar si todo está vacío
+  if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
+    return;
+  }
+
+  console.log('🚀 GUARDADO AUTOMÁTICO INTELIGENTE');
+  
+  // ⏰ DELAY DE 5 SEGUNDOS (como Canva)
+  const timer = setTimeout(async () => {
+    try {
+      const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
+      if (resultado.success) {
+        console.log('✅ AUTO-GUARDADO EXITOSO');
+        setUltimoGuardadoNube(new Date());
+      }
+    } catch (error) {
+      console.error('❌ Error en auto-guardado:', error);
+    }
+  }, 5000); // ← 5 segundos como Canva
+
+  return () => clearTimeout(timer);
+}, [misClientes, misDeudas, misInversiones, datosInicializados, cargandoDatos, guardarEnFirebase]);
 // 🔄 AUTOSAVE DESHABILITADO - SOLO GUARDADO MANUAL
 // useEffect(() => {
 //   if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0 || misInversiones.length > 0)) {
