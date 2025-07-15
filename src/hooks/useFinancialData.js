@@ -197,7 +197,7 @@ useEffect(() => {
   return () => clearTimeout(timer);
 }, [misClientes, misDeudas, misInversiones, datosInicializados, cargandoDatos, guardarEnFirebase]);
 // 🔄 AUTOSAVE DESHABILITADO - SOLO GUARDADO MANUAL
-// useEffect(() => {
+() => {
 //   if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0 || misInversiones.length > 0)) {
 //     const timeout = setTimeout(async () => {
 //       console.log('💾 Guardando automáticamente...');
@@ -449,7 +449,19 @@ const agregarCliente = useCallback((nuevoCliente) => {
       historialPagos: []
     };
     
-    return [...prev, clienteConId];
+   const nuevosClientes = [...prev, clienteConId];
+
+    // 💾 GUARDADO MANUAL INMEDIATO
+    setTimeout(async () => {
+      try {
+        await guardarEnFirebase(nuevosClientes, misDeudas, misInversiones);
+        console.log('✅ Cliente guardado manualmente');
+      } catch (error) {
+        console.error('❌ Error guardado manual:', error);
+      }
+    }, 100);
+
+    return nuevosClientes;
   });
 }, []);
   const agregarDeuda = useCallback((nuevaDeuda) => {
