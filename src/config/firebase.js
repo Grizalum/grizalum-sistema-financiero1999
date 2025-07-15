@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDuy86ufbqPMtm45NJu7FVQ05NE-qD0",
@@ -13,8 +14,9 @@ const firebaseConfig = {
 // Inicializar Firebase SIN modo de emergencia
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 console.log('🔥 Firebase inicializado - Project ID:', firebaseConfig.projectId);
 
-export { db, app };
+export { db, app, auth };
 export default db;
