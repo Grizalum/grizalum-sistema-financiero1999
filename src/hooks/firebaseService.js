@@ -11,8 +11,8 @@ import { db } from '../config/firebase';
 console.log('🔥 Firebase DB:', db);
 console.log('🔥 DB exists:', !!db);
 
-const COLLECTION_NAME = 'grizalum_metalurgica';
-const DOCUMENT_ID = 'datos-financieros';
+const COLLECTION_NAME = 'empresas';              // ✅ CORRECTO
+const DOCUMENT_ID = 'grizalum_metalurgica';      // ✅ CORRECTO
 
 const firebaseService = {
   // ✅ MODO FIREBASE - Funciona con Firebase real
@@ -71,6 +71,17 @@ const firebaseService = {
     } catch (error) {
       console.error('❌ Error guardando en Firebase:', error);
       return { success: false, message: error.message };
+    }
+  }, 
+  async verificarConexion() {
+    console.log('🔄 Verificando conexión Firebase...');
+    try {
+      const testDoc = doc(db, 'test', 'connection');
+      await getDoc(testDoc);
+      return true;
+    } catch (error) {
+      console.error('❌ Error conexión Firebase:', error);
+      return false;
     }
   }
 };
