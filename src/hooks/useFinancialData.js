@@ -607,9 +607,7 @@ const generarAlertasCobranza = useCallback(() => {
       const numerosPagosRealizados = cliente.historialPagos?.length || 0;
       
       // 🗓️ CALCULAR PRÓXIMA FECHA DE COBRO MENSUAL
-      const fechaInicio = new Date(cliente.fechaInicio);
-      const proximaFechaCobro = new Date(fechaInicio);
-      proximaFechaCobro.setMonth(proximaFechaCobro.getMonth() + numerosPagosRealizados + 1);
+      const proximaFechaCobro = calcularProximaFechaCobro(cliente.fechaInicio, numerosPagosRealizados);
       
       // 📅 CALCULAR DÍAS RESTANTES
       const diasRestantes = Math.ceil((proximaFechaCobro - hoy) / (1000 * 60 * 60 * 24));
