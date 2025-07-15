@@ -93,16 +93,14 @@ const useFinancialData = () => {
     if (resultado && resultado.success && resultado.datos) {
       console.log('✅ Datos cargados:', resultado.datos);
       
-      if (resultado.datos.clientes?.length > 0) {
-        setMisClientes(resultado.datos.clientes);
-      }
-      if (resultado.datos.deudas?.length > 0) {
-        setMisDeudas(resultado.datos.deudas);
-      }
-      if (resultado.datos.inversiones?.length > 0) {
-        setMisInversiones(resultado.datos.inversiones);
-      }
-      
+      console.log('🔍 CLIENTES RECIBIDOS:', resultado.datos.clientes);
+      console.log('🔍 DEUDAS RECIBIDAS:', resultado.datos.deudas);
+      console.log('🔍 INVERSIONES RECIBIDAS:', resultado.datos.inversiones);
+
+      // CARGAR SIEMPRE, sin validar length
+      setMisClientes(resultado.datos.clientes || []);
+      setMisDeudas(resultado.datos.deudas || []);
+      setMisInversiones(resultado.datos.inversiones || []);
       datosInicializados.current = true;
     }
   } catch (error) {
