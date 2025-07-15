@@ -26,6 +26,7 @@ const firebaseService = {
       if (docSnap.exists()) {
         const datosFirebase = docSnap.data();
         console.log('✅ Datos encontrados en Firebase:', datosFirebase);
+        console.log('🔍 CLIENTES ESPECÍFICOS:', datosFirebase.clientes);
         
         return {
           success: true,
