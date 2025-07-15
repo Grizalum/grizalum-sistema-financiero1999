@@ -17,44 +17,85 @@ const useFinancialData = () => {
   const [cambiosRemotos, setCambiosRemotos] = useState(false);
   const datosInicializados = useRef(false);
   
-  const agregarInversion = useCallback((nuevaInversion) => {
-    const inversion = {
-      id: `inv${Date.now()}`,
-      nombre: nuevaInversion.nombre,
-      descripcion: nuevaInversion.descripcion,
-      tipo: nuevaInversion.tipo,
-      inversion: parseFloat(nuevaInversion.inversion),
-      gananciaEsperada: parseFloat(nuevaInversion.gananciaEsperada),
-      gananciaActual: 0,
-      roi: 0,
-      progreso: 0,
-      estado: 'En Proceso',
-      fechaInicio: nuevaInversion.fechaInicio
-    };
-    
-    setMisInversiones(prev => [...prev, inversion]);
-  }, []);
+const agregarInversion = useCallback((nuevaInversion) => {
+  const inversion = {
+    id: `inv${Date.now()}`,
+    nombre: nuevaInversion.nombre,
+    descripcion: nuevaInversion.descripcion,
+    tipo: nuevaInversion.tipo,
+    inversion: parseFloat(nuevaInversion.inversion),
+    gananciaEsperada: parseFloat(nuevaInversion.gananciaEsperada),
+    gananciaActual: 0,
+    roi: 0,
+    progreso: 0,
+    estado: 'En Proceso',
+    fechaInicio: nuevaInversion.fechaInicio,
+    historialGanancias: [] // ← AGREGAR ESTA LÍNEA
+  };
+  
+  setMisInversiones(prev => [...prev, inversion]);
+}, []);
 
-  const actualizarGanancias = useCallback((id, nuevaGanancia) => {
-    setMisInversiones(prev => prev.map(inv => {
-      if (inv.id === id) {
-        const gananciaActual = parseFloat(nuevaGanancia);
-        const roi = ((gananciaActual / inv.inversion) * 100);
-        const progreso = Math.min((gananciaActual / inv.gananciaEsperada) * 100, 100);
-        const estado = progreso >= 100 ? 'Completado' : 'En Proceso';
-        
-        return {
-          ...inv,
-          gananciaActual,
-          roi: Math.round(roi * 10) / 10,
-          progreso: Math.round(progreso),
-          estado
-        };
-      }
-      return inv;
-    }));
-  }, []);
+  const actualizarGanancias = useCallback((id, nuevaGanancia, fecha, notas = '') => {
+  setMisInversiones(prev => prev.map(inv => {
+    if (inv.id === id) {
+      const gananciaAnterior = inv.gananciaActual;
+      const gananciaActual = parseFloat(nuevaGanancia);
+      const diferencia = gananciaActual - gananciaAnterior;
+      const roi = ((gananciaActual / inv.inversion) * 100);
+      const progreso = Math.min((gananciaActual / inv.gananciaEsperada) * 100, 100);
+      const estado = progreso >= 100 ? 'Completado' : 'En Proceso';
+      
+      // Crear nuevo registro en el historial
+      const nuevoRegistro = {
+        id: (inv.historialGanancias?.length || 0) + 1,
+        fecha: fecha || new Date().toISOString().split('T')[0],
+        gananciaAnterior: gananciaAnterior,
+        gananciaActual: gananciaActual,
+        diferencia: diferencia,
+        notas: notas || 'Actualización de ganancias'
+      };
 
+      return {
+        ...inv,
+        gananciaActual,
+        roi: Math.round(roi * 10) / 10,
+        progreso: Math.round(progreso),
+        estado,
+        historialGanancias: [...(inv.historialGanancias || []), nuevoRegistro]
+      };
+    }
+    return inv;
+  }));
+}, []);
+  
+const eliminarRegistroGanancia = useCallback((inversionId, registroId) => {
+  setMisInversiones(prev => prev.map(inv => {
+    if (inv.id === inversionId) {
+      // Filtrar el registro eliminado
+      const nuevoHistorial = inv.historialGanancias.filter(r => r.id !== registroId);
+      
+      // Recalcular ganancia actual (último registro o 0)
+      const ultimoRegistro = nuevoHistorial[nuevoHistorial.length - 1];
+      const nuevaGananciaActual = ultimoRegistro ? ultimoRegistro.gananciaActual : 0;
+      
+      // Recalcular ROI y progreso
+      const roi = ((nuevaGananciaActual / inv.inversion) * 100);
+      const progreso = Math.min((nuevaGananciaActual / inv.gananciaEsperada) * 100, 100);
+      const estado = progreso >= 100 ? 'Completado' : 'En Proceso';
+
+      return {
+        ...inv,
+        gananciaActual: nuevaGananciaActual,
+        roi: Math.round(roi * 10) / 10,
+        progreso: Math.round(progreso),
+        estado,
+        historialGanancias: nuevoHistorial
+      };
+    }
+    return inv;
+  }));
+}, []);
   const editarInversion = useCallback((id, datosActualizados) => {
     setMisInversiones(prev => prev.map(inv => {
       if (inv.id === id) {
@@ -779,6 +820,7 @@ const eliminarDeudaConProteccion = useCallback(async (deudaId) => {
     eliminarPagoHistorial,
     eliminarPagoHistorialDeuda,
     eliminarAlerta,
+    eliminarRegistroGanancia,
     agregarCliente,
     agregarDeuda,
     
