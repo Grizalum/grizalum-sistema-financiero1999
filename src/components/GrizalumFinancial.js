@@ -2301,15 +2301,11 @@ const autoSave = async () => {
           proximaFechaCobro.setMonth(proximaFechaCobro.getMonth() + numerosPagosRealizados + 1);
           const diasRestantes = Math.ceil((proximaFechaCobro - hoy) / (1000 * 60 * 60 * 24));
           
-          // 📊 CALCULAR PROGRESO DE PAGOS
-          const mesesDesdeInicio = (hoy.getFullYear() - fechaInicio.getFullYear()) * 12 + (hoy.getMonth() - fechaInicio.getMonth());
-          const mesesCompletos = Math.max(0, mesesDesdeInicio);
-          const diaActual = hoy.getDate();
-          const diaInicio = fechaInicio.getDate();
-          const debeContarMesActual = diaActual >= diaInicio;
-          const pagosEsperados = Math.min(debeContarMesActual ? mesesCompletos + 1 : mesesCompletos, cliente.plazoMeses);
-          const pagosRealizados = numerosPagosRealizados;
-          const pagosAtrasados = Math.max(0, pagosEsperados - pagosRealizados);
+         // 📊 CALCULAR PROGRESO DE PAGOS SIMPLE
+        const mesesTranscurridos = Math.max(0, Math.floor((hoy - fechaInicio) / (1000 * 60 * 60 * 24 * 30)));
+        const pagosEsperados = Math.min(mesesTranscurridos + 1, cliente.plazoMeses);
+        const pagosRealizados = numerosPagosRealizados;
+        const pagosAtrasados = Math.max(0, pagosEsperados - pagosRealizados);
           
           // 🎯 DETERMINAR ESTADO Y URGENCIA
           let estadoCobro, mensajeCobro, urgencia;
