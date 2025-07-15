@@ -1,3 +1,4 @@
+import { guardarSnapshot, crearSnapshotProteccion, iniciarSnapshotsAutomaticos } from '../services/historialService';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import firebaseService from './firebaseService';
 const useFinancialData = () => {
@@ -715,7 +716,33 @@ useEffect(() => {
     generarAlertasCobranza();       // Alertas de clientes morosos
   }
 }, [misDeudas, misClientes, generarAlertasVencimiento, generarAlertasCobranza]);
+  
+// 🕐 INICIAR SNAPSHOTS AUTOMÁTICOS
+useEffect(() => {
+  if (datosInicializados.current) {
+    const obtenerDatos = () => ({
+      clientes: misClientes,
+      deudas: misDeudas, 
+      inversiones: misInversiones
+    });
+    
+    const { cleanup } = iniciarSnapshotsAutomaticos(obtenerDatos);
+    
+    return cleanup;
+  }
+}, [misClientes, misDeudas, misInversiones, datosInicializados]);
 
+// 🛡️ SNAPSHOT DE PROTECCIÓN AL ELIMINAR
+const eliminarClienteConProteccion = useCallback(async (clienteId) => {
+  await crearSnapshotProteccion(misClientes, misDeudas, misInversiones, 'antes_eliminar_cliente');
+  eliminarCliente(clienteId);
+}, [misClientes, misDeudas, misInversiones, eliminarCliente]);
+
+const eliminarDeudaConProteccion = useCallback(async (deudaId) => {
+  await crearSnapshotProteccion(misClientes, misDeudas, misInversiones, 'antes_eliminar_deuda');
+  eliminarDeuda(deudaId);
+}, [misClientes, misDeudas, misInversiones, eliminarDeuda]);
+  
   return {
     // Estados
     misClientes,
@@ -762,6 +789,10 @@ useEffect(() => {
     ultimoGuardadoNube,
     guardarEnFirebase,
     cargarDatosIniciales,
+    // 🆕 FUNCIONES DE HISTORIAL
+    eliminarClienteConProteccion,
+    eliminarDeudaConProteccion,
+    crearSnapshotManual: () => guardarSnapshot(misClientes, misDeudas, misInversiones, 'manual')
   };
 };
 
