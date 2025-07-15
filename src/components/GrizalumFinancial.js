@@ -202,8 +202,7 @@ useEffect(() => {
     
     // Calcular cuotas esperadas vs pagadas
     const fechaInicio = new Date(deuda.fechaInicio);
-    const mesesTranscurridos = Math.max(0, Math.floor((hoy - fechaInicio) / (1000 * 60 * 60 * 24 * 30)));
-    const cuotasEsperadas = Math.min(mesesTranscurridos + 1, deuda.plazoMeses);
+    const cuotasEsperadas = deuda.plazoMeses; // Total de cuotas del contrato
     const cuotasPagadas = Math.floor((deuda.totalPagado || 0) / deuda.cuotaMensual);
     const cuotasAtrasadas = Math.max(0, cuotasEsperadas - cuotasPagadas);
     
