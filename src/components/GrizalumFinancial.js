@@ -3,9 +3,13 @@ import {
   Home, TrendingUp, TrendingDown, Building, Plus, Menu, X, DollarSign, 
   Calculator, Share2, FileSpreadsheet, Edit, Bell, Shield, Trash2, 
   CheckCircle, Cloud, WifiOff, User, Phone, Mail, CreditCard, 
-  AlertTriangle, Eye, Link, Save, Download
+  AlertTriangle, Eye, Link, Save, Download, Clock, RefreshCw, RotateCcw, LogOut
 } from 'lucide-react';
 import useFinancialData from '../hooks/useFinancialData';
+import { 
+  obtenerHistorial, 
+  restaurarDesdeHistorial 
+} from '../services/historialService';
 export default function GrizalumFinancial() {
   // Hook de datos financieros
   const {
@@ -35,6 +39,7 @@ export default function GrizalumFinancial() {
     limpiarAlertasClientePagado,
     setMisClientes,
     setMisDeudas,
+    setMisInversiones,
     guardarEnFirebase
   } = useFinancialData();
   
@@ -108,6 +113,57 @@ const [formDeuda, setFormDeuda] = useState({
   gananciaEsperada: ''
 });
   const proximasFechas = obtenerProximasFechasCobro();  
+  // FUNCIÓN PARA CREAR SNAPSHOT MANUAL
+const crearSnapshotManual = async () => {
+  try {
+    const { guardarSnapshot } = await import('../services/historialService');
+    return await guardarSnapshot(misClientes, misDeudas, misInversiones, 'manual');
+  } catch (error) {
+    console.error('Error creando snapshot:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+// 🆕 ESTADOS PARA HISTORIAL
+const [historialData, setHistorialData] = useState([]);
+const [cargandoHistorial, setCargandoHistorial] = useState(false);
+const [message, setMessage] = useState('');
+const [messageType, setMessageType] = useState('');
+
+// FUNCIÓN PARA MOSTRAR MENSAJES
+const showMessage = (text, type = 'info') => {
+  setMessage(text);
+  setMessageType(type);
+  setTimeout(() => {
+    setMessage('');
+    setMessageType('');
+  }, 5000);
+};
+
+// FUNCIÓN PARA CARGAR HISTORIAL
+const cargarHistorial = async () => {
+  setCargandoHistorial(true);
+  try {
+    const resultado = await obtenerHistorial();
+    if (resultado.success) {
+      setHistorialData(resultado.historial);
+    } else {
+      showMessage('Error cargando historial', 'error');
+    }
+  } catch (error) {
+    showMessage('Error: ' + error.message, 'error');
+  } finally {
+    setCargandoHistorial(false);
+  }
+};
+
+// CARGAR HISTORIAL AL CAMBIAR A ESA VISTA
+useEffect(() => {
+  if (currentView === 'historial') {
+    cargarHistorial();
+  }
+}, [currentView]);
+  
 // ✅ CARGAR DATOS AL INICIO - SIN SOBRESCRIBIR
 useEffect(() => {
   console.log('📋 Componente montado - datos del hook disponibles');
@@ -1794,6 +1850,7 @@ const autoSave = async () => {
                 { id: 'clientes', label: 'Cartera Clientes', icon: TrendingUp },
                 { id: 'deudas', label: 'Gestión Deudas', icon: TrendingDown },
                 { id: 'inversiones', label: 'Inversiones', icon: Building },
+                { id: 'historial', label: 'Historial', icon: Shield },
                 { id: 'alertas', label: 'Alertas', icon: Bell }
               ].map(item => (
                 <button key={item.id} onClick={() => { setCurrentView(item.id); setSidebarOpen(false); }}
