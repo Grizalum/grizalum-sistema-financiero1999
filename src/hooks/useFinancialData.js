@@ -165,6 +165,24 @@ const crearBackup = useCallback(async () => {
 useEffect(() => {
   cargarDatosIniciales();
 }, [cargarDatosIniciales]);
+  // 🔥 GUARDADO INMEDIATO AL CAMBIAR CLIENTES
+useEffect(() => {
+  if (!datosInicializados.current) return;
+  if (misClientes.length === 0) return;
+  
+  console.log('💾 GUARDADO INMEDIATO POR CAMBIO EN CLIENTES');
+  
+  const guardarInmediato = async () => {
+    try {
+      await firebaseService.guardarDatos(misClientes, misDeudas, misInversiones);
+      console.log('✅ GUARDADO INMEDIATO EXITOSO');
+    } catch (error) {
+      console.error('❌ Error guardado inmediato:', error);
+    }
+  };
+  
+  guardarInmediato();
+}, [misClientes]);
 //console.log('🛡️ Carga automática COMPLETAMENTE deshabilitada');
   // 🚀 GUARDADO AUTOMÁTICO INTELIGENTE - ✅ COMO CANVA
 useEffect(() => {
