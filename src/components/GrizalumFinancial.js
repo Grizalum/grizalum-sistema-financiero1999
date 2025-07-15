@@ -2799,10 +2799,282 @@ const autoSave = async () => {
                <p className="text-gray-500 text-lg">No hay alertas activas</p>
                <p className="text-gray-400 text-sm">Todas las operaciones financieras están al día</p>
                  </div>
-                 )}
+                 )}  
                 </div>
                </div>
               )}
+                )}
+
+{currentView === 'historial' && (
+  <div className="space-y-6">
+    <div className="bg-white rounded-2xl shadow-xl p-6">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Historial de Versiones</h2>
+          <p className="text-gray-600">Sistema de respaldo automático en la nube</p>
+        </div>
+        
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={async () => {
+              try {
+                setMessage('Creando snapshot manual...', 'info');
+                const resultado = await crearSnapshotManual();
+                if (resultado.success) {
+                  showMessage(`✅ Snapshot creado: ${resultado.fecha} ${resultado.hora}`, 'success');
+                  cargarHistorial();
+                } else {
+                  showMessage('❌ Error creando snapshot', 'error');
+                }
+              } catch (error) {
+                showMessage('❌ Error: ' + error.message, 'error');
+              }
+            }}
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all flex items-center text-sm font-medium shadow-lg"
+          >
+            <Save className="mr-2" size={16} />
+            Crear Snapshot Manual
+          </button>
+          
+          <button
+            onClick={() => cargarHistorial()}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all flex items-center text-sm font-medium shadow-lg"
+          >
+            <RefreshCw className="mr-2" size={16} />
+            Actualizar
+          </button>
+        </div>
+      </div>
+
+      {/* ESTADÍSTICAS DEL HISTORIAL */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-blue-100 text-sm">Total Snapshots</p>
+              <p className="text-2xl font-bold">{historialData.length}</p>
+            </div>
+            <Shield size={24} className="text-blue-200" />
+          </div>
+        </div>
+        
+        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-green-100 text-sm">Último Backup</p>
+              <p className="text-lg font-bold">
+                {historialData[0] ? historialData[0].fecha : 'N/A'}
+              </p>
+            </div>
+            <Clock size={24} className="text-green-200" />
+          </div>
+        </div>
+        
+        <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-purple-100 text-sm">Protección</p>
+              <p className="text-lg font-bold">
+                {historialData.filter(h => h.tipoAccion.includes('antes_')).length}
+              </p>
+            </div>
+            <Shield size={24} className="text-purple-200" />
+          </div>
+        </div>
+        
+        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-orange-100 text-sm">Automáticos</p>
+              <p className="text-lg font-bold">
+                {historialData.filter(h => h.tipoAccion === 'automatico').length}
+              </p>
+            </div>
+            <Clock size={24} className="text-orange-200" />
+          </div>
+        </div>
+      </div>
+
+      {/* MENSAJES */}
+      {message && (
+        <div className={`p-4 rounded-lg mb-4 ${
+          messageType === 'error' ? 'bg-red-100 text-red-800' :
+          messageType === 'success' ? 'bg-green-100 text-green-800' :
+          'bg-blue-100 text-blue-800'
+        }`}>
+          {message}
+        </div>
+      )}
+
+      {/* LISTA DE SNAPSHOTS */}
+      <div className="space-y-3">
+        {cargandoHistorial ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Cargando historial...</p>
+          </div>
+        ) : historialData.length === 0 ? (
+          <div className="text-center py-12">
+            <Shield size={48} className="mx-auto text-gray-400 mb-4" />
+            <h3 className="text-xl font-bold text-gray-800 mb-2">No hay snapshots disponibles</h3>
+            <p className="text-gray-500">Crea tu primer snapshot manual para empezar</p>
+          </div>
+        ) : (
+          historialData.map((snapshot, index) => (
+            <div key={snapshot.id} 
+              className={`border rounded-xl p-6 hover:shadow-lg transition-all ${
+                index === 0 ? 'border-green-300 bg-green-50' : 'border-gray-200 bg-white'
+              }`}>
+              
+              <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      snapshot.tipoAccion === 'automatico' ? 'bg-blue-100 text-blue-600' :
+                      snapshot.tipoAccion === 'manual' ? 'bg-green-100 text-green-600' :
+                      snapshot.tipoAccion.includes('antes_') ? 'bg-red-100 text-red-600' :
+                      'bg-purple-100 text-purple-600'
+                    }`}>
+                      {snapshot.tipoAccion === 'automatico' && <Clock size={20} />}
+                      {snapshot.tipoAccion === 'manual' && <User size={20} />}
+                      {snapshot.tipoAccion.includes('antes_') && <Shield size={20} />}
+                      {snapshot.tipoAccion === 'al_cerrar' && <LogOut size={20} />}
+                    </div>
+                    
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-bold text-lg text-gray-800">
+                          📅 {snapshot.fecha} - {snapshot.hora}
+                        </h3>
+                        {index === 0 && (
+                          <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-bold">
+                            ✨ MÁS RECIENTE
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
+                        <span className="flex items-center">
+                          <User className="mr-1" size={14} />
+                          {snapshot.usuario}
+                        </span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          snapshot.tipoAccion === 'automatico' ? 'bg-blue-100 text-blue-800' :
+                          snapshot.tipoAccion === 'manual' ? 'bg-green-100 text-green-800' :
+                          snapshot.tipoAccion.includes('antes_') ? 'bg-red-100 text-red-800' :
+                          'bg-purple-100 text-purple-800'
+                        }`}>
+                          {snapshot.tipoAccion === 'automatico' && '🤖 Automático'}
+                          {snapshot.tipoAccion === 'manual' && '👤 Manual'}
+                          {snapshot.tipoAccion.includes('antes_eliminar') && '🛡️ Protección'}
+                          {snapshot.tipoAccion === 'al_cerrar' && '🚪 Al cerrar'}
+                          {snapshot.tipoAccion === 'antes_restaurar' && '🔄 Pre-restauración'}
+                        </span>
+                      </div>
+                      
+                      {/* RESUMEN DE DATOS */}
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                        <div className="bg-blue-50 p-3 rounded-lg">
+                          <p className="text-blue-600 font-medium">Clientes</p>
+                          <p className="text-xl font-bold text-blue-800">{snapshot.resumen.totalClientes}</p>
+                        </div>
+                        <div className="bg-red-50 p-3 rounded-lg">
+                          <p className="text-red-600 font-medium">Deudas</p>
+                          <p className="text-xl font-bold text-red-800">{snapshot.resumen.totalDeudas}</p>
+                        </div>
+                        <div className="bg-purple-50 p-3 rounded-lg">
+                          <p className="text-purple-600 font-medium">Inversiones</p>
+                          <p className="text-xl font-bold text-purple-800">{snapshot.resumen.totalInversiones}</p>
+                        </div>
+                        <div className="bg-green-50 p-3 rounded-lg">
+                          <p className="text-green-600 font-medium">Por Cobrar</p>
+                          <p className="text-lg font-bold text-green-800">S/ {snapshot.resumen.totalPorCobrar.toLocaleString()}</p>
+                        </div>
+                        <div className="bg-orange-50 p-3 rounded-lg">
+                          <p className="text-orange-600 font-medium">Por Pagar</p>
+                          <p className="text-lg font-bold text-orange-800">S/ {snapshot.resumen.totalPorPagar.toLocaleString()}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* BOTONES DE ACCIÓN */}
+                <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                  <button 
+                    onClick={async () => {
+                      if (window.confirm(`¿Restaurar datos desde ${snapshot.fecha} ${snapshot.hora}?\n\nEsto sobrescribirá todos los datos actuales.`)) {
+                        try {
+                          setMessage('Restaurando datos...', 'info');
+                          const resultado = await restaurarDesdeHistorial(snapshot.id);
+                          
+                          if (resultado.success) {
+                            setMisClientes(resultado.datos.clientes);
+                            setMisDeudas(resultado.datos.deudas);
+                            setMisInversiones(resultado.datos.inversiones);
+                            
+                            showMessage(resultado.message, 'success');
+                            setCurrentView('resumen');
+                          } else {
+                            showMessage(resultado.message, 'error');
+                          }
+                        } catch (error) {
+                          showMessage('❌ Error: ' + error.message, 'error');
+                        }
+                      }
+                    }}
+                    className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none"
+                    title="Restaurar Snapshot"
+                  >
+                    <RotateCcw size={18} />
+                  </button>
+                  
+                  <button 
+                    onClick={() => {
+                      const detalles = `
+DETALLES DEL SNAPSHOT
+
+📅 Fecha: ${snapshot.fecha}
+🕐 Hora: ${snapshot.hora}
+👤 Usuario: ${snapshot.usuario}
+🔧 Tipo: ${snapshot.tipoAccion}
+
+📊 CONTENIDO:
+- Clientes: ${snapshot.resumen.totalClientes}
+- Deudas: ${snapshot.resumen.totalDeudas}  
+- Inversiones: ${snapshot.resumen.totalInversiones}
+
+💰 FINANCIERO:
+- Por cobrar: S/ ${snapshot.resumen.totalPorCobrar.toLocaleString()}
+- Por pagar: S/ ${snapshot.resumen.totalPorPagar.toLocaleString()}
+- Balance: S/ ${(snapshot.resumen.totalPorCobrar - snapshot.resumen.totalPorPagar).toLocaleString()}
+
+🆔 ID: ${snapshot.id}
+                      `;
+                      alert(detalles);
+                    }}
+                    className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
+                    title="Ver Detalles"
+                  >
+                    <Eye size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+           </div>
+        </div>
+      </div>
+    </div>
+    </>
+   );
+}
            </div>
         </div>
       </div>
