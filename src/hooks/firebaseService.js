@@ -15,7 +15,7 @@ const COLLECTION_NAME = 'grizalum_metalurgica';
 const DOCUMENT_ID = 'datos-financieros';
 
 const firebaseService = {
-  // ✅ MODO OFFLINE - Funciona sin Firebase
+  // ✅ MODO FIREBASE - Funciona con Firebase real
  async cargarDatos() {
     console.log('📥 Cargando desde Firebase...');
     
@@ -55,34 +55,23 @@ const firebaseService = {
         deudas: deudas || [],
         inversiones: inversiones || [],
         timestamp: Date.now(),
-        version: '2.1-offline'
+        version: '2.1'
       };
+      
       // Guardar en Firebase
-try {
-  const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
-  await setDoc(docRef, datosCompletos, { merge: true });
-  console.log('✅ Guardado en Firebase exitoso');
-} catch (error) {
-  console.error('❌ Error guardando en Firebase:', error);
-}
+      const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
+      await setDoc(docRef, datosCompletos, { merge: true });
+      console.log('✅ Guardado en Firebase exitoso');
       
-      // Múltiples backups
-      localStorage.setItem('grizalum-datos-principales', JSON.stringify(datosCompletos));
-      localStorage.setItem('grizalum-backup-1', JSON.stringify(datosCompletos));
-      localStorage.setItem('grizalum-backup-2', JSON.stringify(datosCompletos));
+      // Backup en localStorage
+      localStorage.setItem('grizalum-firebase-backup', JSON.stringify(datosCompletos));
       
-      console.log('✅ Datos guardados en modo offline');
-      return { success: true, message: 'Guardado offline exitoso' };
+      return { success: true, message: 'Guardado Firebase exitoso' };
       
     } catch (error) {
-      console.error('❌ Error guardando offline:', error);
+      console.error('❌ Error guardando en Firebase:', error);
       return { success: false, message: error.message };
     }
-  },
-
-  async verificarConexion() {
-    console.log('🔄 Modo offline - Siempre "conectado"');
-    return true; // Siempre "conectado" en modo offline
   }
 };
 
