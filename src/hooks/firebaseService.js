@@ -17,36 +17,70 @@ const DOCUMENT_ID = 'grizalum_metalurgica';
 const firebaseService = {
   // ✅ MODO FIREBASE - Funciona con Firebase real
  async cargarDatos() {
-    console.log('📥 Cargando desde Firebase...');
+  console.log('📥 Cargando desde Firebase...');
+  
+  try {
+    const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
+    const docSnap = await getDoc(docRef);
     
-    try {
-      const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
-      const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const datosFirebase = docSnap.data();
+      console.log('🔍 DATOS RAW DE FIREBASE:', JSON.stringify(docSnap.data(), null, 2));
+      console.log('✅ Datos encontrados en Firebase:', datosFirebase);
       
-      if (docSnap.exists()) {
-        const datosFirebase = docSnap.data();
-       console.log('🔍 DATOS RAW DE FIREBASE:', JSON.stringify(docSnap.data(), null, 2));
-        console.log('✅ Datos encontrados en Firebase:', datosFirebase);
-        console.log('🔍 CLIENTES ESPECÍFICOS:', datosFirebase.clientes);
-        console.log('🔍 ESTRUCTURA COMPLETA:', JSON.stringify(datosFirebase, null, 2));
+      // GUARDAR BACKUP EN LOCALSTORAGE
+      localStorage.setItem('grizalum-backup', JSON.stringify(datosFirebase));
+      
+      return {
+        success: true,
+        datos: {
+          clientes: datosFirebase.clientes || [],
+          deudas: datosFirebase.deudas || [],
+          inversiones: datosFirebase.inversiones || []
+        }
+      };
+    } else {
+      console.log('📝 No hay datos en Firebase - Intentando LocalStorage');
+      
+      // CARGAR DESDE LOCALSTORAGE COMO BACKUP
+      const backup = localStorage.getItem('grizalum-backup');
+      if (backup) {
+        const datosBackup = JSON.parse(backup);
+        console.log('🔄 Datos recuperados desde LocalStorage');
         return {
           success: true,
           datos: {
-            clientes: datosFirebase.clientes || [],
-            deudas: datosFirebase.deudas || [],
-            inversiones: datosFirebase.inversiones || []
+            clientes: datosBackup.clientes || [],
+            deudas: datosBackup.deudas || [],
+            inversiones: datosBackup.inversiones || []
           }
         };
-      } else {
-        console.log('📝 No hay datos en Firebase');
-        return { success: false, message: 'Sin datos en Firebase' };
       }
       
-    } catch (error) {
-      console.error('❌ Error cargando desde Firebase:', error);
-      return { success: false, message: error.message };
+      return { success: false, message: 'Sin datos en Firebase ni LocalStorage' };
     }
-  },
+    
+  } catch (error) {
+    console.error('❌ Error cargando desde Firebase:', error);
+    
+    // BACKUP DE EMERGENCIA
+    const backup = localStorage.getItem('grizalum-backup');
+    if (backup) {
+      const datosBackup = JSON.parse(backup);
+      console.log('🚨 Usando backup de emergencia');
+      return {
+        success: true,
+        datos: {
+          clientes: datosBackup.clientes || [],
+          deudas: datosBackup.deudas || [],
+          inversiones: datosBackup.inversiones || []
+        }
+      };
+    }
+    
+    return { success: false, message: error.message };
+  }
+},
 
   async guardarDatos(clientes, deudas, inversiones) {
     console.log('💾 Guardando en Firebase...');
