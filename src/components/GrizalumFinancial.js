@@ -319,44 +319,66 @@ if (tipo === 'editar_deuda' && item) {
 
 const guardarEdicion = () => {
   if (tipoModal === 'editar_cliente') {
-    // Validaciones
-    if (!datosEdicion.nombre || !datosEdicion.email || !datosEdicion.tasaInteres) {
-      alert('Por favor complete todos los campos obligatorios');
-      return;
-    }
-    
-    if (parseFloat(datosEdicion.tasaInteres) <= 0) {
-      alert('La tasa de interés debe ser mayor a 0');
-      return;
-    }
-    
-    // Actualizar cliente usando el hook
-    const clienteActualizado = {
-      ...itemSeleccionado,
-      nombre: datosEdicion.nombre,
-      email: datosEdicion.email,
-      telefono: datosEdicion.telefono,
-      tasaInteres: parseFloat(datosEdicion.tasaInteres)
-    };
-    // Recalcular cuota mensual si cambió la tasa
-    if (clienteActualizado.tasaInteres !== itemSeleccionado.tasaInteres) {
-      const tasaMensual = clienteActualizado.tasaInteres / 100 / 12;
-      const nuevaCuota = clienteActualizado.capital * 
-        (tasaMensual * Math.pow(1 + tasaMensual, clienteActualizado.plazoMeses)) / 
-        (Math.pow(1 + tasaMensual, clienteActualizado.plazoMeses) - 1);
-      clienteActualizado.cuotaMensual = Math.round(nuevaCuota * 100) / 100;
-      clienteActualizado.totalCobrar = clienteActualizado.cuotaMensual * clienteActualizado.plazoMeses;
-      clienteActualizado.saldoPendiente = clienteActualizado.totalCobrar - clienteActualizado.pagosRecibidos;
-    }
-    
-    // Usar función del hook para actualizar
-    setMisClientes(prev => prev.map(c => 
-      c.id === itemSeleccionado.id ? clienteActualizado : c
-    ));
-    
-    alert(`Cliente ${datosEdicion.nombre} actualizado exitosamente`);
-    cerrarModal();
+  // Validaciones completas
+  if (!datosEdicion.nombre || !datosEdicion.email || !datosEdicion.capital || 
+      !datosEdicion.tasaInteres || !datosEdicion.plazoMeses) {
+    alert('Por favor complete todos los campos obligatorios');
+    return;
   }
+  
+  if (parseFloat(datosEdicion.capital) <= 0 || parseFloat(datosEdicion.tasaInteres) < 0 || 
+      parseInt(datosEdicion.plazoMeses) <= 0) {
+    alert('Revise los valores numéricos ingresados');
+    return;
+  }
+  
+  // Recálculos automáticos completos
+  const nuevoCapital = parseFloat(datosEdicion.capital);
+  const nuevaTasa = parseFloat(datosEdicion.tasaInteres);
+  const nuevosPlazo = parseInt(datosEdicion.plazoMeses);
+  
+  // Calcular nueva cuota mensual
+  let nuevaCuota = 0;
+  if (nuevaTasa > 0) {
+    const tasaMensual = nuevaTasa / 100 / 12;
+    const factor = Math.pow(1 + tasaMensual, nuevosPlazo);
+    const denominador = factor - 1;
+    
+    if (denominador > 0) {
+      nuevaCuota = nuevoCapital * (tasaMensual * factor) / denominador;
+    } else {
+      nuevaCuota = nuevoCapital / nuevosPlazo;
+    }
+  } else {
+    nuevaCuota = nuevoCapital / nuevosPlazo;
+  }
+  
+  const nuevoTotalCobrar = nuevaCuota * nuevosPlazo;
+  const nuevoSaldoPendiente = nuevoTotalCobrar - itemSeleccionado.pagosRecibidos;
+  
+  // Actualizar cliente con todos los recálculos
+  const clienteActualizado = {
+    ...itemSeleccionado,
+    nombre: datosEdicion.nombre,
+    email: datosEdicion.email,
+    telefono: datosEdicion.telefono,
+    capital: nuevoCapital,
+    tasaInteres: nuevaTasa,
+    plazoMeses: nuevosPlazo,
+    fechaInicio: datosEdicion.fechaInicio,
+    estado: datosEdicion.estado,
+    cuotaMensual: Math.round(nuevaCuota * 100) / 100,
+    totalCobrar: Math.round(nuevoTotalCobrar * 100) / 100,
+    saldoPendiente: Math.round(nuevoSaldoPendiente * 100) / 100
+  };
+  
+  setMisClientes(prev => prev.map(c => 
+    c.id === itemSeleccionado.id ? clienteActualizado : c
+  ));
+  
+  alert(`Cliente ${datosEdicion.nombre} actualizado completamente`);
+  cerrarModal();
+}
   
  // 🔥 NUEVO: Edición COMPLETA de deudas
 if (tipoModal === 'editar_deuda') {
