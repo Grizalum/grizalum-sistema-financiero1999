@@ -3,7 +3,7 @@ import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDuy86ufbqPMtm45NJu7FVQ05NE-qD0-RESTO_DE_LA_KEY",
+  apiKey: "AIzaSyDUy86ufbqCPMfto45NJu7FV69O5NE-qDQ",
   authDomain: "grizalum-9b670.firebaseapp.com",
   projectId: "grizalum-9b670",
   storageBucket: "grizalum-9b670.firebasestorage.app",
