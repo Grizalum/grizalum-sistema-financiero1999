@@ -10,7 +10,7 @@ import { db, firebaseDisponible, verificarFirebase } from '../config/firebase';
 
 // 🏷️ CONFIGURACIÓN DE COLECCIÓN
 const COLLECTION_NAME = 'grizalum_metalurgica';
-const DOCUMENT_ID = 'datos-financieros';
+const DOCUMENT_ID = 'grizalum_metalurgica';
 
 console.log('🔥 Firebase Service iniciado');
 console.log('🔍 Estado Firebase:', verificarFirebase());
