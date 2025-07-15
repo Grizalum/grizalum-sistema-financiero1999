@@ -166,31 +166,22 @@ useEffect(() => {
   cargarDatosIniciales();
 }, [cargarDatosIniciales]);
 //console.log('🛡️ Carga automática COMPLETAMENTE deshabilitada');
-  // 🚀 GUARDADO AUTOMÁTICO - ✅ HABILITADO
-useEffect(() => {
-  if (!datosInicializados.current) return;
-  
-  if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
-    return;
-  }
-
-  console.log('🚀 GUARDADO AUTOMÁTICO');
-  
-  const timer = setTimeout(async () => {
-    try {
-      const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
-      if (resultado.success) {
-        console.log('✅ GUARDADO EXITOSO');
-        setUltimoGuardadoNube(new Date());
-      }
-    } catch (error) {
-      console.error('❌ Error:', error);
-    }
-  }, 3000);
-
-  return () => clearTimeout(timer);
-}, [misClientes, misDeudas, misInversiones, guardarEnFirebase]);
-
+  // 🚀 GUARDADO AUTOMÁTICO - ❌ DESHABILITADO TEMPORALMENTE
+// useEffect(() => {
+//   if (!datosInicializados.current) return;
+//   
+//   if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
+//     return;
+//   }
+//
+//   console.log('🚀 GUARDADO AUTOMÁTICO');
+//   
+//   const timer = setTimeout(async () => {
+//     // código del guardado automático
+//   }, 3000);
+//
+//   return () => clearTimeout(timer);
+// }, [misClientes, misDeudas, misInversiones, guardarEnFirebase]);
 // 🔄 AUTOSAVE DESHABILITADO - SOLO GUARDADO MANUAL
 // useEffect(() => {
 //   if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0 || misInversiones.length > 0)) {
