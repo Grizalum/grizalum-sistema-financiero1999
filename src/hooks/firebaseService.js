@@ -11,8 +11,8 @@ import { db } from '../config/firebase';
 console.log('🔥 Firebase DB:', db);
 console.log('🔥 DB exists:', !!db);
 
-const COLLECTION_NAME = 'empresas';              // ✅ CORRECTO
-const DOCUMENT_ID = 'grizalum_metalurgica';      // ✅ CORRECTO
+const COLLECTION_NAME = 'grizalum_metalurgica';
+const DOCUMENT_ID = 'datos-financieros';
 
 const firebaseService = {
   // ✅ MODO FIREBASE - Funciona con Firebase real
