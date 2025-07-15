@@ -459,6 +459,34 @@ const LoginPage = () => {
             </div>
           </div>
         </div>
+{/* BOTÓN PARA CREAR USUARIOS DEMO */}
+<div className="mt-4">
+  <button
+    onClick={async () => {
+      try {
+        const { createDemoUsers, showCreationResults } = await import('../utils/createDemoUsers');
+        showMessage('Creando usuarios demo...', 'info');
+        
+        const results = await createDemoUsers();
+        showCreationResults(results);
+        
+        const successful = results.filter(r => r.success).length;
+        if (successful > 0) {
+          showMessage(`${successful} usuarios demo creados exitosamente`, 'success');
+        } else {
+          showMessage('Los usuarios demo ya existen o hubo errores', 'error');
+        }
+      } catch (error) {
+        console.error('Error creando usuarios:', error);
+        showMessage('Error al crear usuarios demo', 'error');
+      }
+    }}
+    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition-all"
+    disabled={loading}
+  >
+    🚀 Crear Usuarios Demo
+  </button>
+</div>
 
         {/* FOOTER */}
         <div className="text-center mt-6">
