@@ -202,8 +202,12 @@ useEffect(() => {
     
     // Calcular cuotas esperadas vs pagadas
     const fechaInicio = new Date(deuda.fechaInicio);
-    const mesesTranscurridos = Math.max(0, Math.floor((hoy - fechaInicio) / (1000 * 60 * 60 * 24 * 30)));
-    const cuotasEsperadas = Math.min(mesesTranscurridos + 1, deuda.plazoMeses);
+    const mesesDesdeInicio = (hoy.getFullYear() - fechaInicio.getFullYear()) * 12 + (hoy.getMonth() - fechaInicio.getMonth());
+    const mesesCompletos = Math.max(0, mesesDesdeInicio);
+    const diaActual = hoy.getDate();
+    const diaInicio = fechaInicio.getDate();
+    const debeContarMesActual = diaActual >= diaInicio;
+    const cuotasEsperadas = Math.min(debeContarMesActual ? mesesCompletos + 1 : mesesCompletos, deuda.plazoMeses);
     const cuotasPagadas = Math.floor((deuda.totalPagado || 0) / deuda.cuotaMensual);
     const cuotasAtrasadas = Math.max(0, cuotasEsperadas - cuotasPagadas);
     
@@ -2298,8 +2302,12 @@ const autoSave = async () => {
           const diasRestantes = Math.ceil((proximaFechaCobro - hoy) / (1000 * 60 * 60 * 24));
           
           // 📊 CALCULAR PROGRESO DE PAGOS
-          const mesesTranscurridos = Math.max(0, Math.floor((hoy - fechaInicio) / (1000 * 60 * 60 * 24 * 30)));
-          const pagosEsperados = Math.min(mesesTranscurridos + 1, cliente.plazoMeses);
+          const mesesDesdeInicio = (hoy.getFullYear() - fechaInicio.getFullYear()) * 12 + (hoy.getMonth() - fechaInicio.getMonth());
+          const mesesCompletos = Math.max(0, mesesDesdeInicio);
+          const diaActual = hoy.getDate();
+          const diaInicio = fechaInicio.getDate();
+          const debeContarMesActual = diaActual >= diaInicio;
+          const pagosEsperados = Math.min(debeContarMesActual ? mesesCompletos + 1 : mesesCompletos, cliente.plazoMeses);
           const pagosRealizados = numerosPagosRealizados;
           const pagosAtrasados = Math.max(0, pagosEsperados - pagosRealizados);
           
