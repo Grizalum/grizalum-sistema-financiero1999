@@ -16,35 +16,38 @@ const DOCUMENT_ID = 'datos-financieros';
 
 const firebaseService = {
   // ✅ MODO OFFLINE - Funciona sin Firebase
-  async cargarDatos() {
-    console.log('🔄 Modo offline - Cargando desde localStorage...');
+ async cargarDatos() {
+    console.log('📥 Cargando desde Firebase...');
     
     try {
-      const datos = localStorage.getItem('grizalum-datos-principales');
-      if (datos) {
-        const datosParseados = JSON.parse(datos);
-        console.log('✅ Datos encontrados en modo offline');
+      const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        const datosFirebase = docSnap.data();
+        console.log('✅ Datos encontrados en Firebase:', datosFirebase);
+        
         return {
           success: true,
           datos: {
-            clientes: datosParseados.clientes || [],
-            deudas: datosParseados.deudas || [],
-            inversiones: datosParseados.inversiones || []
+            clientes: datosFirebase.clientes || [],
+            deudas: datosFirebase.deudas || [],
+            inversiones: datosFirebase.inversiones || []
           }
         };
+      } else {
+        console.log('📝 No hay datos en Firebase');
+        return { success: false, message: 'Sin datos en Firebase' };
       }
       
-      console.log('📝 No hay datos offline - Primera vez');
-      return { success: false, message: 'Sin datos offline' };
-      
     } catch (error) {
-      console.error('❌ Error modo offline:', error);
+      console.error('❌ Error cargando desde Firebase:', error);
       return { success: false, message: error.message };
     }
   },
 
   async guardarDatos(clientes, deudas, inversiones) {
-    console.log('💾 Modo offline - Guardando en localStorage...');
+    console.log('💾 Guardando en Firebase...');
     
     try {
       const datosCompletos = {
@@ -54,6 +57,14 @@ const firebaseService = {
         timestamp: Date.now(),
         version: '2.1-offline'
       };
+      // Guardar en Firebase
+try {
+  const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
+  await setDoc(docRef, datosCompletos, { merge: true });
+  console.log('✅ Guardado en Firebase exitoso');
+} catch (error) {
+  console.error('❌ Error guardando en Firebase:', error);
+}
       
       // Múltiples backups
       localStorage.setItem('grizalum-datos-principales', JSON.stringify(datosCompletos));
