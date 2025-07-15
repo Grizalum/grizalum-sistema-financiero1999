@@ -197,7 +197,7 @@ useEffect(() => {
   return () => clearTimeout(timer);
 }, [misClientes, misDeudas, misInversiones, datosInicializados, cargandoDatos, guardarEnFirebase]);
 // 🔄 AUTOSAVE DESHABILITADO - SOLO GUARDADO MANUAL
-() => {
+//() => {
 //   if (!cargandoDatos && !guardandoEnNube && (misClientes.length > 0 || misDeudas.length > 0 || misInversiones.length > 0)) {
 //     const timeout = setTimeout(async () => {
 //       console.log('💾 Guardando automáticamente...');
