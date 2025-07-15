@@ -3067,14 +3067,6 @@ DETALLES DEL SNAPSHOT
     </div>
   </div>
 )}
-
-           </div>
-        </div>
-      </div>
-    </div>
-    </>
-   );
-}
            </div>
         </div>
       </div>
