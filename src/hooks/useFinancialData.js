@@ -298,7 +298,7 @@ useEffect(() => {
 //   return () => clearInterval(interval);
 // }, []);
   
-  const [alertas, setAlertas] = useState([
+  const [alertas, setAlertas] = useState([]);  
     {
       id: 1,
       mensaje: 'Pago de Antonio Rodriguez vence en 3 dias',
