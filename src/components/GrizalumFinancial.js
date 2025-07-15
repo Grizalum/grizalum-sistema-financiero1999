@@ -107,23 +107,13 @@ const [formDeuda, setFormDeuda] = useState({
   gananciaEsperada: ''
 });
   const proximasFechas = obtenerProximasFechasCobro();  
-  // 🔥 CARGAR DATOS AL INICIO
+// ✅ CARGAR DATOS AL INICIO - SIN SOBRESCRIBIR
 useEffect(() => {
-  const cargarDatosAlInicio = async () => {
-    console.log('🔥 CARGANDO DATOS AL INICIO');
-    
-    try {
-      const resultado = await guardarEnFirebase();
-      if (resultado && resultado.success) {
-        console.log('✅ Datos verificados al inicio');
-      }
-    } catch (error) {
-      console.error('❌ Error verificando datos:', error);
-    }
-  };
-  
-  cargarDatosAlInicio();
-}, []); // Solo ejecutar una vez al montar el componente
+  console.log('📋 Componente montado - datos del hook disponibles');
+  console.log('📊 Clientes cargados:', misClientes.length);
+  console.log('💳 Deudas cargadas:', misDeudas.length);
+  console.log('💰 Inversiones cargadas:', misInversiones.length);
+}, [misClientes, misDeudas, misInversiones]);
   
 // 🚀 GUARDADO AUTOMÁTICO DESHABILITADO
 // useEffect(() => {
