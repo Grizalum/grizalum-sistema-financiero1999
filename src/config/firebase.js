@@ -5,12 +5,13 @@ import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 // 🔥 CONFIGURACIÓN REAL DE FIREBASE
 // ⚠️ REEMPLAZA CON TUS CREDENCIALES REALES DE FIREBASE
 const firebaseConfig = {
-  apiKey: "TU_API_KEY_REAL",
-  authDomain: "tu-proyecto.firebaseapp.com", 
-  projectId: "tu-proyecto-id",
-  storageBucket: "tu-proyecto.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef1234567890123456"
+ const firebaseConfig = {
+  apiKey: "AIzaSyDuy86ufbqPMtm45NJu7FVQ05NE-qD0",        // ← De tu imagen 1
+  authDomain: "grizalum-9b670.firebaseapp.com",           // ← Tu dominio real
+  projectId: "grizalum-9b670",                            // ← Tu project ID real
+  storageBucket: "grizalum-9b670.firebasestorage.app",    // ← Tu storage real
+  messagingSenderId: "526692565959",                       // ← Tu sender ID real
+  appId: "1:526692565959:web:16c2ff1278b12a1498cfe2"      // ← Tu app ID real
 };
 
 // 🏗️ INICIALIZACIÓN ROBUSTA CON FALLBACK
