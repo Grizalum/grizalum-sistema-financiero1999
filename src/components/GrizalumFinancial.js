@@ -10,6 +10,8 @@ import {
   obtenerHistorial, 
   restaurarDesdeHistorial 
 } from '../services/historialService';
+// 🆕 IMPORT PARA MANEJO DE INVERSIONES
+import { setMisInversiones } from '../hooks/useFinancialData'; 
 export default function GrizalumFinancial() {
   // Hook de datos financieros
   const {
@@ -39,6 +41,7 @@ export default function GrizalumFinancial() {
     limpiarAlertasClientePagado,
     setMisClientes,
     setMisDeudas,
+    setMisInversiones,
     guardarEnFirebase
   } = useFinancialData();
   
