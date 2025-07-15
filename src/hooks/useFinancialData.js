@@ -298,23 +298,7 @@ useEffect(() => {
 //   return () => clearInterval(interval);
 // }, []);
   
-  const [alertas, setAlertas] = useState([]);  
-    {
-      id: 1,
-      mensaje: 'Pago de Antonio Rodriguez vence en 3 dias',
-      urgencia: 'media',
-      tipo: 'pago_pendiente',
-      activa: true
-    },
-    {
-      id: 2,
-      mensaje: 'Cuota BCP vence mañana',
-      urgencia: 'alta',
-      tipo: 'deuda_vencimiento',
-      activa: true
-    }
-  ]);
-
+ const [alertas, setAlertas] = useState([]);
   // Cálculos derivados
   const totalPorCobrar = misClientes.reduce((acc, c) => acc + c.saldoPendiente, 0);
   const totalPorPagar = misDeudas.reduce((acc, d) => acc + d.saldoPendiente, 0);
