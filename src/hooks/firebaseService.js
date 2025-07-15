@@ -60,6 +60,7 @@ const firebaseService = {
       };
       
       // Guardar en Firebase
+      console.log('💾 DATOS QUE SE VAN A GUARDAR:', JSON.stringify(datosCompletos, null, 2));
       const docRef = doc(db, COLLECTION_NAME, DOCUMENT_ID);
       await setDoc(docRef, datosCompletos, { merge: true });
       console.log('✅ Guardado en Firebase exitoso');
