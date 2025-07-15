@@ -581,7 +581,7 @@ const calcularProximaFechaCobro = (fechaInicio, numerosPagosRealizados) => {
   return fecha;
 };
 
-// 🔥 FUNCIÓN PRINCIPAL PARA GENERAR ALERTAS DE COBRANZA
+// 🔥 FUNCIÓN PRINCIPAL PARA GENERAR ALERTAS DE COBRANZA MEJORADA
 const generarAlertasCobranza = useCallback(() => {
   const hoy = new Date();
   const nuevasAlertas = [];
@@ -594,18 +594,38 @@ const generarAlertasCobranza = useCallback(() => {
   misClientes.forEach(cliente => {
     if (cliente.estado === 'En Proceso') {
       const numerosPagosRealizados = cliente.historialPagos?.length || 0;
-      const proximaFechaCobro = calcularProximaFechaCobro(cliente.fechaInicio, numerosPagosRealizados);
+      
+      // 🗓️ CALCULAR PRÓXIMA FECHA DE COBRO MENSUAL
+      const fechaInicio = new Date(cliente.fechaInicio);
+      const proximaFechaCobro = new Date(fechaInicio);
+      proximaFechaCobro.setMonth(proximaFechaCobro.getMonth() + numerosPagosRealizados + 1);
+      
+      // 📅 CALCULAR DÍAS RESTANTES
       const diasRestantes = Math.ceil((proximaFechaCobro - hoy) / (1000 * 60 * 60 * 24));
+      
+      // 📊 ALERTA 15 DÍAS ANTES (PLANIFICACIÓN)
+      if (diasRestantes <= 15 && diasRestantes > 7) {
+        nuevasAlertas.push({
+          id: `cliente-15d-${cliente.id}`,
+          mensaje: `📊 Planificación: Cobro de ${cliente.nombre} programado para el ${proximaFechaCobro.toLocaleDateString()} (en ${diasRestantes} días) - S/ ${cliente.cuotaMensual.toLocaleString()}`,
+          urgencia: 'baja',
+          tipo: 'cobro_preventivo',
+          activa: true,
+          clienteId: cliente.id,
+          fechaCobro: proximaFechaCobro.toISOString().split('T')[0]
+        });
+      }
       
       // 📅 ALERTA 7 DÍAS ANTES
       if (diasRestantes <= 7 && diasRestantes > 3) {
         nuevasAlertas.push({
           id: `cliente-7d-${cliente.id}`,
-          mensaje: `📋 Recordatorio: Cobro de ${cliente.nombre} en ${diasRestantes} días - S/ ${cliente.cuotaMensual.toLocaleString()}`,
+          mensaje: `📋 Recordatorio: Cobro de ${cliente.nombre} en ${diasRestantes} días (${proximaFechaCobro.toLocaleDateString()}) - S/ ${cliente.cuotaMensual.toLocaleString()}`,
           urgencia: 'baja',
           tipo: 'cobro_preventivo',
           activa: true,
-          clienteId: cliente.id
+          clienteId: cliente.id,
+          fechaCobro: proximaFechaCobro.toISOString().split('T')[0]
         });
       }
       
@@ -613,11 +633,12 @@ const generarAlertasCobranza = useCallback(() => {
       if (diasRestantes <= 3 && diasRestantes > 0) {
         nuevasAlertas.push({
           id: `cliente-3d-${cliente.id}`,
-          mensaje: `⚠️ Cobro próximo: ${cliente.nombre} - ${diasRestantes} días - S/ ${cliente.cuotaMensual.toLocaleString()}`,
+          mensaje: `⚠️ Cobro próximo: ${cliente.nombre} - ${diasRestantes} días (${proximaFechaCobro.toLocaleDateString()}) - S/ ${cliente.cuotaMensual.toLocaleString()}`,
           urgencia: 'media',
           tipo: 'cobro_proximo',
           activa: true,
-          clienteId: cliente.id
+          clienteId: cliente.id,
+          fechaCobro: proximaFechaCobro.toISOString().split('T')[0]
         });
       }
       
@@ -625,25 +646,27 @@ const generarAlertasCobranza = useCallback(() => {
       if (diasRestantes === 0) {
         nuevasAlertas.push({
           id: `cliente-hoy-${cliente.id}`,
-          mensaje: `🔥 ¡COBRAR HOY! ${cliente.nombre} - S/ ${cliente.cuotaMensual.toLocaleString()}`,
+          mensaje: `🔥 ¡COBRAR HOY! ${cliente.nombre} - Cuota mensual vence hoy (${proximaFechaCobro.toLocaleDateString()}) - S/ ${cliente.cuotaMensual.toLocaleString()}`,
           urgencia: 'alta',
           tipo: 'cobro_hoy',
           activa: true,
-          clienteId: cliente.id
+          clienteId: cliente.id,
+          fechaCobro: proximaFechaCobro.toISOString().split('T')[0]
         });
       }
       
-      // 🚨 ALERTA MOROSO
+      // 🚨 ALERTA MOROSO (RETRASADO)
       if (diasRestantes < 0) {
         const diasRetraso = Math.abs(diasRestantes);
         nuevasAlertas.push({
           id: `cliente-moroso-${cliente.id}`,
-          mensaje: `🚨 ¡MOROSO! ${cliente.nombre} debe ${diasRetraso} días - S/ ${cliente.cuotaMensual.toLocaleString()}`,
+          mensaje: `🚨 ¡MOROSO! ${cliente.nombre} lleva ${diasRetraso} días de retraso desde ${proximaFechaCobro.toLocaleDateString()} - S/ ${cliente.cuotaMensual.toLocaleString()}`,
           urgencia: 'alta',
           tipo: 'cobro_retrasado',
           activa: true,
           clienteId: cliente.id,
-          diasRetraso: diasRetraso
+          diasRetraso: diasRetraso,
+          fechaCobro: proximaFechaCobro.toISOString().split('T')[0]
         });
       }
     }
