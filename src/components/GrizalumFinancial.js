@@ -1690,7 +1690,7 @@ const autoSave = async () => {
          />
           <div className="lg:hidden bg-white shadow-sm p-4 sticky top-0 z-30">
             <div className="flex items-center justify-between">
-              <button onClick={() => setSidebarOpen(true)} className="text-gray-600 hover:text-gray-800">
+              > setSidebarOpen(true)} className="text-gray-600 hover:text-gray-800">
                 <Menu size={24} />
               </button>
               <div className="text-center">
@@ -2400,11 +2400,16 @@ const autoSave = async () => {
                               title="Editar Inversión">
                               <Edit size={18} />
                             </button>
-                            <button onClick={() => alert('Funcionalidad disponible próximamente')}
-                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Eliminar Inversión">
-                              <Trash2 size={18} />
-                            </button>
+                            <button onClick={() => {
+                            if (window.confirm(`¿Está seguro de eliminar la inversión "${inversion.nombre}"?`)) {
+                            eliminarInversion(inversion.id);
+                            alert(`Inversión "${inversion.nombre}" eliminada exitosamente`);
+                            }
+                            }}
+                            className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
+                            title="Eliminar Inversión">
+                            <Trash2 size={18} />
+                           </button>
                           </div>
                         </div>
                       </div>
