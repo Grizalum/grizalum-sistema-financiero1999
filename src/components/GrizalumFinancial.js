@@ -2297,11 +2297,11 @@ const autoSave = async () => {
           proximaFechaCobro.setMonth(proximaFechaCobro.getMonth() + numerosPagosRealizados + 1);
           const diasRestantes = Math.ceil((proximaFechaCobro - hoy) / (1000 * 60 * 60 * 24));
           
-         // 📊 CALCULAR PROGRESO DE PAGOS SIMPLE
-        const mesesTranscurridos = Math.max(0, Math.floor((hoy - fechaInicio) / (1000 * 60 * 60 * 24 * 30)));
-        const pagosEsperados = Math.min(mesesTranscurridos + 1, cliente.plazoMeses);
-        const pagosRealizados = numerosPagosRealizados;
-        const pagosAtrasados = Math.max(0, pagosEsperados - pagosRealizados);
+         // 📊 CALCULAR PROGRESO DE PAGOS CORRECTO
+          const mesesDesdeInicio = Math.floor((hoy - fechaInicio) / (1000 * 60 * 60 * 24 * 30.44)); // 30.44 días promedio por mes
+          const pagosEsperados = Math.max(1, Math.min(mesesDesdeInicio, cliente.plazoMeses));
+          const pagosRealizados = numerosPagosRealizados;
+         const pagosAtrasados = Math.max(0, pagosEsperados - pagosRealizados);
           
           // 🎯 DETERMINAR ESTADO Y URGENCIA
           let estadoCobro, mensajeCobro, urgencia;
