@@ -520,53 +520,72 @@ const generarAlertasVencimiento = useCallback(() => {
   const hoy = new Date();
   const nuevasAlertas = [];
   
+  // LIMPIAR ALERTAS ANTIGUAS DE DEUDAS PRIMERO
+  setAlertas(prev => prev.filter(a => 
+    !['deuda_vencimiento', 'deuda_vencida'].includes(a.tipo)
+  ));
+  
   misDeudas.forEach(deuda => {
     if (deuda.estado === 'Activo') {
       const fechaVencimiento = new Date(deuda.proximoVencimiento);
       const diasRestantes = Math.ceil((fechaVencimiento - hoy) / (1000 * 60 * 60 * 24));
       
-      // Alerta 5 días antes del vencimiento
-      if (diasRestantes <= 5 && diasRestantes > 0) {
-        const alertaExistente = alertas.find(a => 
-          a.tipo === 'deuda_vencimiento' && 
-          a.mensaje.includes(deuda.acreedor)
-        );
-        
-        if (!alertaExistente) {
-          nuevasAlertas.push({
-            id: Date.now() + Math.random(),
-            mensaje: `Pago de ${deuda.acreedor} vence en ${diasRestantes} día${diasRestantes > 1 ? 's' : ''}`,
-            urgencia: diasRestantes <= 2 ? 'alta' : 'media',
-            tipo: 'deuda_vencimiento',
-            activa: true
-          });
-        }
+      // 📅 ALERTA 7 DÍAS ANTES
+      if (diasRestantes <= 7 && diasRestantes > 3) {
+        nuevasAlertas.push({
+          id: `deuda-7d-${deuda.id}`,
+          mensaje: `⚠️ Pago de ${deuda.acreedor} vence en ${diasRestantes} días - S/ ${deuda.cuotaMensual.toLocaleString()}`,
+          urgencia: 'media',
+          tipo: 'deuda_vencimiento',
+          activa: true,
+          deudaId: deuda.id
+        });
       }
       
-      // Alerta si ya venció
+      // 🔥 ALERTA 3 DÍAS ANTES
+      if (diasRestantes <= 3 && diasRestantes > 0) {
+        nuevasAlertas.push({
+          id: `deuda-3d-${deuda.id}`,
+          mensaje: `🚨 Pago de ${deuda.acreedor} vence en ${diasRestantes} días - S/ ${deuda.cuotaMensual.toLocaleString()}`,
+          urgencia: 'alta',
+          tipo: 'deuda_vencimiento',
+          activa: true,
+          deudaId: deuda.id
+        });
+      }
+      
+      // 🔴 ALERTA HOY
+      if (diasRestantes === 0) {
+        nuevasAlertas.push({
+          id: `deuda-hoy-${deuda.id}`,
+          mensaje: `🚨 ¡PAGAR HOY! ${deuda.acreedor} - S/ ${deuda.cuotaMensual.toLocaleString()}`,
+          urgencia: 'alta',
+          tipo: 'deuda_vencimiento',
+          activa: true,
+          deudaId: deuda.id
+        });
+      }
+      
+      // 🚨 ALERTA VENCIDA
       if (diasRestantes < 0) {
-        const alertaExistente = alertas.find(a => 
-          a.tipo === 'deuda_vencida' && 
-          a.mensaje.includes(deuda.acreedor)
-        );
-        
-        if (!alertaExistente) {
-          nuevasAlertas.push({
-            id: Date.now() + Math.random() + 1,
-            mensaje: `¡URGENTE! Pago de ${deuda.acreedor} venció hace ${Math.abs(diasRestantes)} día${Math.abs(diasRestantes) > 1 ? 's' : ''}`,
-            urgencia: 'alta',
-            tipo: 'deuda_vencida',
-            activa: true
-          });
-        }
+        nuevasAlertas.push({
+          id: `deuda-vencida-${deuda.id}`,
+          mensaje: `🚨 ¡URGENTE! ${deuda.acreedor} venció hace ${Math.abs(diasRestantes)} días - S/ ${deuda.cuotaMensual.toLocaleString()}`,
+          urgencia: 'alta',
+          tipo: 'deuda_vencida',
+          activa: true,
+          deudaId: deuda.id
+        });
       }
     }
   });
   
+  // AGREGAR NUEVAS ALERTAS
   if (nuevasAlertas.length > 0) {
     setAlertas(prev => [...prev, ...nuevasAlertas]);
+    console.log(`🔔 ${nuevasAlertas.length} alertas de deudas generadas`);
   }
-}, [misDeudas, alertas]);
+}, [misDeudas]);
 
 // ✅ AGREGA esto DESPUÉS de la función anterior
 // Ejecutar alertas cada vez que cambien las deudas Y clientes
