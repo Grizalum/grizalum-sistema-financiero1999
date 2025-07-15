@@ -2298,8 +2298,8 @@ const autoSave = async () => {
           const diasRestantes = Math.ceil((proximaFechaCobro - hoy) / (1000 * 60 * 60 * 24));
           
          // 📊 CALCULAR PROGRESO DE PAGOS CORRECTO
-          const mesesDesdeInicio = Math.floor((hoy - fechaInicio) / (1000 * 60 * 60 * 24 * 30.44)); // 30.44 días promedio por mes
-          const pagosEsperados = Math.max(1, Math.min(mesesDesdeInicio, cliente.plazoMeses));
+          // Usar el total de cuotas del contrato, no las esperadas hasta hoy
+          const pagosEsperados = cliente.plazoMeses; // Total de cuotas del contrato (18)
           const pagosRealizados = numerosPagosRealizados;
          const pagosAtrasados = Math.max(0, pagosEsperados - pagosRealizados);
           
