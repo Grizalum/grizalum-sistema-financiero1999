@@ -706,12 +706,14 @@ const limpiarAlertasClientePagado = useCallback((clienteId) => {
       ['cobro_preventivo', 'cobro_proximo', 'cobro_hoy', 'cobro_retrasado'].includes(alerta.tipo))
   ));
 }, []);
-  // ALERTAS DESHABILITADAS TEMPORALMENTE
-// useEffect(() => {
-//   generarAlertasVencimiento();
-//   generarAlertasCobranza();    
-// }, [misDeudas, misClientes]);
-
+ // ✅ SISTEMA DE ALERTAS COMPLETO ACTIVADO
+useEffect(() => {
+  if (misDeudas.length > 0 || misClientes.length > 0) {
+    console.log('🔔 Generando alertas automáticas...');
+    generarAlertasVencimiento();    // Alertas de deudas
+    generarAlertasCobranza();       // Alertas de clientes morosos
+  }
+}, [misDeudas, misClientes, generarAlertasVencimiento, generarAlertasCobranza]);
 
   return {
     // Estados
