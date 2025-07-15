@@ -1690,7 +1690,7 @@ const autoSave = async () => {
          />
           <div className="lg:hidden bg-white shadow-sm p-4 sticky top-0 z-30">
             <div className="flex items-center justify-between">
-              > setSidebarOpen(true)} className="text-gray-600 hover:text-gray-800">
+             <button onClick={() => setSidebarOpen(true)} className="text-gray-600 hover:text-gray-800">
                 <Menu size={24} />
               </button>
               <div className="text-center">
