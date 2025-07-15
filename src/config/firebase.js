@@ -3,12 +3,12 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBSVxLk4cQWJAJz5Zg9cYj2mXbO8dPfGhI",
-  authDomain: "grizalum-financiero.firebaseapp.com", 
-  projectId: "grizalum-financiero",
-  storageBucket: "grizalum-financiero.firebasestorage.app",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:abcdef1234567890123456"
+  apiKey: "AIzaSyDuy86ufbqPMtm45NJu7FVQ05NE-qD0",              // ✅ REAL
+  authDomain: "grizalum-9b670.firebaseapp.com",               // ✅ REAL
+  projectId: "grizalum-9b670",                                // ✅ REAL  
+  storageBucket: "grizalum-9b670.firebasestorage.app",        // ✅ REAL
+  messagingSenderId: "526692565959",                          // ✅ REAL
+  appId: "1:526692565959:web:16c2ff1278b12a1498cfe2"          // ✅ REAL
 };
 
 // Inicializar Firebase solo una vez
