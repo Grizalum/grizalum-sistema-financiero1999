@@ -2214,113 +2214,201 @@ const autoSave = async () => {
 )}
 
             {currentView === 'clientes' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-xl p-6">
-                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800">Cartera de Clientes</h2>
-                      <p className="text-gray-600">Gestión de préstamos y cobranzas</p>
+  <div className="space-y-6">
+    <div className="bg-white rounded-2xl shadow-xl p-6">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">Cartera de Clientes</h2>
+          <p className="text-gray-600">Gestión profesional de préstamos y cobranzas</p>
+        </div>
+        <button onClick={() => abrirModal('nuevo_cliente')}
+          className="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
+          <Plus className="mr-2" size={18} />
+          Nuevo Cliente
+        </button>
+      </div>
+      
+      <div className="grid gap-6">
+        {misClientes.map(cliente => {
+          // 🔥 CALCULAR ESTADO DEL CLIENTE AUTOMÁTICAMENTE
+          const hoy = new Date();
+          const fechaInicio = new Date(cliente.fechaInicio);
+          const numerosPagosRealizados = cliente.historialPagos?.length || 0;
+          
+          // 📅 CALCULAR PRÓXIMA FECHA DE COBRO
+          const proximaFechaCobro = new Date(fechaInicio);
+          proximaFechaCobro.setMonth(proximaFechaCobro.getMonth() + numerosPagosRealizados + 1);
+          const diasRestantes = Math.ceil((proximaFechaCobro - hoy) / (1000 * 60 * 60 * 24));
+          
+          // 📊 CALCULAR PROGRESO DE PAGOS
+          const mesesTranscurridos = Math.max(0, Math.floor((hoy - fechaInicio) / (1000 * 60 * 60 * 24 * 30)));
+          const pagosEsperados = Math.min(mesesTranscurridos + 1, cliente.plazoMeses);
+          const pagosRealizados = numerosPagosRealizados;
+          const pagosAtrasados = Math.max(0, pagosEsperados - pagosRealizados);
+          
+          // 🎯 DETERMINAR ESTADO Y URGENCIA
+          let estadoCobro, mensajeCobro, urgencia;
+          
+          if (diasRestantes < 0) {
+            estadoCobro = 'moroso';
+            mensajeCobro = `Moroso ${Math.abs(diasRestantes)} días`;
+            urgencia = 'alta';
+          } else if (diasRestantes === 0) {
+            estadoCobro = 'hoy';
+            mensajeCobro = 'Cobrar HOY';
+            urgencia = 'alta';
+          } else if (diasRestantes <= 3) {
+            estadoCobro = 'urgente';
+            mensajeCobro = `Vence en ${diasRestantes} días`;
+            urgencia = 'alta';
+          } else if (diasRestantes <= 7) {
+            estadoCobro = 'proximo';
+            mensajeCobro = `Vence en ${diasRestantes} días`;
+            urgencia = 'media';
+          } else {
+            estadoCobro = 'al-dia';
+            mensajeCobro = `Al día (${diasRestantes} días)`;
+            urgencia = 'baja';
+          }
+
+          return (
+            <div key={cliente.id} className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-6 hover:shadow-lg transition-all">
+              <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+                      <User className="text-white" size={20} />
                     </div>
-                    <button onClick={() => abrirModal('nuevo_cliente')}
-                      className="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition-all flex items-center font-semibold shadow-lg w-full lg:w-auto justify-center">
-                      <Plus className="mr-2" size={18} />
-                      Nuevo Cliente
-                    </button>
-                  </div>
-                  
-                  <div className="grid gap-6">
-                    {misClientes.map(cliente => (
-                      <div key={cliente.id} className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-6 hover:shadow-lg transition-all">
-                        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-4">
-                              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                                <User className="text-white" size={20} />
-                              </div>
-                              <div>
-                                <h3 className="font-bold text-xl text-gray-800">{cliente.nombre}</h3>
-                                <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 space-y-1 lg:space-y-0 text-sm text-gray-600">
-                                  <span className="flex items-center">
-                                    <Mail className="mr-1" size={14} />
-                                    {cliente.email}
-                                  </span>
-                                  <span className="flex items-center">
-                                    <Phone className="mr-1" size={14} />
-                                    {cliente.telefono}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Capital</p>
-                                <p className="font-bold text-lg text-blue-600">S/{cliente.capital.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Tasa: {cliente.tasaInteres}%</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Pendiente</p>
-                                <p className="font-bold text-lg text-red-600">S/{cliente.saldoPendiente.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Plazo: {cliente.plazoMeses} meses</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Cuota</p>
-                                <p className="font-bold text-lg text-green-600">S/{cliente.cuotaMensual.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">Mensual</p>
-                              </div>
-                              <div className="bg-white p-4 rounded-lg shadow-sm">
-                                <p className="text-sm text-gray-600 mb-1">Pagado</p>
-                                <p className="font-bold text-lg text-emerald-600">S/{cliente.pagosRecibidos.toLocaleString()}</p>
-                                <p className="text-xs text-gray-500">{cliente.historialPagos?.length || 0} pagos</p>
-                              </div>
-                            </div>
-                            
-                            <div className="flex flex-wrap items-center gap-4">
-                              <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                                cliente.estado === 'En Proceso' ? 'bg-yellow-100 text-yellow-800' : 
-                                cliente.estado === 'Completado' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                              }`}>
-                                {cliente.estado}
-                              </span>
-                              <span className="text-sm text-gray-600">
-                                Inicio: {new Date(cliente.fechaInicio).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
-                            <button 
-                              onClick={() => abrirModal('pago_cliente', cliente)}
-                              className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Registrar Pago">
-                              <DollarSign size={18} />
-                            </button>
-                            <button 
-                              onClick={() => abrirModal('historial', cliente)}
-                              className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Ver Historial">
-                              <Eye size={18} />
-                            </button>
-                            <button 
-                              onClick={() => abrirModal('editar_cliente', cliente)}
-                             className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
-                             title="Editar Cliente">
-                             <Edit size={18} />
-                             </button>
-                             <button
-                              onClick={() => eliminarItem('cliente', cliente.id)}
-                              className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
-                              title="Eliminar Cliente">
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-xl text-gray-800">{cliente.nombre}</h3>
+                        {/* NUEVO: Indicador de estado automático */}
+                        <div className={`px-3 py-1 rounded-full text-xs font-bold flex items-center ${
+                          estadoCobro === 'al-dia' ? 'bg-green-100 text-green-800' :
+                          estadoCobro === 'proximo' ? 'bg-yellow-100 text-yellow-800' :
+                          estadoCobro === 'hoy' ? 'bg-orange-100 text-orange-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {estadoCobro === 'al-dia' && '✅'}
+                          {estadoCobro === 'proximo' && '⚠️'}
+                          {estadoCobro === 'hoy' && '🔥'}
+                          {(estadoCobro === 'urgente' || estadoCobro === 'moroso') && '🚨'}
+                          <span className="ml-1">{mensajeCobro}</span>
                         </div>
                       </div>
-                    ))}
+                      <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-4 space-y-1 lg:space-y-0 text-sm text-gray-600">
+                        <span className="flex items-center">
+                          <Mail className="mr-1" size={14} />
+                          {cliente.email}
+                        </span>
+                        <span className="flex items-center">
+                          <Phone className="mr-1" size={14} />
+                          {cliente.telefono}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                      <p className="text-sm text-gray-600 mb-1">Capital</p>
+                      <p className="font-bold text-lg text-blue-600">S/{cliente.capital.toLocaleString()}</p>
+                      <p className="text-xs text-gray-500">Tasa: {cliente.tasaInteres}%</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                      <p className="text-sm text-gray-600 mb-1">Pendiente</p>
+                      <p className="font-bold text-lg text-red-600">S/{cliente.saldoPendiente.toLocaleString()}</p>
+                      <p className="text-xs text-gray-500">Plazo: {cliente.plazoMeses} meses</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                      <p className="text-sm text-gray-600 mb-1">Cuota</p>
+                      <p className="font-bold text-lg text-green-600">S/{cliente.cuotaMensual.toLocaleString()}</p>
+                      <p className="text-xs text-gray-500">Mensual</p>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                      <p className="text-sm text-gray-600 mb-1">Pagado</p>
+                      <p className="font-bold text-lg text-emerald-600">S/{cliente.pagosRecibidos.toLocaleString()}</p>
+                      <p className="text-xs text-gray-500">{cliente.historialPagos?.length || 0} pagos</p>
+                    </div>
+                  </div>
+
+                  {/* NUEVO: Progreso de pagos automático */}
+                  <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-gray-700">Progreso de Pagos</span>
+                      <span className="text-sm font-bold text-green-600">
+                        {pagosRealizados}/{pagosEsperados} cuotas
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div className={`h-3 rounded-full transition-all ${
+                        pagosRealizados >= pagosEsperados ? 'bg-green-500' : 'bg-red-500'
+                      }`} style={{width: `${Math.min((pagosRealizados / Math.max(pagosEsperados, 1)) * 100, 100)}%`}}></div>
+                    </div>
+                    {pagosAtrasados > 0 && (
+                      <p className="text-xs text-red-600 mt-1 font-semibold">
+                        ⚠️ {pagosAtrasados} cuota{pagosAtrasados > 1 ? 's' : ''} pendiente{pagosAtrasados > 1 ? 's' : ''}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-4">
+                    <span className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                      cliente.estado === 'En Proceso' ? 'bg-yellow-100 text-yellow-800' : 
+                      cliente.estado === 'Completado' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {cliente.estado}
+                    </span>
+                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                      <span>Inicio: {new Date(cliente.fechaInicio).toLocaleDateString()}</span>
+                      <span className={`font-semibold ${
+                        diasRestantes <= 0 ? 'text-red-600' :
+                        diasRestantes <= 7 ? 'text-orange-600' : 'text-green-600'
+                      }`}>
+                        Próximo: {proximaFechaCobro.toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
                 </div>
+                
+                <div className="flex lg:flex-col space-x-2 lg:space-x-0 lg:space-y-2">
+                  <button 
+                    onClick={() => abrirModal('pago_cliente', cliente)}
+                    className={`p-3 rounded-lg transition-all shadow-lg flex-1 lg:flex-none text-white ${
+                      urgencia === 'alta' ? 'bg-red-500 hover:bg-red-600 animate-pulse' :
+                      urgencia === 'media' ? 'bg-orange-500 hover:bg-orange-600' :
+                      'bg-green-500 hover:bg-green-600'
+                    }`}
+                    title="Registrar Pago">
+                    <DollarSign size={18} />
+                  </button>
+                  <button 
+                    onClick={() => abrirModal('historial', cliente)}
+                    className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
+                    title="Ver Historial">
+                    <Eye size={18} />
+                  </button>
+                  <button 
+                    onClick={() => abrirModal('editar_cliente', cliente)}
+                    className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
+                    title="Editar Cliente">
+                    <Edit size={18} />
+                  </button>
+                  <button
+                    onClick={() => eliminarItem('cliente', cliente.id)}
+                    className="bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 transition-all shadow-lg flex-1 lg:flex-none"
+                    title="Eliminar Cliente">
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
-            )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+)}
 
             {currentView === 'deudas' && (
   <div className="space-y-6">
