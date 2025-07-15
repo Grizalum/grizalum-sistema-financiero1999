@@ -168,11 +168,11 @@ useEffect(() => {
 //console.log('🛡️ Carga automática COMPLETAMENTE deshabilitada');
   // 🚀 GUARDADO AUTOMÁTICO - ❌ DESHABILITADO TEMPORALMENTE
 // useEffect(() => {
-if (!datosInicializados.current || cargandoDatos) return;
+//if (!datosInicializados.current || cargandoDatos) return;
 //   
-if (cargandoDatos || (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0)) {
-  return;
-}
+//if (cargandoDatos || (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0)) {
+ // return;
+//}
 //
 //   console.log('🚀 GUARDADO AUTOMÁTICO');
 //   
