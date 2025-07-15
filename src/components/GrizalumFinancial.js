@@ -15,6 +15,7 @@ export default function GrizalumFinancial() {
     agregarInversion,
     actualizarGanancias,
     editarInversion,
+    eliminarInversion,
     alertas,
     firebaseConectado,
     totalPorCobrar,
