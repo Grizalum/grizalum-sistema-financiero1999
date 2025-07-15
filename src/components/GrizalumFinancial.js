@@ -246,8 +246,8 @@ if (tipo === 'nueva_deuda') {
   });
 }
   
-  // Cargar datos para edición
- if (tipo === 'editar_cliente' && item) {
+  // Cargar datos COMPLETOS para edición de cliente
+if (tipo === 'editar_cliente' && item) {
   setDatosEdicion({
     nombre: item.nombre,
     email: item.email,
@@ -255,7 +255,8 @@ if (tipo === 'nueva_deuda') {
     capital: item.capital.toString(),
     tasaInteres: item.tasaInteres.toString(),
     plazoMeses: item.plazoMeses.toString(),
-    fechaInicio: item.fechaInicio
+    fechaInicio: item.fechaInicio,
+    estado: item.estado
   });
 }
 
