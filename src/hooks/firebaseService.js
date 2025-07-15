@@ -27,7 +27,7 @@ const firebaseService = {
         const datosFirebase = docSnap.data();
         console.log('✅ Datos encontrados en Firebase:', datosFirebase);
         console.log('🔍 CLIENTES ESPECÍFICOS:', datosFirebase.clientes);
-        
+        console.log('🔍 ESTRUCTURA COMPLETA:', JSON.stringify(datosFirebase, null, 2));
         return {
           success: true,
           datos: {
