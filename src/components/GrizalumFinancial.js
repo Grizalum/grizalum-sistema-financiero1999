@@ -3058,11 +3058,10 @@ DETALLES DEL SNAPSHOT
     </div>
   </div>
 )}
-
-           </div>        // ← Esta línea DEBE existir
-        </div>           // ← Esta línea DEBE existir  
-      </div>             // ← Esta línea DEBE existir
-    </div>              // ← Esta línea DEBE existir
-    </>                 // ← Esta línea DEBE existir
-   );                   // ← Esta línea DEBE existir
-}                       // ← Esta línea DEBE existir
+</div>
+        </div>
+      </div>
+    </div>
+    </>
+   );
+}
