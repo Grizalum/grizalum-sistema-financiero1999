@@ -1340,17 +1340,20 @@ const autoSave = async () => {
     </div>
   </div>
 )}
-         {/* Formulario de edición de cliente */}
+       {/* Formulario de edición de cliente COMPLETO */}
 {tipoModal === 'editar_cliente' && (
   <div className="space-y-4">
     <div className="bg-blue-50 p-4 rounded-lg">
-      <h4 className="font-semibold text-blue-800">Editar Información del Cliente</h4>
-      <p className="text-sm text-blue-600">Modifique los datos necesarios</p>
+      <h4 className="font-semibold text-blue-800">Editar Información Completa del Cliente</h4>
+      <p className="text-sm text-blue-600">Modifique todos los datos del préstamo</p>
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Nombre Completo */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Nombre Completo</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Nombre Completo <span className="text-red-500">*</span>
+        </label>
         <input
           type="text"
           value={datosEdicion.nombre || ''}
@@ -1360,8 +1363,11 @@ const autoSave = async () => {
         />
       </div>
 
+      {/* Email */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Email <span className="text-red-500">*</span>
+        </label>
         <input
           type="email"
           value={datosEdicion.email || ''}
@@ -1371,8 +1377,11 @@ const autoSave = async () => {
         />
       </div>
 
+      {/* Teléfono */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Teléfono <span className="text-red-500">*</span>
+        </label>
         <input
           type="tel"
           value={datosEdicion.telefono || ''}
@@ -1382,8 +1391,26 @@ const autoSave = async () => {
         />
       </div>
 
+      {/* Capital */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Tasa de Interés (%)</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Capital (S/) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          value={datosEdicion.capital || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, capital: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="10000"
+          step="100"
+        />
+      </div>
+
+      {/* Tasa de Interés */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Tasa de Interés (%) <span className="text-red-500">*</span>
+        </label>
         <input
           type="number"
           value={datosEdicion.tasaInteres || ''}
@@ -1391,13 +1418,114 @@ const autoSave = async () => {
           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="14"
           step="0.1"
+          min="0"
         />
+      </div>
+
+      {/* Plazo en Meses */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Plazo (meses) <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="number"
+          value={datosEdicion.plazoMeses || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, plazoMeses: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          placeholder="18"
+          min="1"
+          max="60"
+        />
+      </div>
+
+      {/* Fecha de Inicio */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio</label>
+        <input
+          type="date"
+          value={datosEdicion.fechaInicio || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, fechaInicio: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
+
+      {/* Estado del Cliente */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+        <select
+          value={datosEdicion.estado || ''}
+          onChange={(e) => setDatosEdicion(prev => ({...prev, estado: e.target.value}))}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="En Proceso">En Proceso</option>
+          <option value="Completado">Completado</option>
+          <option value="Suspendido">Suspendido</option>
+          <option value="Cancelado">Cancelado</option>
+        </select>
       </div>
     </div>
 
+    {/* Vista previa de cálculos */}
+    {datosEdicion.capital && datosEdicion.tasaInteres && datosEdicion.plazoMeses && (
+      <div className="bg-blue-50 p-4 rounded-lg">
+        <h5 className="font-semibold text-blue-800 mb-2">Vista Previa de Cálculos:</h5>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-gray-600">Nueva Cuota Mensual:</span>
+            <span className="font-bold text-blue-600 ml-1">
+              S/ {(() => {
+                const capital = parseFloat(datosEdicion.capital);
+                const tasa = parseFloat(datosEdicion.tasaInteres);
+                const meses = parseInt(datosEdicion.plazoMeses);
+                
+                // VALIDAR PRIMERO
+                if (isNaN(capital) || isNaN(tasa) || isNaN(meses) || 
+                    capital <= 0 || meses <= 0 || tasa < 0) {
+                  return "0";
+                }
+  
+                if (tasa > 0) {
+                  const tasaMensual = tasa / 100 / 12;
+                  const factor = Math.pow(1 + tasaMensual, meses);
+                  const denominador = factor - 1;
+    
+                  if (denominador > 0) {
+                    const cuota = capital * (tasaMensual * factor) / denominador;
+                    return cuota.toLocaleString();
+                  } else {
+                    return (capital / meses).toLocaleString();
+                  }
+                } else {
+                  return (capital / meses).toLocaleString();
+                }
+              })()}
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600">Total a Cobrar:</span>
+            <span className="font-bold text-green-600 ml-1">
+              S/ {(() => {
+                const capital = parseFloat(datosEdicion.capital);
+                const tasa = parseFloat(datosEdicion.tasaInteres);
+                const meses = parseInt(datosEdicion.plazoMeses);
+                
+                if (tasa > 0) {
+                  const tasaMensual = tasa / 100 / 12;
+                  const cuota = capital * (tasaMensual * Math.pow(1 + tasaMensual, meses)) / (Math.pow(1 + tasaMensual, meses) - 1);
+                  return (cuota * meses).toLocaleString();
+                } else {
+                  return capital.toLocaleString();
+                }
+              })()}
+            </span>
+          </div>
+        </div>
+      </div>
+    )}
+
     <div className="bg-yellow-50 p-3 rounded-lg">
       <p className="text-sm text-yellow-800">
-        <strong>Nota:</strong> Si modifica la tasa de interés, se recalculará automáticamente la cuota mensual y el saldo pendiente.
+        <strong>⚠️ Importante:</strong> Al modificar capital, tasa o plazo, se recalculará automáticamente la cuota mensual, total a cobrar y saldo pendiente.
       </p>
     </div>
 
@@ -1412,7 +1540,7 @@ const autoSave = async () => {
         onClick={() => guardarEdicion()}
         className="flex-1 bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-all font-semibold"
       >
-        Guardar Cambios
+        💾 Guardar Cambios Completos
       </button>
     </div>
   </div>
