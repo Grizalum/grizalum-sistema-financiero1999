@@ -577,9 +577,19 @@ const generarAlertasVencimiento = useCallback(() => {
 
   // 🔥 FUNCIÓN PARA CALCULAR PRÓXIMA FECHA DE COBRO
 const calcularProximaFechaCobro = (fechaInicio, numerosPagosRealizados) => {
-  const fecha = new Date(fechaInicio);
-  fecha.setMonth(fecha.getMonth() + numerosPagosRealizados + 1);
-  return fecha;
+  const fechaInicioParsed = new Date(fechaInicio);
+  const hoy = new Date();
+  
+  // Calcular próxima fecha basada en meses reales
+  const proximaFecha = new Date(fechaInicioParsed);
+  proximaFecha.setMonth(proximaFecha.getMonth() + numerosPagosRealizados + 1);
+  
+  // Si la fecha calculada ya pasó, mover al siguiente mes
+  if (proximaFecha < hoy && numerosPagosRealizados === 0) {
+    proximaFecha.setMonth(proximaFecha.getMonth() + 1);
+  }
+  
+  return proximaFecha;
 };
 
 // 🔥 FUNCIÓN PRINCIPAL PARA GENERAR ALERTAS DE COBRANZA MEJORADA
