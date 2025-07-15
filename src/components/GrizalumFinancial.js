@@ -117,6 +117,16 @@ const [cargandoHistorial, setCargandoHistorial] = useState(false);
 const [message, setMessage] = useState('');
 const [messageType, setMessageType] = useState('');
   const proximasFechas = obtenerProximasFechasCobro(); 
+  // FUNCIÓN PARA CREAR SNAPSHOT MANUAL
+const crearSnapshotManual = async () => {
+  try {
+    const { guardarSnapshot } = await import('../services/historialService');
+    return await guardarSnapshot(misClientes, misDeudas, misInversiones, 'manual');
+  } catch (error) {
+    console.error('Error creando snapshot:', error);
+    return { success: false, error: error.message };
+  }
+};
   // 🆕 FUNCIONES PARA HISTORIAL
 // FUNCIÓN PARA MOSTRAR MENSAJES
 const showMessage = (text, type = 'info') => {
