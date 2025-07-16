@@ -159,7 +159,20 @@ const datosRestaurados = {
     };
   }),
   
-  inversiones: snapshotData.datos.inversiones || []
+ inversiones: (snapshotData.datos.inversiones || []).map(inversion => {
+  // ✅ RECALCULAR ROI Y PROGRESO BASADO EN GANANCIA ACTUAL
+  const roi = ((inversion.gananciaActual / inversion.inversion) * 100);
+  const progreso = Math.min((inversion.gananciaActual / inversion.gananciaEsperada) * 100, 100);
+  const estado = progreso >= 100 ? 'Completado' : 'En Proceso';
+  
+  return {
+    ...inversion,
+    // 🔄 RECALCULAR AUTOMÁTICAMENTE
+    roi: Math.round(roi * 10) / 10,
+    progreso: Math.round(progreso),
+    estado
+  };
+})
 };
 
 return {
