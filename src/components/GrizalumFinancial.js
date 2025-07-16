@@ -175,7 +175,7 @@ useEffect(() => {
   
   // 🔧 MIGRACIÓN TEMPORAL - INICIALIZAR HISTORIAL DE GANANCIAS
 useEffect(() => {
-  if (datosInicializados.current && misInversiones.length > 0) {
+  if (misInversiones.length > 0) {
     const inversionesActualizadas = misInversiones.map(inv => {
       if (!inv.historialGanancias) {
         console.log('🔧 Migrando inversión:', inv.nombre);
