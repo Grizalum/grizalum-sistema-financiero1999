@@ -173,6 +173,28 @@ useEffect(() => {
   console.log('💰 Inversiones cargadas:', misInversiones.length);
 }, [misClientes, misDeudas, misInversiones]);
   
+  // 🔧 MIGRACIÓN TEMPORAL - INICIALIZAR HISTORIAL DE GANANCIAS
+useEffect(() => {
+  if (datosInicializados.current && misInversiones.length > 0) {
+    const inversionesActualizadas = misInversiones.map(inv => {
+      if (!inv.historialGanancias) {
+        console.log('🔧 Migrando inversión:', inv.nombre);
+        return {
+          ...inv,
+          historialGanancias: []
+        };
+      }
+      return inv;
+    });
+    
+    const hayInversionesSinHistorial = misInversiones.some(inv => !inv.historialGanancias);
+    if (hayInversionesSinHistorial) {
+      console.log('🔧 Aplicando migración de historial');
+      setMisInversiones(inversionesActualizadas);
+    }
+  }
+}, [datosInicializados.current, misInversiones.length]);
+  
 // 🚀 GUARDADO AUTOMÁTICO DESHABILITADO
 // useEffect(() => {
 //   if (misClientes.length === 0 && misDeudas.length === 0 && misInversiones.length === 0) {
