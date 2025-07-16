@@ -174,6 +174,7 @@ const datosRestaurados = {
   };
 })
 }
+})     
 
 return {
   success: true,
