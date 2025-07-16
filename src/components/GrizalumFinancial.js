@@ -112,6 +112,7 @@ const [formDeuda, setFormDeuda] = useState({
   tipo: '',
   inversion: '',
   gananciaEsperada: ''
+  gananciaActual: ''
 });
   const proximasFechas = obtenerProximasFechasCobro();  
   // FUNCIÓN PARA CREAR SNAPSHOT MANUAL
@@ -321,6 +322,7 @@ if (tipo === 'nueva_deuda') {
     tipo: item.tipo,
     inversion: item.inversion.toString(),
     gananciaEsperada: item.gananciaEsperada.toString()
+    gananciaActual: item.gananciaActual.toString()
   });
 }
   
@@ -1118,6 +1120,20 @@ const autoSave = async () => {
           step="100"
         />
       </div>
+            <div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Ganancia Actual (S/) <span className="text-red-500">*</span>
+  </label>
+  <input
+    type="number"
+    value={formEditarInversion.gananciaActual}
+    onChange={(e) => setFormEditarInversion(prev => ({...prev, gananciaActual: e.target.value}))}
+    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+    placeholder="3000"
+    step="100"
+    min="0"
+  />
+    </div>
     </div>
 
     <div>
@@ -1134,7 +1150,7 @@ const autoSave = async () => {
     </div>
 
     {/* Vista previa de nuevos cálculos */}
-    {formEditarInversion.inversion && formEditarInversion.gananciaEsperada && (
+    {formEditarInversion.inversion && formEditarInversion.gananciaEsperada && formEditarInversion.gananciaActual && (
       <div className="bg-green-50 p-4 rounded-lg">
         <h5 className="font-semibold text-green-800 mb-2">Vista Previa de Nuevos Cálculos:</h5>
         <div className="grid grid-cols-2 gap-4 text-sm">
@@ -1150,6 +1166,12 @@ const autoSave = async () => {
               S/ {(parseFloat(formEditarInversion.inversion || 0) + parseFloat(formEditarInversion.gananciaEsperada || 0)).toLocaleString()}
             </span>
           </div>
+              <div>
+          <span className="text-gray-600">Nuevo Progreso:</span>
+         <span className="font-bold text-purple-600 ml-1">
+         {Math.min((parseFloat(formEditarInversion.gananciaActual) / parseFloat(formEditarInversion.gananciaEsperada)) * 100, 100).toFixed(0)}%
+         </span>
+         </div>
         </div>
       </div>
     )}
