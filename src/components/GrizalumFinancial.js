@@ -193,7 +193,7 @@ useEffect(() => {
       setMisInversiones(inversionesActualizadas);
     }
   }
-}, [datosInicializados.current, misInversiones.length]);
+}, [misInversiones]);
   
 // 🚀 GUARDADO AUTOMÁTICO DESHABILITADO
 // useEffect(() => {
