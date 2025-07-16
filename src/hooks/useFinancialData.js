@@ -41,7 +41,7 @@ const agregarInversion = useCallback((nuevaInversion) => {
     if (inv.id === id) {
       const gananciaAnterior = inv.gananciaActual;
       const gananciaActual = inv.gananciaActual + parseFloat(nuevaGanancia); // ✅ SUMA ACUMULATIVA
-      const diferencia = gananciaActual - gananciaAnterior;
+      const diferencia = parseFloat(nuevaGanancia);
       const roi = ((gananciaActual / inv.inversion) * 100);
       const progreso = Math.min((gananciaActual / inv.gananciaEsperada) * 100, 100);
       const estado = progreso >= 100 ? 'Completado' : 'En Proceso';
@@ -52,7 +52,7 @@ const agregarInversion = useCallback((nuevaInversion) => {
         fecha: fecha || new Date().toISOString().split('T')[0],
         gananciaAnterior: gananciaAnterior,
         gananciaActual: gananciaActual,
-        diferencia: diferencia,
+        diferencia: parseFloat(nuevaGanancia), 
         notas: notas || 'Actualización de ganancias'
       };
 
