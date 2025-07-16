@@ -119,31 +119,55 @@ export const restaurarDesdeHistorial = async (snapshotId) => {
       return { success: false, message: 'Restauración cancelada por el usuario' };
     }
     
-    // RESTAURAR DATOS
-    const datosRestaurados = snapshotData.datos;
+    // 🔄 RESTAURAR Y RECALCULAR DATOS AUTOMÁTICAMENTE
+const datosRestaurados = {
+  clientes: (snapshotData.datos.clientes || []).map(cliente => {
+    // ✅ RECALCULAR PROGRESO DE PAGOS BASADO EN HISTORIAL
+    const numerosPagosRealizados = cliente.historialPagos?.length || 0;
+    const pagosEsperados = cliente.plazoMeses;
+    
+    // ✅ RECALCULAR PRÓXIMA FECHA DE COBRO
+    const fechaInicio = new Date(cliente.fechaInicio);
+    const proximaFechaCobro = new Date(fechaInicio);
+    proximaFechaCobro.setMonth(proximaFechaCobro.getMonth() + numerosPagosRealizados + 1);
     
     return {
-      success: true,
-      message: `✅ Datos restaurados desde ${snapshotData.fecha} ${snapshotData.hora}`,
-      datos: datosRestaurados,
-      resumen: snapshotData.resumen,
-      snapshotInfo: {
-        fecha: snapshotData.fecha,
-        hora: snapshotData.hora,
-        usuario: snapshotData.usuario,
-        tipo: snapshotData.tipoAccion
-      }
+      ...cliente,
+      // 🔄 RECALCULAR AUTOMÁTICAMENTE
+      pagosRealizados: numerosPagosRealizados,
+      pagosEsperados: pagosEsperados,
+      proximaFechaCobro: proximaFechaCobro.toISOString().split('T')[0]
     };
+  }),
+  
+  deudas: (snapshotData.datos.deudas || []).map(deuda => {
+    // ✅ RECALCULAR PROGRESO DE DEUDAS
+    const numerosPagosRealizados = deuda.historialPagos?.length || 0;
+    const cuotasEsperadas = deuda.plazoMeses;
     
-  } catch (error) {
-    console.error('❌ Error restaurando desde historial:', error);
-    return { 
-      success: false, 
-      message: `❌ Error al restaurar: ${error.message}` 
+    // ✅ RECALCULAR PRÓXIMO VENCIMIENTO BASADO EN HISTORIAL
+    const fechaInicio = new Date(deuda.fechaInicio);
+    const proximoVencimiento = new Date(fechaInicio);
+    proximoVencimiento.setMonth(proximoVencimiento.getMonth() + numerosPagosRealizados + 1);
+    
+    return {
+      ...deuda,
+      // 🔄 RECALCULAR AUTOMÁTICAMENTE
+      cuotasPagadas: numerosPagosRealizados,
+      cuotasEsperadas: cuotasEsperadas,
+      proximoVencimiento: proximoVencimiento.toISOString().split('T')[0]
     };
-  }
+  }),
+  
+  inversiones: snapshotData.datos.inversiones || []
 };
 
+return {
+  success: true,
+  message: `✅ Datos restaurados y recalculados desde ${snapshotData.fecha} ${snapshotData.hora}`,
+  datos: datosRestaurados,
+  // ...
+};
 // 🧹 FUNCIÓN PARA LIMPIAR HISTORIAL ANTIGUO
 const limpiarHistorialAntiguo = async () => {
   try {
