@@ -321,7 +321,7 @@ if (tipo === 'nueva_deuda') {
     descripcion: item.descripcion,
     tipo: item.tipo,
     inversion: item.inversion.toString(),
-    gananciaEsperada: item.gananciaEsperada.toString()
+    gananciaEsperada: item.gananciaEsperada.toString(),
     gananciaActual: item.gananciaActual.toString()
   });
 }
