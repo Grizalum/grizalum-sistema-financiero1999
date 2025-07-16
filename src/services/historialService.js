@@ -175,7 +175,7 @@ const datosRestaurados = {
     // 🔄 RECALCULAR AUTOMÁTICAMENTE
     roi: Math.round(roi * 10) / 10,
     progreso: Math.round(progreso),
-    estado
+      estado: progreso >= 100 ? 'Completado' : 'En Proceso'
   };
 })
 };     
