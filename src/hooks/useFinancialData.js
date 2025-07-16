@@ -40,7 +40,7 @@ const agregarInversion = useCallback((nuevaInversion) => {
   setMisInversiones(prev => prev.map(inv => {
     if (inv.id === id) {
       const gananciaAnterior = inv.gananciaActual;
-      const gananciaActual = parseFloat(nuevaGanancia);
+      const gananciaActual = inv.gananciaActual + parseFloat(nuevaGanancia); // ✅ SUMA ACUMULATIVA
       const diferencia = gananciaActual - gananciaAnterior;
       const roi = ((gananciaActual / inv.inversion) * 100);
       const progreso = Math.min((gananciaActual / inv.gananciaEsperada) * 100, 100);
