@@ -160,10 +160,15 @@ const datosRestaurados = {
   }),
   
  inversiones: (snapshotData.datos.inversiones || []).map(inversion => {
-  // ✅ RECALCULAR ROI Y PROGRESO BASADO EN GANANCIA ACTUAL
+  console.log('🔄 RECALCULANDO INVERSIÓN:', inversion.nombre);
+  console.log('📊 Ganancia actual del snapshot:', inversion.gananciaActual);
+  console.log('📈 Ganancia esperada:', inversion.gananciaEsperada);
+  
   const roi = ((inversion.gananciaActual / inversion.inversion) * 100);
   const progreso = Math.min((inversion.gananciaActual / inversion.gananciaEsperada) * 100, 100);
-  const estado = progreso >= 100 ? 'Completado' : 'En Proceso';
+  
+  console.log('✅ ROI recalculado:', roi);
+  console.log('✅ Progreso recalculado:', progreso);
   
   return {
     ...inversion,
