@@ -166,7 +166,22 @@ return {
   success: true,
   message: `✅ Datos restaurados y recalculados desde ${snapshotData.fecha} ${snapshotData.hora}`,
   datos: datosRestaurados,
-  // ...
+  resumen: snapshotData.resumen,
+  snapshotInfo: {
+    fecha: snapshotData.fecha,
+    hora: snapshotData.hora,
+    usuario: snapshotData.usuario,
+    tipo: snapshotData.tipoAccion
+  }
+};
+
+  } catch (error) {
+    console.error('❌ Error restaurando desde historial:', error);
+    return { 
+      success: false, 
+      message: `❌ Error al restaurar: ${error.message}` 
+    };
+  }
 };
 // 🧹 FUNCIÓN PARA LIMPIAR HISTORIAL ANTIGUO
 const limpiarHistorialAntiguo = async () => {
