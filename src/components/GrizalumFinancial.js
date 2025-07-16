@@ -941,6 +941,9 @@ const autoSave = async () => {
           min="0"
         />
       </div>
+       <p className="text-xs text-gray-500 mt-1">
+       💡 Solo ingrese el monto adicional recibido (se sumará automáticamente)
+      </p>     
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Fecha de Actualización</label>
