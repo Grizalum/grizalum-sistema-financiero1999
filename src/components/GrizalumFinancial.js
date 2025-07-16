@@ -111,7 +111,7 @@ const [formDeuda, setFormDeuda] = useState({
   descripcion: '',
   tipo: '',
   inversion: '',
-  gananciaEsperada: ''
+  gananciaEsperada: '',
   gananciaActual: ''
 });
   const proximasFechas = obtenerProximasFechasCobro();  
