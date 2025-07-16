@@ -183,7 +183,7 @@ useEffect(() => {
   
 //   const timer = setTimeout(async () => {
 //     try {
-//       const resultado = await guardarEnFirebase(misClientes, misDeudas, misInversiones);
+//       it guardarEnFirebase(misClientes, misDeudas, misInversiones);
 //       if (resultado.success) {
 //         console.log('✅ GUARDADO EXITOSO');
 //         setUltimoGuardado(new Date());
@@ -3095,11 +3095,13 @@ const autoSave = async () => {
                         try {
                           setMessage('Restaurando datos...', 'info');
                           const resultado = await restaurarDesdeHistorial(snapshot.id);
+                          console.log('📥 RESULTADO DE RESTAURACIÓN:', resultado);
                           
                           if (resultado.success) {
                             setMisClientes(resultado.datos.clientes);
                             setMisDeudas(resultado.datos.deudas);
                             setMisInversiones(resultado.datos.inversiones);
+                            console.log('🔄 APLICANDO DATOS RESTAURADOS:', resultado.datos.inversiones);
                             
                             showMessage(resultado.message, 'success');
                             setCurrentView('resumen');
