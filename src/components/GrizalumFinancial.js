@@ -3101,6 +3101,11 @@ const autoSave = async () => {
                             setMisClientes(resultado.datos.clientes);
                             setMisDeudas(resultado.datos.deudas);
                             setMisInversiones(resultado.datos.inversiones);
+                            console.log('🚀 INVERSIONES ANTES:', misInversiones);
+                            console.log('🚀 INVERSIONES NUEVAS:', resultado.datos.inversiones);
+                            setTimeout(() => {
+                            console.log('🚀 INVERSIONES DESPUÉS:', misInversiones);
+                            }, 1000);
                             console.log('🔄 APLICANDO DATOS RESTAURADOS:', resultado.datos.inversiones);
                             
                             showMessage(resultado.message, 'success');
