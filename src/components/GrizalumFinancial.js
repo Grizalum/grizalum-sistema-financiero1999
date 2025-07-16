@@ -929,14 +929,14 @@ const autoSave = async () => {
     <div className="grid grid-cols-1 gap-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Nueva Ganancia Actual (S/) <span className="text-red-500">*</span>
+         Ganancia Adicional (S/) <span className="text-red-500">*</span>
         </label>
         <input
           type="number"
           value={formActualizarGanancias.gananciaActual}
           onChange={(e) => setFormActualizarGanancias(prev => ({...prev, gananciaActual: e.target.value}))}
           className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          placeholder="2500"
+          placeholder="1000"
           step="100"
           min="0"
         />
