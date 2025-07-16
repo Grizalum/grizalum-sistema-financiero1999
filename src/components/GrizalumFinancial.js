@@ -20,6 +20,7 @@ export default function GrizalumFinancial() {
     actualizarGanancias,
     editarInversion,
     eliminarInversion,
+    eliminarRegistroGanancia,
     alertas,
     firebaseConectado,
     totalPorCobrar,
@@ -1238,7 +1239,81 @@ const autoSave = async () => {
     </div>
   </div>
 </div>
+{tipoModal === 'historial_inversion' && itemSeleccionado && (
+  <div className="space-y-4">
+    <div className="bg-purple-50 p-4 rounded-lg">
+      <h4 className="font-semibold text-purple-800">{itemSeleccionado.nombre}</h4>
+      <p className="text-sm text-purple-600">{itemSeleccionado.descripcion}</p>
+      <div className="grid grid-cols-3 gap-4 mt-2 text-sm">
+        <div>
+          <span className="text-gray-600">Inversión:</span>
+          <span className="font-semibold text-blue-600 ml-1">S/ {itemSeleccionado.inversion?.toLocaleString()}</span>
+        </div>
+        <div>
+          <span className="text-gray-600">Esperada:</span>
+          <span className="font-semibold text-green-600 ml-1">S/ {itemSeleccionado.gananciaEsperada?.toLocaleString()}</span>
+        </div>
+        <div>
+          <span className="text-gray-600">Actual:</span>
+          <span className="font-semibold text-purple-600 ml-1">S/ {itemSeleccionado.gananciaActual?.toLocaleString()}</span>
+        </div>
+      </div>
+    </div>
 
+    <div className="max-h-64 overflow-y-auto">
+      <h5 className="font-semibold mb-2">Historial de Ganancias:</h5>
+      {itemSeleccionado.historialGanancias?.length > 0 ? (
+        <div className="space-y-2">
+          {itemSeleccionado.historialGanancias.map((registro) => (
+            <div key={registro.id} className="bg-white border rounded-lg p-3">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-medium">S/ {registro.gananciaActual.toLocaleString()}</span>
+                    <span className="text-sm text-gray-600">{registro.fecha}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      registro.diferencia >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {registro.diferencia >= 0 ? '+' : ''}{registro.diferencia.toLocaleString()}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      (Anterior: S/ {registro.gananciaAnterior.toLocaleString()})
+                    </span>
+                  </div>
+                  {registro.notas && (
+                    <p className="text-xs text-gray-600 italic">{registro.notas}</p>
+                  )}
+                </div>
+                <button
+                  onClick={() => {
+                    if (window.confirm(`¿Está seguro de eliminar el registro de S/ ${registro.gananciaActual.toLocaleString()}?\n\nEsto recalculará automáticamente el ROI y progreso.`)) {
+                      eliminarRegistroGanancia(itemSeleccionado.id, registro.id);
+                    }
+                  }}
+                  className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-all"
+                  title="Eliminar registro - Recalcula automáticamente"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-500 text-center py-4">No hay registros de ganancias</p>
+      )}
+    </div>
+
+    <button
+      onClick={cerrarModal}
+      className="w-full bg-purple-500 text-white py-3 rounded-lg hover:bg-purple-600 transition-all font-semibold"
+    >
+      Cerrar
+    </button>
+  </div>
+)}
                   <div className="max-h-64 overflow-y-auto">
                     <h5 className="font-semibold mb-2">Historial de Pagos:</h5>
                     {itemSeleccionado.historialPagos?.length > 0 ? (
@@ -2690,6 +2765,11 @@ const autoSave = async () => {
                               className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all shadow-lg flex-1 lg:flex-none"
                               title="Actualizar Ganancias">
                               <TrendingUp size={18} />
+                            </button>
+                                <button onClick={() => abrirModal('historial_inversion', inversion)}
+                                className="bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 transition-all shadow-lg flex-1 lg:flex-none"
+                                title="Ver Historial de Ganancias">
+                                <Eye size={18} />
                             </button>
                             <button onClick={() => abrirModal('editar_inversion', inversion)}
                               className="bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all shadow-lg flex-1 lg:flex-none"
