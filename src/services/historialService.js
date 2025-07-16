@@ -173,8 +173,7 @@ const datosRestaurados = {
     estado
   };
 })
-})
-})     
+};     
 
 return {
   success: true,
