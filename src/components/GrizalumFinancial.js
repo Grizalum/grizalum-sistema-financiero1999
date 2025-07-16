@@ -613,6 +613,7 @@ const autoSave = async () => {
   {tipoModal === 'pago_cliente' && 'Registrar Pago de Cliente'}
   {tipoModal === 'pago_deuda' && 'Pagar Deuda'}
   {tipoModal === 'historial' && 'Historial de Pagos'}
+  {tipoModal === 'historial_inversion' && 'Historial de Ganancias'}
   {tipoModal === 'nuevo_cliente' && 'Nuevo Cliente'}
   {tipoModal === 'nueva_deuda' && 'Nueva Deuda'}
   {tipoModal === 'editar_cliente' && 'Editar Cliente'}
@@ -1006,7 +1007,12 @@ const autoSave = async () => {
           }
           
           try {
-            actualizarGanancias(itemSeleccionado.id, formActualizarGanancias.gananciaActual);
+            actualizarGanancias(
+            itemSeleccionado.id, 
+            formActualizarGanancias.gananciaActual,
+            formActualizarGanancias.fecha,
+            formActualizarGanancias.notas
+            );
             alert(`Ganancias actualizadas exitosamente para "${itemSeleccionado.nombre}"`);
             cerrarModal();
           } catch (error) {
