@@ -97,27 +97,30 @@ const eliminarRegistroGanancia = useCallback((inversionId, registroId) => {
   }));
 }, []);
   const editarInversion = useCallback((id, datosActualizados) => {
-    setMisInversiones(prev => prev.map(inv => {
-      if (inv.id === id) {
-        const inversionActualizada = parseFloat(datosActualizados.inversion);
-        const gananciaEsperada = parseFloat(datosActualizados.gananciaEsperada);
-        const roi = ((inv.gananciaActual / inversionActualizada) * 100);
-        const progreso = Math.min((inv.gananciaActual / gananciaEsperada) * 100, 100);
-        
-        return {
-          ...inv,
-          nombre: datosActualizados.nombre,
-          descripcion: datosActualizados.descripcion,
-          tipo: datosActualizados.tipo,
-          inversion: inversionActualizada,
-          gananciaEsperada,
-          roi: Math.round(roi * 10) / 10,
-          progreso: Math.round(progreso)
-        };
-      }
-      return inv;
-    }));
-  }, []);
+  setMisInversiones(prev => prev.map(inv => {
+    if (inv.id === id) {
+      const inversionActualizada = parseFloat(datosActualizados.inversion);
+      const gananciaEsperada = parseFloat(datosActualizados.gananciaEsperada);
+      const gananciaActual = parseFloat(datosActualizados.gananciaActual || inv.gananciaActual); // ← NUEVA LÍNEA
+      const roi = ((gananciaActual / inversionActualizada) * 100); // ← CAMBIO AQUÍ
+      const progreso = Math.min((gananciaActual / gananciaEsperada) * 100, 100); // ← CAMBIO AQUÍ
+      
+      return {
+        ...inv,
+        nombre: datosActualizados.nombre,
+        descripcion: datosActualizados.descripcion,
+        tipo: datosActualizados.tipo,
+        inversion: inversionActualizada,
+        gananciaEsperada,
+        gananciaActual, // ← NUEVA LÍNEA
+        roi: Math.round(roi * 10) / 10,
+        progreso: Math.round(progreso),
+        estado: progreso >= 100 ? 'Completado' : 'En Proceso' // ← NUEVA LÍNEA
+      };
+    }
+    return inv;
+  }));
+}, []);
 
   const eliminarInversion = useCallback((id) => {
     setMisInversiones(prev => prev.filter(inv => inv.id !== id));
