@@ -1945,7 +1945,7 @@ const autoSave = async () => {
         </div>
       )}
       
-     <div className="relative z-10 lg:flex lg:h-screen lg:overflow-hidden">
+     <div className="relative z-10">
         {sidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
         )}
