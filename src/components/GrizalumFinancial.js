@@ -2041,7 +2041,7 @@ const autoSave = async () => {
             </div>
           </div>
 
-          <div className="p-4 lg:p-6 max-w-full overflow-y-auto max-h-screen">
+          <div className="p-4 lg:p-6 max-w-full">
             <div className="mb-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl shadow-2xl p-6 lg:p-8">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div className="flex items-center space-x-4">
