@@ -627,7 +627,7 @@ const autoSave = async () => {
 
  return (
   <>
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative lg:flex">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 relative">
       {modalAbierto && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
@@ -1950,7 +1950,7 @@ const autoSave = async () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
         )}
         
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-white transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen`}>
+<div className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-white transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:static lg:transform-none`}>
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between p-6 border-b border-slate-700">
               <div className="flex items-center space-x-3">
@@ -2018,7 +2018,7 @@ const autoSave = async () => {
           </div>
         </div>
 
-        <div className="lg:ml-64 relative min-h-screen">
+       <div className="lg:ml-64 relative">
         
          <div 
          className="fixed inset-0 pointer-events-none" 
@@ -2041,7 +2041,7 @@ const autoSave = async () => {
             </div>
           </div>
 
-          <div className="p-4 lg:p-6 max-w-full">
+          <div className="p-4 lg:p-6 max-w-full overflow-y-auto max-h-screen">
             <div className="mb-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl shadow-2xl p-6 lg:p-8">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div className="flex items-center space-x-4">
